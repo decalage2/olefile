@@ -5,6 +5,7 @@
 # 2007-11-10 v0.02 PL: - updated website URL
 # 2007-12-04 v0.03 PL: - updated description, added debug_mode test
 # 2009-09-11 v0.04 PL: - updated URL, e-mail, licence, disabled e-mail
+# 2012-02-16 v0.05 PL: - added download URL on bitbucket
 
 import distutils.core
 
@@ -38,6 +39,6 @@ if hasattr(distutils.core, 'setup_keywords'):
             'Topic :: Software Development :: Libraries :: Python Modules'
           ]
     if 'download_url' in distutils.core.setup_keywords:
-        kw['download_url'] = "http://www.decalage.info/python/olefileio"
+        kw['download_url'] = "https://bitbucket.org/decalage/olefileio_pl/downloads"
 
 distutils.core.setup(**kw)
