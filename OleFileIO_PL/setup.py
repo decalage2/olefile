@@ -6,6 +6,7 @@
 # 2007-12-04 v0.03 PL: - updated description, added debug_mode test
 # 2009-09-11 v0.04 PL: - updated URL, e-mail, licence, disabled e-mail
 # 2012-02-16 v0.05 PL: - added download URL on bitbucket
+# 2012-09-11 v0.06 PL: - read long description from disk in rst format
 
 import distutils.core
 
@@ -19,6 +20,8 @@ kw = {
     'name': "OleFileIO_PL",
     'version': __version__,
     'description': "A Python module to parse and read Microsoft OLE2 files (Structured Storage or Compound Document, Microsoft Office) - Improved version of the OleFileIO module from PIL, the Python Image Library.",
+    # read long description from disk in restructuredtext format:
+    'long_description': open('README.txt').read(),
     'author': __author__,
     #'author_email': "decalage(a)laposte.net",
     'url': "http://www.decalage.info/python/olefileio",
