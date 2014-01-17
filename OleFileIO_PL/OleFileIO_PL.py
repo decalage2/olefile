@@ -222,8 +222,6 @@ __version__ = '0.26'
 
 import io
 import sys
-from PIL import _binary
-from PIL._util import isPath
 import struct, array, os.path, sys, datetime
 
 #[PL] Define explicitly the public API to avoid private objects in pydoc:
@@ -369,7 +367,12 @@ def isOleFile (filename):
         return False
 
 
-i8 = _binary.i8
+if bytes is str:
+    def i8(c):
+        return ord(c)
+else:
+    def i8(c):
+        return c if c.__class__ is int else c[0]
 
 
 #TODO: replace i16 and i32 with more readable struct.unpack equivalent
@@ -1082,7 +1085,7 @@ class OleFileIO:
             #TODO: if larger than 1024 bytes, this could be the actual data => StringIO
             self.fp = open(filename, "rb")
         # old code fails if filename is not a plain string:
-        #if isPath(filename):
+        #if isinstance(filename, (bytes, basestring)):
         #    self.fp = open(filename, "rb")
         #else:
         #    self.fp = filename
