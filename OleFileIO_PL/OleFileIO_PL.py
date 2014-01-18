@@ -223,6 +223,7 @@ __version__ = '0.26'
 import io
 import sys
 import struct, array, os.path, datetime
+from functools import total_ordering
 
 #[PL] Define explicitly the public API to avoid private objects in pydoc:
 __all__ = ['OleFileIO', 'isOleFile']
@@ -730,6 +731,7 @@ class _OleStream(io.BytesIO):
 
 #--- _OleDirectoryEntry -------------------------------------------------------
 
+@total_ordering
 class _OleDirectoryEntry:
 
     """
@@ -875,7 +877,7 @@ class _OleDirectoryEntry:
 
             # in the OLE file, entries are sorted on (length, name).
             # for convenience, we sort them on name instead:
-            # (see __cmp__ method in this class)
+            # (see rich comparison methods in this class)
             self.kids.sort()
 
 
@@ -923,11 +925,14 @@ class _OleDirectoryEntry:
         child.build_storage_tree()
 
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         "Compare entries by name"
-        return cmp(self.name, other.name)
-        #TODO: replace by the same function as MS implementation ?
-        # (order by name length first, then case-insensitive order)
+        return self.name == other.name
+    def __lt__(self, other):
+        "Compare entries by name"
+        return self.name < other.name
+    #TODO: replace by the same function as MS implementation ?
+    # (order by name length first, then case-insensitive order)
 
 
     def dump(self, tab = 0):
