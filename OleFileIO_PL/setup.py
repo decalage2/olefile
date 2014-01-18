@@ -14,7 +14,7 @@ from OleFileIO_PL import __version__, __author__, DEBUG_MODE
 
 # debug mode should be off for usual releases:
 if DEBUG_MODE:
-    raise ValueError, "WARNING: DEBUG_MODE should be False !"
+    raise ValueError("WARNING: DEBUG_MODE should be False !")
 
 kw = {
     'name': "OleFileIO_PL",
