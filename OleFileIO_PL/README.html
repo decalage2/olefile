@@ -1,0 +1,105 @@
+<h1 id="olefileio_pl">OleFileIO_PL</h1>
+<p><a href="http://www.decalage.info/python/olefileio">OleFileIO_PL</a> is a Python module to read <a href="http://en.wikipedia.org/wiki/Compound_File_Binary_Format">Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)</a>, such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, ...</p>
+<p>This is an improved version of the OleFileIO module from <a href="http://www.pythonware.com/products/pil/index.htm">PIL</a>, the excellent Python Imaging Library, created and maintained by Fredrik Lundh. The API is still compatible with PIL, but I have improved the internal implementation significantly, with new features, bugfixes and a more robust design.</p>
+<p>As far as I know, this module is now the most complete and robust Python implementation to read MS OLE2 files, portable on several operating systems. (please tell me if you know other similar Python modules)</p>
+<p>WARNING: THIS IS (STILL) WORK IN PROGRESS.</p>
+<h2 id="main-improvements-over-pil-version-of-olefileio">Main improvements over PIL version of OleFileIO:</h2>
+<ul>
+<li>Better compatibility with Python 2.4 up to 2.7</li>
+<li>Support for files larger than 6.8MB</li>
+<li>Robust: many checks to detect malformed files</li>
+<li>Improved API</li>
+<li>New features: metadata extraction, stream/storage timestamps</li>
+<li>Added setup.py and install.bat to ease installation</li>
+</ul>
+<h2 id="news">News</h2>
+<ul>
+<li>2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps</li>
+<li>2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed <a href="https://bitbucket.org/decalage/olefileio_pl/issue/12/error-when-converting-timestamps-in-ole">issue #12</a></li>
+<li>2013-05-07 v0.24: new features to extract metadata (get_metadata method and OleMetadata class), improved getproperties to convert timestamps to Python datetime</li>
+<li>2012-10-09: published <a href="http://www.decalage.info/python/oletools">python-oletools</a>, a package of analysis tools based on OleFileIO_PL</li>
+<li>2012-09-11 v0.23: added support for file-like objects, fixed <a href="https://bitbucket.org/decalage/olefileio_pl/issue/8/bug-with-file-object">issue #8</a></li>
+<li>2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2 (added close method)</li>
+<li>2011-10-20: code hosted on bitbucket to ease contributions and bug tracking</li>
+<li>2010-01-24 v0.21: fixed support for big-endian CPUs, such as PowerPC Macs.</li>
+<li>2009-12-11 v0.20: small bugfix in OleFileIO.open when filename is not plain str.</li>
+<li>2009-12-10 v0.19: fixed support for 64 bits platforms (thanks to Ben G. and Martijn for reporting the bug)</li>
+<li>see changelog in source code for more info.</li>
+</ul>
+<h2 id="download">Download:</h2>
+<p>The archive is available on <a href="https://bitbucket.org/decalage/olefileio_pl/downloads">the project page</a>.</p>
+<h2 id="how-to-use-this-module">How to use this module:</h2>
+<p>See sample code at the end of the module, and also docstrings.</p>
+<p>Here are a few examples:</p>
+<pre><code>:::python
+    import OleFileIO_PL
+
+    # Test if a file is an OLE container:
+    assert OleFileIO_PL.isOleFile(&#39;myfile.doc&#39;)
+
+    # Open an OLE file from disk:
+    ole = OleFileIO_PL.OleFileIO(&#39;myfile.doc&#39;)
+
+    # Get list of streams:
+    print ole.listdir()
+
+    # Test if known streams/storages exist:
+    if ole.exists(&#39;worddocument&#39;):
+        print &quot;This is a Word document.&quot;
+        print &quot;size :&quot;, ole.get_size(&#39;worddocument&#39;)
+        if ole.exists(&#39;macros/vba&#39;):
+             print &quot;This document seems to contain VBA macros.&quot;
+
+    # Extract the &quot;Pictures&quot; stream from a PPT file:
+    if ole.exists(&#39;Pictures&#39;):
+        pics = ole.openstream(&#39;Pictures&#39;)
+        data = pics.read()
+        f = open(&#39;Pictures.bin&#39;, &#39;w&#39;)
+        f.write(data)
+        f.close()
+
+    # Extract metadata (new in v0.24) - see source code for all attributes:
+    meta = ole.get_metadata()
+    print &#39;Author:&#39;, meta.author
+    print &#39;Title:&#39;, meta.title
+    print &#39;Creation date:&#39;, meta.create_time
+    # print all metadata:
+    meta.dump()
+
+    # Close the OLE file:
+    ole.close()
+
+    # Work with a file-like object (e.g. StringIO) instead of a file on disk:
+    data = open(&#39;myfile.doc&#39;, &#39;rb&#39;).read()
+    f = StringIO.StringIO(data)
+    ole = OleFileIO_PL.OleFileIO(f)
+    print ole.listdir()
+    ole.close()</code></pre>
+<p>It can also be used as a script from the command-line to display the structure of an OLE file, for example:</p>
+<pre><code>OleFileIO_PL.py myfile.doc</code></pre>
+<p>A real-life example: <a href="http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/">using OleFileIO_PL for malware analysis and forensics</a>.</p>
+<h2 id="how-to-contribute">How to contribute:</h2>
+<p>The code is available in <a href="https://bitbucket.org/decalage/olefileio_pl">a Mercurial repository on bitbucket</a>. You may use it to submit enhancements or to report any issue.</p>
+<p>If you would like to help us improve this module, or simply provide feedback, you may also send an e-mail to decalage(at)laposte.net. You can help in many ways:</p>
+<ul>
+<li>test this module on different platforms / Python versions</li>
+<li>find and report bugs</li>
+<li>improve documentation, code samples, docstrings</li>
+<li>write unittest test cases</li>
+<li>provide tricky malformed files</li>
+</ul>
+<h2 id="how-to-report-bugs">How to report bugs:</h2>
+<p>To report a bug, for example a normal file which is not parsed correctly, please use the <a href="https://bitbucket.org/decalage/olefileio_pl/issues?status=new&amp;status=open">issue reporting page</a>, or send an e-mail with an attachment containing the debugging output of OleFileIO_PL.</p>
+<p>For this, launch the following command :</p>
+<pre><code>OleFileIO_PL.py -d -c file &gt;debug.txt </code></pre>
+<h2 id="license">License</h2>
+<p>OleFileIO_PL is open-source.</p>
+<p>OleFileIO_PL changes are Copyright (c) 2005-2013 by Philippe Lagadec.</p>
+<p>The Python Imaging Library (PIL) is</p>
+<ul>
+<li><p>Copyright (c) 1997-2005 by Secret Labs AB</p></li>
+<li><p>Copyright (c) 1995-2005 by Fredrik Lundh</p></li>
+</ul>
+<p>By obtaining, using, and/or copying this software and/or its associated documentation, you agree that you have read, understood, and will comply with the following terms and conditions:</p>
+<p>Permission to use, copy, modify, and distribute this software and its associated documentation for any purpose and without fee is hereby granted, provided that the above copyright notice appears in all copies, and that both that copyright notice and this permission notice appear in supporting documentation, and that the name of Secret Labs AB or the author not be used in advertising or publicity pertaining to distribution of the software without specific, written prior permission.</p>
+<p>SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</p>
