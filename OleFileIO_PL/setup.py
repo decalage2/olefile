@@ -7,6 +7,7 @@
 # 2009-09-11 v0.04 PL: - updated URL, e-mail, licence, disabled e-mail
 # 2012-02-16 v0.05 PL: - added download URL on bitbucket
 # 2012-09-11 v0.06 PL: - read long description from disk in rst format
+# 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x
 
 import distutils.core
 
@@ -39,6 +40,9 @@ if hasattr(distutils.core, 'setup_keywords'):
             'Intended Audience :: Developers',
             'Operating System :: OS Independent',
             'Programming Language :: Python',
+            'Programming Language :: Python :: 2.6',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
             'Topic :: Software Development :: Libraries :: Python Modules'
           ]
     if 'download_url' in distutils.core.setup_keywords:
