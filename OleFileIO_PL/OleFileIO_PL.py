@@ -145,6 +145,8 @@ __version__ = '0.30'
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
+# + isOleFile should accept file-like objects like open
+# + fix how all the methods handle unicode str and/or bytes as arguments
 # + add path attrib to _OleDirEntry, set it once and for all in init or
 #   append_kids (then listdir/_list can be simplified)
 # - TESTS with Linux, MacOSX, Python 1.5.2, various files, PIL, ...
