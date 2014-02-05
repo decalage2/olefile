@@ -164,8 +164,9 @@ Both are case-insensitive.
 
 Switching between the two is easy:
 
-	slash_path = '/'.join(list_path)
-	list_path  = slash_path.split('/')
+	:::python
+		slash_path = '/'.join(list_path)
+		list_path  = slash_path.split('/')
 
 
 ### Get the list of streams ###
@@ -217,16 +218,19 @@ Several methods can provide the size, type and timestamps of a given stream/stor
 
 get_size(path) returns the size of a stream in bytes:
 
-	s = ole.get_size('WordDocument')
+	:::python
+		s = ole.get_size('WordDocument')
 
 get_type(path) returns the type of a stream/storage, as one of the following constants: STGTY\_STREAM for a stream, STGTY\_STORAGE for a storage, STGTY\_ROOT for the root entry, and False for a non existing path.
 
-	t = ole.get_type('WordDocument')
+	:::python
+		t = ole.get_type('WordDocument')
 
 get\_ctime(path) and get\_mtime(path) return the creation and modification timestamps of a stream/storage, as a Python datetime object with UTC timezone. Please note that these timestamps are only present if the application that created the OLE file explicitly stored them, which is rarely the case. When not present, these methods return None.
 
-	c = ole.get_ctime('WordDocument')
-	m = ole.get_mtime('WordDocument')
+	:::python
+		c = ole.get_ctime('WordDocument')
+		m = ole.get_mtime('WordDocument')
 	
 
 
@@ -234,6 +238,7 @@ get\_ctime(path) and get\_mtime(path) return the creation and modification times
 
 get_metadata() will check if standard property streams exist, parse all the properties they contain, and return an OleMetadata object with the found properties as attributes (new in v0.24).
 
+	:::python
 		meta = ole.get_metadata()
 		print('Author:', meta.author)
 		print('Title:', meta.title)
@@ -259,17 +264,20 @@ See the source code of the OleMetadata class for more information.
 
 get\_properties(path) can be used to parse any property stream that is not handled by get\_metadata. It returns a dictionary indexed by integers. Each integer is the index of the property, pointing to its value. For example in the standard property stream '\x05SummaryInformation', the document title is property #2, and the subject is #3.  
 
-	p = ole.getproperties('specialprops')
+	:::python
+		p = ole.getproperties('specialprops')
 
 By default as in the original PIL version, timestamp properties are converted into a number of seconds since Jan 1,1601. With the option convert\_time, you can obtain more convenient Python datetime objects (UTC timezone). If some time properties should not be converted (such as total editing time in '\x05SummaryInformation'), the list of indexes can be passed as no_conversion (new in v0.25):
 
-	p = ole.getproperties('specialprops', convert_time=True, no_conversion=[10])
+	:::python
+		p = ole.getproperties('specialprops', convert_time=True, no_conversion=[10])
 
 
 ### Close the OLE file ###
 
 Unless your application is a simple script that terminates after processing an OLE file, do not forget to close each OleFileIO object after parsing to close the file on disk. (new in v0.22)
 
+	:::python
 		ole.close()
 		
 ### Use OleFileIO_PL as a script ###
