@@ -7,7 +7,7 @@
 # 2009-09-11 v0.04 PL: - updated URL, e-mail, licence, disabled e-mail
 # 2012-02-16 v0.05 PL: - added download URL on bitbucket
 # 2012-09-11 v0.06 PL: - read long description from disk in rst format
-# 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x
+# 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x, added PL2 version
 
 import distutils.core
 
@@ -27,7 +27,7 @@ kw = {
     #'author_email': "decalage(a)laposte.net",
     'url': "http://www.decalage.info/python/olefileio",
     'license': "updated PIL license (see source code or LICENCE.txt)",
-    'py_modules': ['OleFileIO_PL'],
+    'py_modules': ['OleFileIO_PL', 'OleFileIO_PL2'],
     }
 
 
