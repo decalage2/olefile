@@ -2,11 +2,11 @@ OleFileIO\_PL
 =============
 
 `OleFileIO\_PL <http://www.decalage.info/python/olefileio>`_ is a Python
-module to read `Microsoft OLE2 files (also called Structured Storage,
-Compound File Binary Format or Compound Document File
+module to parse and read `Microsoft OLE2 files (also called Structured
+Storage, Compound File Binary Format or Compound Document File
 Format) <http://en.wikipedia.org/wiki/Compound_File_Binary_Format>`_,
 such as Microsoft Office documents, Image Composer and FlashPix files,
-Outlook messages, ...
+Outlook messages, StickyNotes, ...
 
 This is an improved version of the OleFileIO module from
 `PIL <http://www.pythonware.com/products/pil/index.htm>`_, the excellent
@@ -19,21 +19,48 @@ As far as I know, this module is now the most complete and robust Python
 implementation to read MS OLE2 files, portable on several operating
 systems. (please tell me if you know other similar Python modules)
 
-WARNING: THIS IS (STILL) WORK IN PROGRESS.
+OleFileIO\_PL can be used as an independent module or with PIL. The goal
+is to have it integrated into
+`Pillow <http://python-imaging.github.io/>`_, the friendly fork of PIL.
 
-Main improvements over PIL version of OleFileIO:
-------------------------------------------------
+OleFileIO\_PL is mostly meant for developers. If you are looking for
+tools to analyze OLE files or to extract data, then please also check
+`python-oletools <http://www.decalage.info/python/oletools>`_, which are
+built upon OleFileIO\_PL.
 
--  Better compatibility with Python 2.4 up to 2.7
+Features
+========
+
+-  Parse and read any OLE file such as Microsoft Office 97-2003 legacy
+   document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd,
+   Project .mpp), Image Composer and FlashPix files, Outlook messages,
+   StickyNotes, Zeiss AxioVision ZVI files, ...
+-  List all the streams and storages contained in an OLE file
+-  Open streams as files
+-  Parse and read property streams, containing metadata of the file
+
+Main improvements over the original version of OleFileIO in PIL:
+----------------------------------------------------------------
+
+-  Compatible with Python 3.x and 2.6+
+-  Many bug fixes
 -  Support for files larger than 6.8MB
+-  Support for 64 bits platforms and big-endian CPUs
 -  Robust: many checks to detect malformed files
+-  Runtime option to choose if malformed files should be parsed or raise
+   exceptions
 -  Improved API
--  New features: metadata extraction, stream/storage timestamps
+-  Metadata extraction, stream/storage timestamps (e.g. for document
+   forensics)
+-  Can open file-like objects
 -  Added setup.py and install.bat to ease installation
+-  More convenient slash-based syntax for stream paths
 
 News
-----
+====
 
+-  2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin
+   Panter who did most of the hard work.
 -  2013-07-24 v0.26: added methods to parse stream/storage timestamps,
    improved listdir to include storages, fixed parsing of direntry
    timestamps
@@ -60,85 +87,362 @@ News
    G. and Martijn for reporting the bug)
 -  see changelog in source code for more info.
 
-Download:
----------
+Download
+========
 
 The archive is available on `the project
 page <https://bitbucket.org/decalage/olefileio_pl/downloads>`_.
 
-How to use this module:
------------------------
+How to use this module
+======================
 
-See sample code at the end of the module, and also docstrings.
+OleFileIO\_PL can be used as an independent module or with PIL. The main
+functions and methods are explained below.
 
-Here are a few examples:
+For more information, see also the file **OleFileIO\_PL.html**, sample
+code at the end of the module itself, and docstrings within the code.
+
+About the structure of OLE files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An OLE file can be seen as a mini file system or a Zip archive: It
+contains **streams** of data that look like files embedded within the
+OLE file. Each stream has a name. For example, the main stream of a MS
+Word document containing its text is named "WordDocument".
+
+An OLE file can also contain **storages**. A storage is a folder that
+contains streams or other storages. For example, a MS Word document with
+VBA macros has a storage called "Macros".
+
+Special streams can contain **properties**. A property is a specific
+value that can be used to store information such as the metadata of a
+document (title, author, creation date, etc). Property stream names
+usually start with the character '05'.
+
+For example, a typical MS Word document may look like this:
+
+::
+
+    '\x05DocumentSummaryInformation' (stream)
+    '\x05SummaryInformation' (stream)
+    'WordDocument' (stream)
+    'Macros' (storage)
+        'PROJECT' (stream)
+        'PROJECTwm' (stream)
+        'VBA' (storage)
+            'Module1' (stream)
+            'ThisDocument' (stream)
+            '_VBA_PROJECT' (stream)
+            'dir' (stream)
+    'ObjectPool' (storage)
+
+Import OleFileIO\_PL
+~~~~~~~~~~~~~~~~~~~~
 
 ::
 
         import OleFileIO_PL
 
-        # Test if a file is an OLE container:
+As of version 0.30, the code has been changed to be compatible with
+Python 3.x. As a consequence, compatibility with Python 2.5 or older is
+not provided anymore. However, a copy of v0.26 is available as
+OleFileIO\_PL2.py. If your application needs to be compatible with
+Python 2.5 or older, you may use the following code to load the old
+version when needed:
+
+::
+
+        try:
+            import OleFileIO_PL
+        except:
+            import OleFileIO_PL2 as OleFileIO_PL
+
+If you think OleFileIO\_PL should stay compatible with Python 2.5 or
+older, please `contact me <http://decalage.info/contact>`_.
+
+Test if a file is an OLE container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use isOleFile to check if the first bytes of the file contain the Magic
+for OLE files, before opening it. isOleFile returns True if it is an OLE
+file, False otherwise.
+
+::
+
         assert OleFileIO_PL.isOleFile('myfile.doc')
 
-        # Open an OLE file from disk:
+Open an OLE file from disk
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create an OleFileIO object with the file path as parameter:
+
+::
+
         ole = OleFileIO_PL.OleFileIO('myfile.doc')
 
-        # Get list of streams:
-        print ole.listdir()
+Open an OLE file from a file-like object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        # Test if known streams/storages exist:
+This is useful if the file is not on disk, e.g. already stored in a
+string or as a file-like object.
+
+::
+
+        ole = OleFileIO_PL.OleFileIO(f)
+
+For example the code below reads a file into a string, then uses BytesIO
+to turn it into a file-like object.
+
+::
+
+        data = open('myfile.doc', 'rb').read()
+        f = io.BytesIO(data) # or StringIO.StringIO for Python 2.x
+        ole = OleFileIO_PL.OleFileIO(f)
+
+How to handle malformed OLE files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default, the parser is configured to be as robust and permissive as
+possible, allowing to parse most malformed OLE files. Only fatal errors
+will raise an exception. It is possible to tell the parser to be more
+strict in order to raise exceptions for files that do not fully conform
+to the OLE specifications, using the raise\_defect option (new in
+v0.14):
+
+::
+
+        ole = OleFileIO_PL.OleFileIO('myfile.doc', raise_defects=DEFECT_INCORRECT)
+
+When the parsing is done, the list of non-fatal issues detected is
+available as a list in the parsing\_issues attribute of the OleFileIO
+object (new in 0.25):
+
+::
+
+        print('Non-fatal issues raised during parsing:')
+        if ole.parsing_issues:
+            for exctype, msg in ole.parsing_issues:
+                print('- %s: %s' % (exctype.__name__, msg))
+        else:
+            print('None')
+
+Syntax for stream and storage path
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Two different syntaxes are allowed for methods that need or return the
+path of streams and storages:
+
+1) Either a **list of strings** including all the storages from the root
+   up to the stream/storage name. For example a stream called
+   "WordDocument" at the root will have ['WordDocument'] as full path. A
+   stream called "ThisDocument" located in the storage "Macros/VBA" will
+   be ['Macros', 'VBA', 'ThisDocument']. This is the original syntax
+   from PIL. While hard to read and not very convenient, this syntax
+   works in all cases.
+
+2) Or a **single string with slashes** to separate storage and stream
+   names (similar to the Unix path syntax). The previous examples would
+   be 'WordDocument' and 'Macros/VBA/ThisDocument'. This syntax is
+   easier, but may fail if a stream or storage name contains a slash.
+   (new in v0.15)
+
+Both are case-insensitive.
+
+Switching between the two is easy:
+
+::
+
+    slash_path = '/'.join(list_path)
+    list_path  = slash_path.split('/')
+
+Get the list of streams
+~~~~~~~~~~~~~~~~~~~~~~~
+
+listdir() returns a list of all the streams contained in the OLE file,
+including those stored in storages. Each stream is listed itself as a
+list, as described above.
+
+::
+
+        print(ole.listdir())
+
+Sample result:
+
+::
+
+        [['\x01CompObj'], ['\x05DocumentSummaryInformation'], ['\x05SummaryInformation']
+        , ['1Table'], ['Macros', 'PROJECT'], ['Macros', 'PROJECTwm'], ['Macros', 'VBA',
+        'Module1'], ['Macros', 'VBA', 'ThisDocument'], ['Macros', 'VBA', '_VBA_PROJECT']
+        , ['Macros', 'VBA', 'dir'], ['ObjectPool'], ['WordDocument']]
+
+As an option it is possible to choose if storages should also be listed,
+with or without streams (new in v0.26):
+
+::
+
+        ole.listdir (streams=False, storages=True)
+
+Test if known streams/storages exist:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+exists(path) checks if a given stream or storage exists in the OLE file.
+
+::
+
         if ole.exists('worddocument'):
-            print "This is a Word document."
-            print "size :", ole.get_size('worddocument')
+            print("This is a Word document.")
             if ole.exists('macros/vba'):
-                 print "This document seems to contain VBA macros."
+                 print("This document seems to contain VBA macros.")
 
-        # Extract the "Pictures" stream from a PPT file:
-        if ole.exists('Pictures'):
-            pics = ole.openstream('Pictures')
-            data = pics.read()
-            f = open('Pictures.bin', 'w')
-            f.write(data)
-            f.close()
+Read data from a stream
+~~~~~~~~~~~~~~~~~~~~~~~
 
-        # Extract metadata (new in v0.24) - see source code for all attributes:
+openstream(path) opens a stream as a file-like object.
+
+The following example extracts the "Pictures" stream from a PPT file:
+
+::
+
+        pics = ole.openstream('Pictures')
+        data = pics.read()
+
+Get information about a stream/storage
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Several methods can provide the size, type and timestamps of a given
+stream/storage:
+
+get\_size(path) returns the size of a stream in bytes:
+
+::
+
+    s = ole.get_size('WordDocument')
+
+get\_type(path) returns the type of a stream/storage, as one of the
+following constants: STGTY\_STREAM for a stream, STGTY\_STORAGE for a
+storage, STGTY\_ROOT for the root entry, and False for a non existing
+path.
+
+::
+
+    t = ole.get_type('WordDocument')
+
+get\_ctime(path) and get\_mtime(path) return the creation and
+modification timestamps of a stream/storage, as a Python datetime object
+with UTC timezone. Please note that these timestamps are only present if
+the application that created the OLE file explicitly stored them, which
+is rarely the case. When not present, these methods return None.
+
+::
+
+    c = ole.get_ctime('WordDocument')
+    m = ole.get_mtime('WordDocument')
+
+Extract metadata
+~~~~~~~~~~~~~~~~
+
+get\_metadata() will check if standard property streams exist, parse all
+the properties they contain, and return an OleMetadata object with the
+found properties as attributes (new in v0.24).
+
+::
+
         meta = ole.get_metadata()
-        print 'Author:', meta.author
-        print 'Title:', meta.title
-        print 'Creation date:', meta.create_time
+        print('Author:', meta.author)
+        print('Title:', meta.title)
+        print('Creation date:', meta.create_time)
         # print all metadata:
         meta.dump()
 
-        # Close the OLE file:
+Available attributes include:
+
+::
+
+    codepage, title, subject, author, keywords, comments, template,
+    last_saved_by, revision_number, total_edit_time, last_printed, create_time,
+    last_saved_time, num_pages, num_words, num_chars, thumbnail,
+    creating_application, security, codepage_doc, category, presentation_target,
+    bytes, lines, paragraphs, slides, notes, hidden_slides, mm_clips,
+    scale_crop, heading_pairs, titles_of_parts, manager, company, links_dirty,
+    chars_with_spaces, unused, shared_doc, link_base, hlinks, hlinks_changed,
+    version, dig_sig, content_type, content_status, language, doc_version
+
+See the source code of the OleMetadata class for more information.
+
+Parse a property stream
+~~~~~~~~~~~~~~~~~~~~~~~
+
+get\_properties(path) can be used to parse any property stream that is
+not handled by get\_metadata. It returns a dictionary indexed by
+integers. Each integer is the index of the property, pointing to its
+value. For example in the standard property stream
+'05SummaryInformation', the document title is property #2, and the
+subject is #3.
+
+::
+
+    p = ole.getproperties('specialprops')
+
+By default as in the original PIL version, timestamp properties are
+converted into a number of seconds since Jan 1,1601. With the option
+convert\_time, you can obtain more convenient Python datetime objects
+(UTC timezone). If some time properties should not be converted (such as
+total editing time in '05SummaryInformation'), the list of indexes can
+be passed as no\_conversion (new in v0.25):
+
+::
+
+    p = ole.getproperties('specialprops', convert_time=True, no_conversion=[10])
+
+Close the OLE file
+~~~~~~~~~~~~~~~~~~
+
+Unless your application is a simple script that terminates after
+processing an OLE file, do not forget to close each OleFileIO object
+after parsing to close the file on disk. (new in v0.22)
+
+::
+
         ole.close()
 
-        # Work with a file-like object (e.g. StringIO) instead of a file on disk:
-        data = open('myfile.doc', 'rb').read()
-        f = StringIO.StringIO(data)
-        ole = OleFileIO_PL.OleFileIO(f)
-        print ole.listdir()
-        ole.close()
+Use OleFileIO\_PL as a script
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It can also be used as a script from the command-line to display the
-structure of an OLE file, for example:
+OleFileIO\_PL can also be used as a script from the command-line to
+display the structure of an OLE file and its metadata, for example:
 
 ::
 
     OleFileIO_PL.py myfile.doc
 
+Real-life examples
+------------------
+
 A real-life example: `using OleFileIO\_PL for malware analysis and
 forensics <http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/>`_.
 
-How to contribute:
-------------------
+About Python 2 and 3
+--------------------
+
+OleFileIO\_PL used to support only Python 2.x. As of version 0.30, the
+code has been changed to be compatible with Python 3.x. As a
+consequence, compatibility with Python 2.5 or older is not provided
+anymore. However, a copy of v0.26 is available as OleFileIO\_PL2.py. See
+above the "import" section for a workaround.
+
+If you think OleFileIO\_PL should stay compatible with Python 2.5 or
+older, please `contact me <http://decalage.info/contact>`_.
+
+How to contribute
+=================
 
 The code is available in `a Mercurial repository on
 bitbucket <https://bitbucket.org/decalage/olefileio_pl>`_. You may use
 it to submit enhancements or to report any issue.
 
 If you would like to help us improve this module, or simply provide
-feedback, you may also send an e-mail to decalage(at)laposte.net. You
-can help in many ways:
+feedback, please `contact me <http://decalage.info/contact>`_. You can
+help in many ways:
 
 -  test this module on different platforms / Python versions
 -  find and report bugs
@@ -146,27 +450,29 @@ can help in many ways:
 -  write unittest test cases
 -  provide tricky malformed files
 
-How to report bugs:
--------------------
+How to report bugs
+==================
 
 To report a bug, for example a normal file which is not parsed
 correctly, please use the `issue reporting
 page <https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open>`_,
-or send an e-mail with an attachment containing the debugging output of
-OleFileIO\_PL.
+or if you prefer to do it privately, use this `contact
+form <http://decalage.info/contact>`_. Please provide all the
+information about the context and how to reproduce the bug.
 
-For this, launch the following command :
+If possible please join the debugging output of OleFileIO\_PL. For this,
+launch the following command :
 
 ::
 
     OleFileIO_PL.py -d -c file >debug.txt 
 
 License
--------
+=======
 
 OleFileIO\_PL is open-source.
 
-OleFileIO\_PL changes are Copyright (c) 2005-2013 by Philippe Lagadec.
+OleFileIO\_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec.
 
 The Python Imaging Library (PIL) is
 
