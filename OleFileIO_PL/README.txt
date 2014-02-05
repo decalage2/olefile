@@ -252,8 +252,8 @@ Switching between the two is easy:
 
 ::
 
-    slash_path = '/'.join(list_path)
-    list_path  = slash_path.split('/')
+        slash_path = '/'.join(list_path)
+        list_path  = slash_path.split('/')
 
 Get the list of streams
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -316,7 +316,7 @@ get\_size(path) returns the size of a stream in bytes:
 
 ::
 
-    s = ole.get_size('WordDocument')
+        s = ole.get_size('WordDocument')
 
 get\_type(path) returns the type of a stream/storage, as one of the
 following constants: STGTY\_STREAM for a stream, STGTY\_STORAGE for a
@@ -325,7 +325,7 @@ path.
 
 ::
 
-    t = ole.get_type('WordDocument')
+        t = ole.get_type('WordDocument')
 
 get\_ctime(path) and get\_mtime(path) return the creation and
 modification timestamps of a stream/storage, as a Python datetime object
@@ -335,8 +335,8 @@ is rarely the case. When not present, these methods return None.
 
 ::
 
-    c = ole.get_ctime('WordDocument')
-    m = ole.get_mtime('WordDocument')
+        c = ole.get_ctime('WordDocument')
+        m = ole.get_mtime('WordDocument')
 
 Extract metadata
 ~~~~~~~~~~~~~~~~
@@ -381,7 +381,7 @@ subject is #3.
 
 ::
 
-    p = ole.getproperties('specialprops')
+        p = ole.getproperties('specialprops')
 
 By default as in the original PIL version, timestamp properties are
 converted into a number of seconds since Jan 1,1601. With the option
@@ -392,7 +392,7 @@ be passed as no\_conversion (new in v0.25):
 
 ::
 
-    p = ole.getproperties('specialprops', convert_time=True, no_conversion=[10])
+        p = ole.getproperties('specialprops', convert_time=True, no_conversion=[10])
 
 Close the OLE file
 ~~~~~~~~~~~~~~~~~~
