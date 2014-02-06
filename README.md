@@ -12,7 +12,7 @@ OleFileIO_PL can be used as an independent module or with PIL. The goal is to ha
 OleFileIO\_PL is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data, then please also check [python-oletools](http://www.decalage.info/python/oletools), which are built upon OleFileIO_PL.
 
 Features
-========
+--------
 
 - Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, ...
 - List all the streams and storages contained in an OLE file
@@ -20,7 +20,8 @@ Features
 - Parse and read property streams, containing metadata of the file
 
 
-## Main improvements over the original version of OleFileIO in PIL: ##
+Main improvements over the original version of OleFileIO in PIL:
+----------------------------------------------------------------
 
 - Compatible with Python 3.x and 2.6+
 - Many bug fixes
@@ -35,7 +36,7 @@ Features
 - More convenient slash-based syntax for stream paths
 
 News
-====
+----
 
 - 2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.
 - 2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps
@@ -51,14 +52,14 @@ News
 - see changelog in source code for more info.
 
 Download
-========
+--------
 
 The archive is available on [the project page](https://bitbucket.org/decalage/olefileio_pl/downloads).
 
 
 
 How to use this module
-======================
+----------------------
 
 OleFileIO_PL can be used as an independent module or with PIL. The main functions and methods are explained below. 
 
@@ -298,7 +299,7 @@ OleFileIO\_PL used to support only Python 2.x. As of version 0.30, the code has 
 If you think OleFileIO_PL should stay compatible with Python 2.5 or older, please [contact me](http://decalage.info/contact).
 
 How to contribute
-=================
+-----------------
 
 The code is available in [a Mercurial repository on bitbucket](https://bitbucket.org/decalage/olefileio_pl). You may use it to submit enhancements or to report any issue.
 
@@ -311,7 +312,7 @@ If you would like to help us improve this module, or simply provide feedback, pl
 - provide tricky malformed files
 
 How to report bugs
-==================
+------------------
 
 To report a bug, for example a normal file which is not parsed correctly, please use the [issue reporting page](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open), or if you prefer to do it privately, use this [contact form](http://decalage.info/contact). Please provide all the information about the context and how to reproduce the bug. 
 
@@ -320,7 +321,7 @@ If possible please join the debugging output of OleFileIO_PL. For this, launch t
 	OleFileIO_PL.py -d -c file >debug.txt 
 
 License
-=======
+-------
 
 OleFileIO_PL is open-source.
 

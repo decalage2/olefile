@@ -4,7 +4,7 @@
 <p>As far as I know, this module is now the most complete and robust Python implementation to read MS OLE2 files, portable on several operating systems. (please tell me if you know other similar Python modules)</p>
 <p>OleFileIO_PL can be used as an independent module or with PIL. The goal is to have it integrated into <a href="http://python-imaging.github.io/">Pillow</a>, the friendly fork of PIL.</p>
 <p>OleFileIO_PL is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data, then please also check <a href="http://www.decalage.info/python/oletools">python-oletools</a>, which are built upon OleFileIO_PL.</p>
-<h1 id="features">Features</h1>
+<h2 id="features">Features</h2>
 <ul>
 <li>Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, ...</li>
 <li>List all the streams and storages contained in an OLE file</li>
@@ -25,7 +25,7 @@
 <li>Added setup.py and install.bat to ease installation</li>
 <li>More convenient slash-based syntax for stream paths</li>
 </ul>
-<h1 id="news">News</h1>
+<h2 id="news">News</h2>
 <ul>
 <li>2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.</li>
 <li>2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps</li>
@@ -40,9 +40,9 @@
 <li>2009-12-10 v0.19: fixed support for 64 bits platforms (thanks to Ben G. and Martijn for reporting the bug)</li>
 <li>see changelog in source code for more info.</li>
 </ul>
-<h1 id="download">Download</h1>
+<h2 id="download">Download</h2>
 <p>The archive is available on <a href="https://bitbucket.org/decalage/olefileio_pl/downloads">the project page</a>.</p>
-<h1 id="how-to-use-this-module">How to use this module</h1>
+<h2 id="how-to-use-this-module">How to use this module</h2>
 <p>OleFileIO_PL can be used as an independent module or with PIL. The main functions and methods are explained below.</p>
 <p>For more information, see also the file <strong>OleFileIO_PL.html</strong>, sample code at the end of the module itself, and docstrings within the code.</p>
 <h3 id="about-the-structure-of-ole-files">About the structure of OLE files</h3>
@@ -188,7 +188,7 @@ version, dig_sig, content_type, content_status, language, doc_version</code></pr
 <h2 id="about-python-2-and-3">About Python 2 and 3</h2>
 <p>OleFileIO_PL used to support only Python 2.x. As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of v0.26 is available as OleFileIO_PL2.py. See above the &quot;import&quot; section for a workaround.</p>
 <p>If you think OleFileIO_PL should stay compatible with Python 2.5 or older, please <a href="http://decalage.info/contact">contact me</a>.</p>
-<h1 id="how-to-contribute">How to contribute</h1>
+<h2 id="how-to-contribute">How to contribute</h2>
 <p>The code is available in <a href="https://bitbucket.org/decalage/olefileio_pl">a Mercurial repository on bitbucket</a>. You may use it to submit enhancements or to report any issue.</p>
 <p>If you would like to help us improve this module, or simply provide feedback, please <a href="http://decalage.info/contact">contact me</a>. You can help in many ways:</p>
 <ul>
@@ -198,11 +198,11 @@ version, dig_sig, content_type, content_status, language, doc_version</code></pr
 <li>write unittest test cases</li>
 <li>provide tricky malformed files</li>
 </ul>
-<h1 id="how-to-report-bugs">How to report bugs</h1>
+<h2 id="how-to-report-bugs">How to report bugs</h2>
 <p>To report a bug, for example a normal file which is not parsed correctly, please use the <a href="https://bitbucket.org/decalage/olefileio_pl/issues?status=new&amp;status=open">issue reporting page</a>, or if you prefer to do it privately, use this <a href="http://decalage.info/contact">contact form</a>. Please provide all the information about the context and how to reproduce the bug.</p>
 <p>If possible please join the debugging output of OleFileIO_PL. For this, launch the following command :</p>
 <pre><code>OleFileIO_PL.py -d -c file &gt;debug.txt </code></pre>
-<h1 id="license">License</h1>
+<h2 id="license">License</h2>
 <p>OleFileIO_PL is open-source.</p>
 <p>OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec.</p>
 <p>The Python Imaging Library (PIL) is</p>

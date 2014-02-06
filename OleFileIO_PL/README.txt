@@ -29,7 +29,7 @@ tools to analyze OLE files or to extract data, then please also check
 built upon OleFileIO\_PL.
 
 Features
-========
+--------
 
 -  Parse and read any OLE file such as Microsoft Office 97-2003 legacy
    document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd,
@@ -57,7 +57,7 @@ Main improvements over the original version of OleFileIO in PIL:
 -  More convenient slash-based syntax for stream paths
 
 News
-====
+----
 
 -  2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin
    Panter who did most of the hard work.
@@ -88,13 +88,13 @@ News
 -  see changelog in source code for more info.
 
 Download
-========
+--------
 
 The archive is available on `the project
 page <https://bitbucket.org/decalage/olefileio_pl/downloads>`_.
 
 How to use this module
-======================
+----------------------
 
 OleFileIO\_PL can be used as an independent module or with PIL. The main
 functions and methods are explained below.
@@ -434,7 +434,7 @@ If you think OleFileIO\_PL should stay compatible with Python 2.5 or
 older, please `contact me <http://decalage.info/contact>`_.
 
 How to contribute
-=================
+-----------------
 
 The code is available in `a Mercurial repository on
 bitbucket <https://bitbucket.org/decalage/olefileio_pl>`_. You may use
@@ -451,7 +451,7 @@ help in many ways:
 -  provide tricky malformed files
 
 How to report bugs
-==================
+------------------
 
 To report a bug, for example a normal file which is not parsed
 correctly, please use the `issue reporting
@@ -468,7 +468,7 @@ launch the following command :
     OleFileIO_PL.py -d -c file >debug.txt 
 
 License
-=======
+-------
 
 OleFileIO\_PL is open-source.
 
