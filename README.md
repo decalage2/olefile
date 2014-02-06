@@ -3,7 +3,7 @@ OleFileIO_PL
 
 [OleFileIO_PL](http://www.decalage.info/python/olefileio) is a Python module to parse and read [Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)](http://en.wikipedia.org/wiki/Compound_File_Binary_Format), such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, StickyNotes,  ... 
 
-This is an improved version of the OleFileIO module from [PIL](http://www.pythonware.com/products/pil/index.htm), the excellent Python Imaging Library, created and maintained by Fredrik Lundh. The API is still compatible with PIL, but I have improved the internal implementation significantly, with new features, bugfixes and a more robust design.
+This is an improved version of the OleFileIO module from [PIL](http://www.pythonware.com/products/pil/index.htm), the excellent Python Imaging Library, created and maintained by Fredrik Lundh. The API is still compatible with PIL, but since 2005 I have improved the internal implementation significantly, with new features, bugfixes and a more robust design.
 
 As far as I know, this module is now the most complete and robust Python implementation to read MS OLE2 files, portable on several operating systems. (please tell me if you know other similar Python modules)
 
@@ -18,6 +18,7 @@ Features
 - List all the streams and storages contained in an OLE file
 - Open streams as files
 - Parse and read property streams, containing metadata of the file
+- Portable, pure Python module, no dependency
 
 
 Main improvements over the original version of OleFileIO in PIL:
@@ -108,7 +109,7 @@ If you think OleFileIO_PL should stay compatible with Python 2.5 or older, pleas
 
 ### Test if a file is an OLE container ###
 
-Use isOleFile to check if the first bytes of the file contain the Magic for OLE files, before opening it. isOleFile returns True if it is an OLE file, False otherwise.
+Use isOleFile to check if the first bytes of the file contain the Magic for OLE files, before opening it. isOleFile returns True if it is an OLE file, False otherwise (new in v0.16).
 
 	:::python
 		assert OleFileIO_PL.isOleFile('myfile.doc')
@@ -193,7 +194,7 @@ As an option it is possible to choose if storages should also be listed, with or
 		
 ### Test if known streams/storages exist: ###
 
-exists(path) checks if a given stream or storage exists in the OLE file.
+exists(path) checks if a given stream or storage exists in the OLE file (new in v0.16).
 
 	:::python
 		if ole.exists('worddocument'):
@@ -217,23 +218,27 @@ The following example extracts the "Pictures" stream from a PPT file:
 
 Several methods can provide the size, type and timestamps of a given stream/storage:
 
-get_size(path) returns the size of a stream in bytes:
+get_size(path) returns the size of a stream in bytes (new in v0.16):
 
 	:::python
 		s = ole.get_size('WordDocument')
 
-get_type(path) returns the type of a stream/storage, as one of the following constants: STGTY\_STREAM for a stream, STGTY\_STORAGE for a storage, STGTY\_ROOT for the root entry, and False for a non existing path.
+get_type(path) returns the type of a stream/storage, as one of the following constants: STGTY\_STREAM for a stream, STGTY\_STORAGE for a storage, STGTY\_ROOT for the root entry, and False for a non existing path (new in v0.15).
 
 	:::python
 		t = ole.get_type('WordDocument')
 
-get\_ctime(path) and get\_mtime(path) return the creation and modification timestamps of a stream/storage, as a Python datetime object with UTC timezone. Please note that these timestamps are only present if the application that created the OLE file explicitly stored them, which is rarely the case. When not present, these methods return None.
+get\_ctime(path) and get\_mtime(path) return the creation and modification timestamps of a stream/storage, as a Python datetime object with UTC timezone. Please note that these timestamps are only present if the application that created the OLE file explicitly stored them, which is rarely the case. When not present, these methods return None (new in v0.26).
 
 	:::python
 		c = ole.get_ctime('WordDocument')
 		m = ole.get_mtime('WordDocument')
 	
+The root storage is a special case: You can get its creation and modification timestamps using the OleFileIO.root attribute (new in v0.26):
 
+	:::python
+		c = ole.root.getctime()
+		m = ole.root.getmtime()
 
 ### Extract metadata ###
 
@@ -287,9 +292,13 @@ OleFileIO_PL can also be used as a script from the command-line to display the s
 
 	OleFileIO_PL.py myfile.doc
 
+You can use the option -c to check that all streams can be read fully, and -d to generate very verbose debugging information.
+
 ## Real-life examples ##
 
 A real-life example: [using OleFileIO_PL for malware analysis and forensics](http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/).
+
+See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/grow-forensic-tools-taxonomy-python-libraries-helpful-forensic-analysis_6879) about python tools for forensics, which features OleFileIO_PL.
 
 About Python 2 and 3
 --------------------
