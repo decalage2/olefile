@@ -78,18 +78,18 @@ Special streams can contain **properties**. A property is a specific value that 
 
 For example, a typical MS Word document may look like this:
 
-	'\x05DocumentSummaryInformation' (stream)
-	'\x05SummaryInformation' (stream)
-	'WordDocument' (stream)
-	'Macros' (storage)
-		'PROJECT' (stream)
-		'PROJECTwm' (stream)
-		'VBA' (storage)
-			'Module1' (stream)
-			'ThisDocument' (stream)
-			'_VBA_PROJECT' (stream)
-			'dir' (stream)
-	'ObjectPool' (storage)
+	\x05DocumentSummaryInformation (stream)
+	\x05SummaryInformation (stream)
+	WordDocument (stream)
+	Macros (storage)
+		PROJECT (stream)
+		PROJECTwm (stream)
+		VBA (storage)
+			Module1 (stream)
+			ThisDocument (stream)
+			_VBA_PROJECT (stream)
+			dir (stream)
+	ObjectPool (storage)
 
 
 
