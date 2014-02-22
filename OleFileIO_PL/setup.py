@@ -10,12 +10,17 @@
 # 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x, added PL2 version
 
 import distutils.core
+import sys
 
 from OleFileIO_PL import __version__, __author__, DEBUG_MODE
 
 # debug mode should be off for usual releases:
 if DEBUG_MODE:
     raise ValueError("WARNING: DEBUG_MODE should be False !")
+
+modules = ['OleFileIO_PL']
+if sys.version_info < (3,):
+    modules.append('OleFileIO_PL2')
 
 kw = {
     'name': "OleFileIO_PL",
@@ -27,7 +32,7 @@ kw = {
     #'author_email': "decalage(a)laposte.net",
     'url': "http://www.decalage.info/python/olefileio",
     'license': "updated PIL license (see source code or LICENCE.txt)",
-    'py_modules': ['OleFileIO_PL', 'OleFileIO_PL2'],
+    'py_modules': modules,
     }
 
 
