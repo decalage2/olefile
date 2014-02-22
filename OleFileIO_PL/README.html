@@ -1,0 +1,215 @@
+<h1 id="olefileio_pl">OleFileIO_PL</h1>
+<p><a href="http://www.decalage.info/python/olefileio">OleFileIO_PL</a> is a Python module to parse and read <a href="http://en.wikipedia.org/wiki/Compound_File_Binary_Format">Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)</a>, such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, StickyNotes, ...</p>
+<p>This is an improved version of the OleFileIO module from <a href="http://www.pythonware.com/products/pil/index.htm">PIL</a>, the excellent Python Imaging Library, created and maintained by Fredrik Lundh. The API is still compatible with PIL, but I have improved the internal implementation significantly, with new features, bugfixes and a more robust design.</p>
+<p>As far as I know, this module is now the most complete and robust Python implementation to read MS OLE2 files, portable on several operating systems. (please tell me if you know other similar Python modules)</p>
+<p>OleFileIO_PL can be used as an independent module or with PIL. The goal is to have it integrated into <a href="http://python-imaging.github.io/">Pillow</a>, the friendly fork of PIL.</p>
+<p>OleFileIO_PL is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data, then please also check <a href="http://www.decalage.info/python/oletools">python-oletools</a>, which are built upon OleFileIO_PL.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, ...</li>
+<li>List all the streams and storages contained in an OLE file</li>
+<li>Open streams as files</li>
+<li>Parse and read property streams, containing metadata of the file</li>
+</ul>
+<h2 id="main-improvements-over-the-original-version-of-olefileio-in-pil">Main improvements over the original version of OleFileIO in PIL:</h2>
+<ul>
+<li>Compatible with Python 3.x and 2.6+</li>
+<li>Many bug fixes</li>
+<li>Support for files larger than 6.8MB</li>
+<li>Support for 64 bits platforms and big-endian CPUs</li>
+<li>Robust: many checks to detect malformed files</li>
+<li>Runtime option to choose if malformed files should be parsed or raise exceptions</li>
+<li>Improved API</li>
+<li>Metadata extraction, stream/storage timestamps (e.g. for document forensics)</li>
+<li>Can open file-like objects</li>
+<li>Added setup.py and install.bat to ease installation</li>
+<li>More convenient slash-based syntax for stream paths</li>
+</ul>
+<h2 id="news">News</h2>
+<ul>
+<li>2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.</li>
+<li>2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps</li>
+<li>2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed <a href="https://bitbucket.org/decalage/olefileio_pl/issue/12/error-when-converting-timestamps-in-ole">issue #12</a></li>
+<li>2013-05-07 v0.24: new features to extract metadata (get_metadata method and OleMetadata class), improved getproperties to convert timestamps to Python datetime</li>
+<li>2012-10-09: published <a href="http://www.decalage.info/python/oletools">python-oletools</a>, a package of analysis tools based on OleFileIO_PL</li>
+<li>2012-09-11 v0.23: added support for file-like objects, fixed <a href="https://bitbucket.org/decalage/olefileio_pl/issue/8/bug-with-file-object">issue #8</a></li>
+<li>2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2 (added close method)</li>
+<li>2011-10-20: code hosted on bitbucket to ease contributions and bug tracking</li>
+<li>2010-01-24 v0.21: fixed support for big-endian CPUs, such as PowerPC Macs.</li>
+<li>2009-12-11 v0.20: small bugfix in OleFileIO.open when filename is not plain str.</li>
+<li>2009-12-10 v0.19: fixed support for 64 bits platforms (thanks to Ben G. and Martijn for reporting the bug)</li>
+<li>see changelog in source code for more info.</li>
+</ul>
+<h2 id="download">Download</h2>
+<p>The archive is available on <a href="https://bitbucket.org/decalage/olefileio_pl/downloads">the project page</a>.</p>
+<h2 id="how-to-use-this-module">How to use this module</h2>
+<p>OleFileIO_PL can be used as an independent module or with PIL. The main functions and methods are explained below.</p>
+<p>For more information, see also the file <strong>OleFileIO_PL.html</strong>, sample code at the end of the module itself, and docstrings within the code.</p>
+<h3 id="about-the-structure-of-ole-files">About the structure of OLE files</h3>
+<p>An OLE file can be seen as a mini file system or a Zip archive: It contains <strong>streams</strong> of data that look like files embedded within the OLE file. Each stream has a name. For example, the main stream of a MS Word document containing its text is named &quot;WordDocument&quot;.</p>
+<p>An OLE file can also contain <strong>storages</strong>. A storage is a folder that contains streams or other storages. For example, a MS Word document with VBA macros has a storage called &quot;Macros&quot;.</p>
+<p>Special streams can contain <strong>properties</strong>. A property is a specific value that can be used to store information such as the metadata of a document (title, author, creation date, etc). Property stream names usually start with the character '05'.</p>
+<p>For example, a typical MS Word document may look like this:</p>
+<pre><code>&#39;\x05DocumentSummaryInformation&#39; (stream)
+&#39;\x05SummaryInformation&#39; (stream)
+&#39;WordDocument&#39; (stream)
+&#39;Macros&#39; (storage)
+    &#39;PROJECT&#39; (stream)
+    &#39;PROJECTwm&#39; (stream)
+    &#39;VBA&#39; (storage)
+        &#39;Module1&#39; (stream)
+        &#39;ThisDocument&#39; (stream)
+        &#39;_VBA_PROJECT&#39; (stream)
+        &#39;dir&#39; (stream)
+&#39;ObjectPool&#39; (storage)</code></pre>
+<h3 id="import-olefileio_pl">Import OleFileIO_PL</h3>
+<pre><code>:::python
+    import OleFileIO_PL</code></pre>
+<p>As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of v0.26 is available as OleFileIO_PL2.py. If your application needs to be compatible with Python 2.5 or older, you may use the following code to load the old version when needed:</p>
+<pre><code>:::python
+    try:
+        import OleFileIO_PL
+    except:
+        import OleFileIO_PL2 as OleFileIO_PL</code></pre>
+<p>If you think OleFileIO_PL should stay compatible with Python 2.5 or older, please <a href="http://decalage.info/contact">contact me</a>.</p>
+<h3 id="test-if-a-file-is-an-ole-container">Test if a file is an OLE container</h3>
+<p>Use isOleFile to check if the first bytes of the file contain the Magic for OLE files, before opening it. isOleFile returns True if it is an OLE file, False otherwise.</p>
+<pre><code>:::python
+    assert OleFileIO_PL.isOleFile(&#39;myfile.doc&#39;)</code></pre>
+<h3 id="open-an-ole-file-from-disk">Open an OLE file from disk</h3>
+<p>Create an OleFileIO object with the file path as parameter:</p>
+<pre><code>:::python
+    ole = OleFileIO_PL.OleFileIO(&#39;myfile.doc&#39;)</code></pre>
+<h3 id="open-an-ole-file-from-a-file-like-object">Open an OLE file from a file-like object</h3>
+<p>This is useful if the file is not on disk, e.g. already stored in a string or as a file-like object.</p>
+<pre><code>:::python
+    ole = OleFileIO_PL.OleFileIO(f)</code></pre>
+<p>For example the code below reads a file into a string, then uses BytesIO to turn it into a file-like object.</p>
+<pre><code>:::python
+    data = open(&#39;myfile.doc&#39;, &#39;rb&#39;).read()
+    f = io.BytesIO(data) # or StringIO.StringIO for Python 2.x
+    ole = OleFileIO_PL.OleFileIO(f)</code></pre>
+<h3 id="how-to-handle-malformed-ole-files">How to handle malformed OLE files</h3>
+<p>By default, the parser is configured to be as robust and permissive as possible, allowing to parse most malformed OLE files. Only fatal errors will raise an exception. It is possible to tell the parser to be more strict in order to raise exceptions for files that do not fully conform to the OLE specifications, using the raise_defect option (new in v0.14):</p>
+<pre><code>:::python
+    ole = OleFileIO_PL.OleFileIO(&#39;myfile.doc&#39;, raise_defects=DEFECT_INCORRECT)</code></pre>
+<p>When the parsing is done, the list of non-fatal issues detected is available as a list in the parsing_issues attribute of the OleFileIO object (new in 0.25):</p>
+<pre><code>:::python
+    print(&#39;Non-fatal issues raised during parsing:&#39;)
+    if ole.parsing_issues:
+        for exctype, msg in ole.parsing_issues:
+            print(&#39;- %s: %s&#39; % (exctype.__name__, msg))
+    else:
+        print(&#39;None&#39;)</code></pre>
+<h3 id="syntax-for-stream-and-storage-path">Syntax for stream and storage path</h3>
+<p>Two different syntaxes are allowed for methods that need or return the path of streams and storages:</p>
+<ol style="list-style-type: decimal">
+<li><p>Either a <strong>list of strings</strong> including all the storages from the root up to the stream/storage name. For example a stream called &quot;WordDocument&quot; at the root will have ['WordDocument'] as full path. A stream called &quot;ThisDocument&quot; located in the storage &quot;Macros/VBA&quot; will be ['Macros', 'VBA', 'ThisDocument']. This is the original syntax from PIL. While hard to read and not very convenient, this syntax works in all cases.</p></li>
+<li><p>Or a <strong>single string with slashes</strong> to separate storage and stream names (similar to the Unix path syntax). The previous examples would be 'WordDocument' and 'Macros/VBA/ThisDocument'. This syntax is easier, but may fail if a stream or storage name contains a slash. (new in v0.15)</p></li>
+</ol>
+<p>Both are case-insensitive.</p>
+<p>Switching between the two is easy:</p>
+<pre><code>:::python
+    slash_path = &#39;/&#39;.join(list_path)
+    list_path  = slash_path.split(&#39;/&#39;)</code></pre>
+<h3 id="get-the-list-of-streams">Get the list of streams</h3>
+<p>listdir() returns a list of all the streams contained in the OLE file, including those stored in storages. Each stream is listed itself as a list, as described above.</p>
+<pre><code>:::python
+    print(ole.listdir())</code></pre>
+<p>Sample result:</p>
+<pre><code>:::python
+    [[&#39;\x01CompObj&#39;], [&#39;\x05DocumentSummaryInformation&#39;], [&#39;\x05SummaryInformation&#39;]
+    , [&#39;1Table&#39;], [&#39;Macros&#39;, &#39;PROJECT&#39;], [&#39;Macros&#39;, &#39;PROJECTwm&#39;], [&#39;Macros&#39;, &#39;VBA&#39;,
+    &#39;Module1&#39;], [&#39;Macros&#39;, &#39;VBA&#39;, &#39;ThisDocument&#39;], [&#39;Macros&#39;, &#39;VBA&#39;, &#39;_VBA_PROJECT&#39;]
+    , [&#39;Macros&#39;, &#39;VBA&#39;, &#39;dir&#39;], [&#39;ObjectPool&#39;], [&#39;WordDocument&#39;]]</code></pre>
+<p>As an option it is possible to choose if storages should also be listed, with or without streams (new in v0.26):</p>
+<pre><code>:::python
+    ole.listdir (streams=False, storages=True)</code></pre>
+<h3 id="test-if-known-streamsstorages-exist">Test if known streams/storages exist:</h3>
+<p>exists(path) checks if a given stream or storage exists in the OLE file.</p>
+<pre><code>:::python
+    if ole.exists(&#39;worddocument&#39;):
+        print(&quot;This is a Word document.&quot;)
+        if ole.exists(&#39;macros/vba&#39;):
+             print(&quot;This document seems to contain VBA macros.&quot;)</code></pre>
+<h3 id="read-data-from-a-stream">Read data from a stream</h3>
+<p>openstream(path) opens a stream as a file-like object.</p>
+<p>The following example extracts the &quot;Pictures&quot; stream from a PPT file:</p>
+<pre><code>:::python
+    pics = ole.openstream(&#39;Pictures&#39;)
+    data = pics.read()</code></pre>
+<h3 id="get-information-about-a-streamstorage">Get information about a stream/storage</h3>
+<p>Several methods can provide the size, type and timestamps of a given stream/storage:</p>
+<p>get_size(path) returns the size of a stream in bytes:</p>
+<pre><code>:::python
+    s = ole.get_size(&#39;WordDocument&#39;)</code></pre>
+<p>get_type(path) returns the type of a stream/storage, as one of the following constants: STGTY_STREAM for a stream, STGTY_STORAGE for a storage, STGTY_ROOT for the root entry, and False for a non existing path.</p>
+<pre><code>:::python
+    t = ole.get_type(&#39;WordDocument&#39;)</code></pre>
+<p>get_ctime(path) and get_mtime(path) return the creation and modification timestamps of a stream/storage, as a Python datetime object with UTC timezone. Please note that these timestamps are only present if the application that created the OLE file explicitly stored them, which is rarely the case. When not present, these methods return None.</p>
+<pre><code>:::python
+    c = ole.get_ctime(&#39;WordDocument&#39;)
+    m = ole.get_mtime(&#39;WordDocument&#39;)</code></pre>
+<h3 id="extract-metadata">Extract metadata</h3>
+<p>get_metadata() will check if standard property streams exist, parse all the properties they contain, and return an OleMetadata object with the found properties as attributes (new in v0.24).</p>
+<pre><code>:::python
+    meta = ole.get_metadata()
+    print(&#39;Author:&#39;, meta.author)
+    print(&#39;Title:&#39;, meta.title)
+    print(&#39;Creation date:&#39;, meta.create_time)
+    # print all metadata:
+    meta.dump()</code></pre>
+<p>Available attributes include:</p>
+<pre><code>codepage, title, subject, author, keywords, comments, template,
+last_saved_by, revision_number, total_edit_time, last_printed, create_time,
+last_saved_time, num_pages, num_words, num_chars, thumbnail,
+creating_application, security, codepage_doc, category, presentation_target,
+bytes, lines, paragraphs, slides, notes, hidden_slides, mm_clips,
+scale_crop, heading_pairs, titles_of_parts, manager, company, links_dirty,
+chars_with_spaces, unused, shared_doc, link_base, hlinks, hlinks_changed,
+version, dig_sig, content_type, content_status, language, doc_version</code></pre>
+<p>See the source code of the OleMetadata class for more information.</p>
+<h3 id="parse-a-property-stream">Parse a property stream</h3>
+<p>get_properties(path) can be used to parse any property stream that is not handled by get_metadata. It returns a dictionary indexed by integers. Each integer is the index of the property, pointing to its value. For example in the standard property stream '05SummaryInformation', the document title is property #2, and the subject is #3.</p>
+<pre><code>:::python
+    p = ole.getproperties(&#39;specialprops&#39;)</code></pre>
+<p>By default as in the original PIL version, timestamp properties are converted into a number of seconds since Jan 1,1601. With the option convert_time, you can obtain more convenient Python datetime objects (UTC timezone). If some time properties should not be converted (such as total editing time in '05SummaryInformation'), the list of indexes can be passed as no_conversion (new in v0.25):</p>
+<pre><code>:::python
+    p = ole.getproperties(&#39;specialprops&#39;, convert_time=True, no_conversion=[10])</code></pre>
+<h3 id="close-the-ole-file">Close the OLE file</h3>
+<p>Unless your application is a simple script that terminates after processing an OLE file, do not forget to close each OleFileIO object after parsing to close the file on disk. (new in v0.22)</p>
+<pre><code>:::python
+    ole.close()</code></pre>
+<h3 id="use-olefileio_pl-as-a-script">Use OleFileIO_PL as a script</h3>
+<p>OleFileIO_PL can also be used as a script from the command-line to display the structure of an OLE file and its metadata, for example:</p>
+<pre><code>OleFileIO_PL.py myfile.doc</code></pre>
+<h2 id="real-life-examples">Real-life examples</h2>
+<p>A real-life example: <a href="http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/">using OleFileIO_PL for malware analysis and forensics</a>.</p>
+<h2 id="about-python-2-and-3">About Python 2 and 3</h2>
+<p>OleFileIO_PL used to support only Python 2.x. As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of v0.26 is available as OleFileIO_PL2.py. See above the &quot;import&quot; section for a workaround.</p>
+<p>If you think OleFileIO_PL should stay compatible with Python 2.5 or older, please <a href="http://decalage.info/contact">contact me</a>.</p>
+<h2 id="how-to-contribute">How to contribute</h2>
+<p>The code is available in <a href="https://bitbucket.org/decalage/olefileio_pl">a Mercurial repository on bitbucket</a>. You may use it to submit enhancements or to report any issue.</p>
+<p>If you would like to help us improve this module, or simply provide feedback, please <a href="http://decalage.info/contact">contact me</a>. You can help in many ways:</p>
+<ul>
+<li>test this module on different platforms / Python versions</li>
+<li>find and report bugs</li>
+<li>improve documentation, code samples, docstrings</li>
+<li>write unittest test cases</li>
+<li>provide tricky malformed files</li>
+</ul>
+<h2 id="how-to-report-bugs">How to report bugs</h2>
+<p>To report a bug, for example a normal file which is not parsed correctly, please use the <a href="https://bitbucket.org/decalage/olefileio_pl/issues?status=new&amp;status=open">issue reporting page</a>, or if you prefer to do it privately, use this <a href="http://decalage.info/contact">contact form</a>. Please provide all the information about the context and how to reproduce the bug.</p>
+<p>If possible please join the debugging output of OleFileIO_PL. For this, launch the following command :</p>
+<pre><code>OleFileIO_PL.py -d -c file &gt;debug.txt </code></pre>
+<h2 id="license">License</h2>
+<p>OleFileIO_PL is open-source.</p>
+<p>OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec.</p>
+<p>The Python Imaging Library (PIL) is</p>
+<ul>
+<li><p>Copyright (c) 1997-2005 by Secret Labs AB</p></li>
+<li><p>Copyright (c) 1995-2005 by Fredrik Lundh</p></li>
+</ul>
+<p>By obtaining, using, and/or copying this software and/or its associated documentation, you agree that you have read, understood, and will comply with the following terms and conditions:</p>
+<p>Permission to use, copy, modify, and distribute this software and its associated documentation for any purpose and without fee is hereby granted, provided that the above copyright notice appears in all copies, and that both that copyright notice and this permission notice appear in supporting documentation, and that the name of Secret Labs AB or the author not be used in advertising or publicity pertaining to distribution of the software without specific, written prior permission.</p>
+<p>SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.</p>
