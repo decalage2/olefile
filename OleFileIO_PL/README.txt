@@ -11,9 +11,9 @@ Outlook messages, StickyNotes, ...
 This is an improved version of the OleFileIO module from
 `PIL <http://www.pythonware.com/products/pil/index.htm>`_, the excellent
 Python Imaging Library, created and maintained by Fredrik Lundh. The API
-is still compatible with PIL, but I have improved the internal
-implementation significantly, with new features, bugfixes and a more
-robust design.
+is still compatible with PIL, but since 2005 I have improved the
+internal implementation significantly, with new features, bugfixes and a
+more robust design.
 
 As far as I know, this module is now the most complete and robust Python
 implementation to read MS OLE2 files, portable on several operating
@@ -28,39 +28,13 @@ tools to analyze OLE files or to extract data, then please also check
 `python-oletools <http://www.decalage.info/python/oletools>`_, which are
 built upon OleFileIO\_PL.
 
-Features
---------
-
--  Parse and read any OLE file such as Microsoft Office 97-2003 legacy
-   document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd,
-   Project .mpp), Image Composer and FlashPix files, Outlook messages,
-   StickyNotes, Zeiss AxioVision ZVI files, ...
--  List all the streams and storages contained in an OLE file
--  Open streams as files
--  Parse and read property streams, containing metadata of the file
-
-Main improvements over the original version of OleFileIO in PIL:
-----------------------------------------------------------------
-
--  Compatible with Python 3.x and 2.6+
--  Many bug fixes
--  Support for files larger than 6.8MB
--  Support for 64 bits platforms and big-endian CPUs
--  Robust: many checks to detect malformed files
--  Runtime option to choose if malformed files should be parsed or raise
-   exceptions
--  Improved API
--  Metadata extraction, stream/storage timestamps (e.g. for document
-   forensics)
--  Can open file-like objects
--  Added setup.py and install.bat to ease installation
--  More convenient slash-based syntax for stream paths
-
 News
 ----
 
--  2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin
-   Panter who did most of the hard work.
+Follow all updates and news on Twitter: https://twitter.com/decalage2
+
+-  **2014-02-04 v0.30**: now compatible with Python 3.x, thanks to
+   Martin Panter who did most of the hard work.
 -  2013-07-24 v0.26: added methods to parse stream/storage timestamps,
    improved listdir to include storages, fixed parsing of direntry
    timestamps
@@ -93,6 +67,35 @@ Download
 The archive is available on `the project
 page <https://bitbucket.org/decalage/olefileio_pl/downloads>`_.
 
+Features
+--------
+
+-  Parse and read any OLE file such as Microsoft Office 97-2003 legacy
+   document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd,
+   Project .mpp), Image Composer and FlashPix files, Outlook messages,
+   StickyNotes, Zeiss AxioVision ZVI files, ...
+-  List all the streams and storages contained in an OLE file
+-  Open streams as files
+-  Parse and read property streams, containing metadata of the file
+-  Portable, pure Python module, no dependency
+
+Main improvements over the original version of OleFileIO in PIL:
+----------------------------------------------------------------
+
+-  Compatible with Python 3.x and 2.6+
+-  Many bug fixes
+-  Support for files larger than 6.8MB
+-  Support for 64 bits platforms and big-endian CPUs
+-  Robust: many checks to detect malformed files
+-  Runtime option to choose if malformed files should be parsed or raise
+   exceptions
+-  Improved API
+-  Metadata extraction, stream/storage timestamps (e.g. for document
+   forensics)
+-  Can open file-like objects
+-  Added setup.py and install.bat to ease installation
+-  More convenient slash-based syntax for stream paths
+
 How to use this module
 ----------------------
 
@@ -123,18 +126,18 @@ For example, a typical MS Word document may look like this:
 
 ::
 
-    '\x05DocumentSummaryInformation' (stream)
-    '\x05SummaryInformation' (stream)
-    'WordDocument' (stream)
-    'Macros' (storage)
-        'PROJECT' (stream)
-        'PROJECTwm' (stream)
-        'VBA' (storage)
-            'Module1' (stream)
-            'ThisDocument' (stream)
-            '_VBA_PROJECT' (stream)
-            'dir' (stream)
-    'ObjectPool' (storage)
+    \x05DocumentSummaryInformation (stream)
+    \x05SummaryInformation (stream)
+    WordDocument (stream)
+    Macros (storage)
+        PROJECT (stream)
+        PROJECTwm (stream)
+        VBA (storage)
+            Module1 (stream)
+            ThisDocument (stream)
+            _VBA_PROJECT (stream)
+            dir (stream)
+    ObjectPool (storage)
 
 Import OleFileIO\_PL
 ~~~~~~~~~~~~~~~~~~~~
@@ -165,7 +168,7 @@ Test if a file is an OLE container
 
 Use isOleFile to check if the first bytes of the file contain the Magic
 for OLE files, before opening it. isOleFile returns True if it is an OLE
-file, False otherwise.
+file, False otherwise (new in v0.16).
 
 ::
 
@@ -285,7 +288,8 @@ with or without streams (new in v0.26):
 Test if known streams/storages exist:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-exists(path) checks if a given stream or storage exists in the OLE file.
+exists(path) checks if a given stream or storage exists in the OLE file
+(new in v0.16).
 
 ::
 
@@ -312,7 +316,7 @@ Get information about a stream/storage
 Several methods can provide the size, type and timestamps of a given
 stream/storage:
 
-get\_size(path) returns the size of a stream in bytes:
+get\_size(path) returns the size of a stream in bytes (new in v0.16):
 
 ::
 
@@ -321,7 +325,7 @@ get\_size(path) returns the size of a stream in bytes:
 get\_type(path) returns the type of a stream/storage, as one of the
 following constants: STGTY\_STREAM for a stream, STGTY\_STORAGE for a
 storage, STGTY\_ROOT for the root entry, and False for a non existing
-path.
+path (new in v0.15).
 
 ::
 
@@ -331,12 +335,22 @@ get\_ctime(path) and get\_mtime(path) return the creation and
 modification timestamps of a stream/storage, as a Python datetime object
 with UTC timezone. Please note that these timestamps are only present if
 the application that created the OLE file explicitly stored them, which
-is rarely the case. When not present, these methods return None.
+is rarely the case. When not present, these methods return None (new in
+v0.26).
 
 ::
 
         c = ole.get_ctime('WordDocument')
         m = ole.get_mtime('WordDocument')
+
+The root storage is a special case: You can get its creation and
+modification timestamps using the OleFileIO.root attribute (new in
+v0.26):
+
+::
+
+        c = ole.root.getctime()
+        m = ole.root.getmtime()
 
 Extract metadata
 ~~~~~~~~~~~~~~~~
@@ -415,11 +429,18 @@ display the structure of an OLE file and its metadata, for example:
 
     OleFileIO_PL.py myfile.doc
 
+You can use the option -c to check that all streams can be read fully,
+and -d to generate very verbose debugging information.
+
 Real-life examples
 ------------------
 
 A real-life example: `using OleFileIO\_PL for malware analysis and
 forensics <http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/>`_.
+
+See also `this
+paper <https://computer-forensics.sans.org/community/papers/gcfa/grow-forensic-tools-taxonomy-python-libraries-helpful-forensic-analysis_6879>`_
+about python tools for forensics, which features OleFileIO\_PL.
 
 About Python 2 and 3
 --------------------
