@@ -1,7 +1,7 @@
 OleFileIO_PL
 ============
 
-[OleFileIO_PL](http://www.decalage.info/python/olefileio) is a Python module to parse and read [Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)](http://en.wikipedia.org/wiki/Compound_File_Binary_Format), such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, StickyNotes,  ... 
+[OleFileIO_PL](http://www.decalage.info/python/olefileio) is a Python module to parse and read [Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)](http://en.wikipedia.org/wiki/Compound_File_Binary_Format), such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats ...
 
 This is an improved version of the OleFileIO module from [PIL](http://www.pythonware.com/products/pil/index.htm), the excellent Python Imaging Library, created and maintained by Fredrik Lundh. The API is still compatible with PIL, but since 2005 I have improved the internal implementation significantly, with new features, bugfixes and a more robust design.
 
@@ -37,7 +37,7 @@ The archive is available on [the project page](https://bitbucket.org/decalage/ol
 Features
 --------
 
-- Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, ...
+- Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, Olympus FluoView OIB files, ...
 - List all the streams and storages contained in an OLE file
 - Open streams as files
 - Parse and read property streams, containing metadata of the file
