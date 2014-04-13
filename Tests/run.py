@@ -14,8 +14,8 @@ try:
 except NameError:
     root = os.path.dirname(sys.argv[0])
 
-if not os.path.isfile("PIL/Image.py"):
-    print("***", "please run this script from the PIL development directory as")
+if not os.path.isfile("OleFileIO_PL/setup.py"):
+    print("***", "please run this script from the olefileio_pl development directory as")
     print("***", "$ python Tests/run.py")
     sys.exit(1)
 
