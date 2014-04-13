@@ -180,79 +180,6 @@ def assert_warning(warn_class, func):
 
 # helpers
 
-from io import BytesIO
-
-
-def fromstring(data):
-    from PIL import Image
-    return Image.open(BytesIO(data))
-
-
-def tostring(im, format, **options):
-    out = BytesIO()
-    im.save(out, format, **options)
-    return out.getvalue()
-
-
-def lena(mode="RGB", cache={}):
-    from PIL import Image
-    im = cache.get(mode)
-    if im is None:
-        if mode == "RGB":
-            im = Image.open("Images/lena.ppm")
-        elif mode == "F":
-            im = lena("L").convert(mode)
-        elif mode[:4] == "I;16":
-            im = lena("I").convert(mode)
-        else:
-            im = lena("RGB").convert(mode)
-    cache[mode] = im
-    return im
-
-
-def assert_image(im, mode, size, msg=None):
-    if mode is not None and im.mode != mode:
-        failure(msg or "got mode %r, expected %r" % (im.mode, mode))
-    elif size is not None and im.size != size:
-        failure(msg or "got size %r, expected %r" % (im.size, size))
-    else:
-        success()
-
-
-def assert_image_equal(a, b, msg=None):
-    if a.mode != b.mode:
-        failure(msg or "got mode %r, expected %r" % (a.mode, b.mode))
-    elif a.size != b.size:
-        failure(msg or "got size %r, expected %r" % (a.size, b.size))
-    elif a.tobytes() != b.tobytes():
-        failure(msg or "got different content")
-        # generate better diff?
-    else:
-        success()
-
-
-def assert_image_similar(a, b, epsilon, msg=None):
-    epsilon = float(epsilon)
-    if a.mode != b.mode:
-        return failure(msg or "got mode %r, expected %r" % (a.mode, b.mode))
-    elif a.size != b.size:
-        return failure(msg or "got size %r, expected %r" % (a.size, b.size))
-    diff = 0
-    try:
-        ord(b'0')
-        for abyte, bbyte in zip(a.tobytes(), b.tobytes()):
-            diff += abs(ord(abyte)-ord(bbyte))
-    except:
-        for abyte, bbyte in zip(a.tobytes(), b.tobytes()):
-            diff += abs(abyte-bbyte)
-    ave_diff = float(diff)/(a.size[0]*a.size[1])
-    if epsilon < ave_diff:
-        return failure(
-            msg or "average pixel value difference %.4f > epsilon %.4f" % (
-                ave_diff, epsilon))
-    else:
-        return success()
-
 
 def tempfile(template, *extra):
     import os
@@ -260,7 +187,7 @@ def tempfile(template, *extra):
     import sys
     import tempfile
     files = []
-    root = os.path.join(tempfile.gettempdir(), 'pillow-tests')
+    root = os.path.join(tempfile.gettempdir(), 'olefileio-tests')
     try:
         os.mkdir(root)
     except OSError:
@@ -330,7 +257,7 @@ def _setup():
     import sys
     if "--coverage" in sys.argv:
         import coverage
-        cov = coverage.coverage(auto_data=True, include="PIL/*")
+        cov = coverage.coverage(auto_data=True, include="OleFileIO_PL/*")
         cov.start()
 
     def report():
@@ -347,7 +274,7 @@ def _setup():
                     os.remove(file)
                 except OSError:
                     pass  # report?
-            temp_root = os.path.join(tempfile.gettempdir(), 'pillow-tests')
+            temp_root = os.path.join(tempfile.gettempdir(), 'olefileio-tests')
             try:
                 os.rmdir(temp_root)
             except OSError:

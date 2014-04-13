@@ -103,7 +103,7 @@ for file in files:
 
 print("-"*68)
 
-temp_root = os.path.join(tempfile.gettempdir(), 'pillow-tests')
+temp_root = os.path.join(tempfile.gettempdir(), 'olefileio-tests')
 tempfiles = glob.glob(os.path.join(temp_root, "temp_*"))
 if tempfiles:
     print("===", "remaining temporary files")
