@@ -1506,7 +1506,7 @@ class OleFileIO:
 
         # open directory stream as a read-only file:
         # (stream size is not known in advance)
-        self.directory_fp = self._open(sect, sectorsize=self.SectorSize)
+        self.directory_fp = self._open(sect)
 
         #[PL] to detect malformed documents and avoid DoS attacks, the maximum
         # number of directory entries can be calculated:
@@ -1562,7 +1562,7 @@ class OleFileIO:
         self.root.dump()
 
 
-    def _open(self, start, size = 0x7FFFFFFF, force_FAT=False, sectorsize=512):
+    def _open(self, start, size = 0x7FFFFFFF, force_FAT=False):
         """
         Open a stream, either in FAT or MiniFAT according to its size.
         (openstream helper)
@@ -1592,7 +1592,7 @@ class OleFileIO:
                               self.ministream.size)
         else:
             # standard stream
-            return _OleStream(self.fp, start, size, sectorsize,
+            return _OleStream(self.fp, start, size, self.sectorsize,
                               self.sectorsize, self.fat, self._filesize)
 
 
