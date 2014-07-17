@@ -1587,13 +1587,15 @@ class OleFileIO:
                     (self.root.isectStart, size_ministream))
                 self.ministream = self._open(self.root.isectStart,
                     size_ministream, force_FAT=True)
-            return _OleStream(self.ministream, start, size, 0,
-                              self.minisectorsize, self.minifat,
-                              self.ministream.size)
+            return _OleStream(fp=self.ministream, sect=start, size=size,
+                              offset=0, sectorsize=self.minisectorsize,
+                              fat=self.minifat, filesize=self.ministream.size)
         else:
             # standard stream
-            return _OleStream(self.fp, start, size, self.sectorsize,
-                              self.sectorsize, self.fat, self._filesize)
+            return _OleStream(fp=self.fp, sect=start, size=size,
+                              offset=self.sectorsize,
+                              sectorsize=self.sectorsize, fat=self.fat,
+                              filesize=self._filesize)
 
 
     def _list(self, files, prefix, node, streams=True, storages=False):
