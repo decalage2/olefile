@@ -24,8 +24,8 @@ WARNING: THIS IS (STILL) WORK IN PROGRESS.
 """
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2013-07-24"
-__version__ = '0.26'
+__date__    = "2014-07-18"
+__version__ = '0.31'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -131,6 +131,7 @@ __version__ = '0.26'
 #                        of a directory entry or a storage/stream
 #                      - fixed parsing of direntry timestamps
 # 2013-07-24       PL: - new options in listdir to list storages and/or streams
+# 2014-07-18 v0.31     - preliminary support for 4K sectors
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -164,7 +165,6 @@ __version__ = '0.26'
 # - move all debug code (and maybe dump methods) to a separate module, with
 #   a class which inherits OleFileIO ?
 # - fix docstrings to follow epydoc format
-# - add support for 4K sectors ?
 # - add support for big endian byte order ?
 # - create a simple OLE explorer with wxPython
 
