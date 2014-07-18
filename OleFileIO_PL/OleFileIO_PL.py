@@ -32,8 +32,8 @@ from __future__ import print_function # This version of OleFileIO_PL requires Py
 
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2014-02-04"
-__version__ = '0.30'
+__date__    = "2014-07-18"
+__version__ = '0.31'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -142,6 +142,8 @@ __version__ = '0.30'
 # 2014-02-04 v0.30 PL: - upgraded code to support Python 3.x by Martin Panter
 #                      - several fixes for Python 2.6 (xrange, MAGIC)
 #                      - reused i32 from Pillow's _binary
+# 2014-07-18 v0.31     - preliminary support for 4K sectors
+
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -177,7 +179,6 @@ __version__ = '0.30'
 # - move all debug code (and maybe dump methods) to a separate module, with
 #   a class which inherits OleFileIO ?
 # - fix docstrings to follow epydoc format
-# - add support for 4K sectors ?
 # - add support for big endian byte order ?
 # - create a simple OLE explorer with wxPython
 
