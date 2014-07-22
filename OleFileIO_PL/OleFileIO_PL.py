@@ -32,8 +32,8 @@ from __future__ import print_function # This version of OleFileIO_PL requires Py
 
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2014-02-04"
-__version__ = '0.30'
+__date__    = "2014-07-18"
+__version__ = '0.31'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -142,6 +142,8 @@ __version__ = '0.30'
 # 2014-02-04 v0.30 PL: - upgraded code to support Python 3.x by Martin Panter
 #                      - several fixes for Python 2.6 (xrange, MAGIC)
 #                      - reused i32 from Pillow's _binary
+# 2014-07-18 v0.31     - preliminary support for 4K sectors
+
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -177,7 +179,6 @@ __version__ = '0.30'
 # - move all debug code (and maybe dump methods) to a separate module, with
 #   a class which inherits OleFileIO ?
 # - fix docstrings to follow epydoc format
-# - add support for 4K sectors ?
 # - add support for big endian byte order ?
 # - create a simple OLE explorer with wxPython
 
@@ -1537,7 +1538,7 @@ class OleFileIO:
 
         # open directory stream as a read-only file:
         # (stream size is not known in advance)
-        self.directory_fp = self._open(sect, sectorsize=self.SectorSize)
+        self.directory_fp = self._open(sect)
 
         #[PL] to detect malformed documents and avoid DoS attacks, the maximum
         # number of directory entries can be calculated:
@@ -1593,7 +1594,7 @@ class OleFileIO:
         self.root.dump()
 
 
-    def _open(self, start, size = 0x7FFFFFFF, force_FAT=False, sectorsize=512):
+    def _open(self, start, size = 0x7FFFFFFF, force_FAT=False):
         """
         Open a stream, either in FAT or MiniFAT according to its size.
         (openstream helper)
@@ -1618,13 +1619,15 @@ class OleFileIO:
                     (self.root.isectStart, size_ministream))
                 self.ministream = self._open(self.root.isectStart,
                     size_ministream, force_FAT=True)
-            return _OleStream(self.ministream, start, size, 0,
-                              self.minisectorsize, self.minifat,
-                              self.ministream.size)
+            return _OleStream(fp=self.ministream, sect=start, size=size,
+                              offset=0, sectorsize=self.minisectorsize,
+                              fat=self.minifat, filesize=self.ministream.size)
         else:
             # standard stream
-            return _OleStream(self.fp, start, size, sectorsize,
-                              self.sectorsize, self.fat, self._filesize)
+            return _OleStream(fp=self.fp, sect=start, size=size,
+                              offset=self.sectorsize,
+                              sectorsize=self.sectorsize, fat=self.fat,
+                              filesize=self._filesize)
 
 
     def _list(self, files, prefix, node, streams=True, storages=False):
