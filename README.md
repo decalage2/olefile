@@ -16,7 +16,8 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2014-02-04 v0.30**: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.
+- **2014-07-27 v0.31**: fixed support for large files with 4K sectors, thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added test scripts from Pillow (by hugovk). Fixed setup for Python 3 (Martin Panter)
+- 2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.
 - 2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps
 - 2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed [issue #12](https://bitbucket.org/decalage/olefileio_pl/issue/12/error-when-converting-timestamps-in-ole)
 - 2013-05-07 v0.24: new features to extract metadata (get\_metadata method and OleMetadata class), improved getproperties to convert timestamps to Python datetime
