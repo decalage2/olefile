@@ -1,5 +1,5 @@
 <h1 id="olefileio_pl">OleFileIO_PL</h1>
-<p><a href="http://www.decalage.info/python/olefileio">OleFileIO_PL</a> is a Python module to parse and read <a href="http://en.wikipedia.org/wiki/Compound_File_Binary_Format">Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)</a>, such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, StickyNotes, ...</p>
+<p><a href="http://www.decalage.info/python/olefileio">OleFileIO_PL</a> is a Python module to parse and read <a href="http://en.wikipedia.org/wiki/Compound_File_Binary_Format">Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)</a>, such as Microsoft Office documents, Image Composer and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats ...</p>
 <p>This is an improved version of the OleFileIO module from <a href="http://www.pythonware.com/products/pil/index.htm">PIL</a>, the excellent Python Imaging Library, created and maintained by Fredrik Lundh. The API is still compatible with PIL, but since 2005 I have improved the internal implementation significantly, with new features, bugfixes and a more robust design.</p>
 <p>As far as I know, this module is now the most complete and robust Python implementation to read MS OLE2 files, portable on several operating systems. (please tell me if you know other similar Python modules)</p>
 <p>OleFileIO_PL can be used as an independent module or with PIL. The goal is to have it integrated into <a href="http://python-imaging.github.io/">Pillow</a>, the friendly fork of PIL.</p>
@@ -7,7 +7,8 @@
 <h2 id="news">News</h2>
 <p>Follow all updates and news on Twitter: <a href="https://twitter.com/decalage2"><code class="url">https://twitter.com/decalage2</code></a></p>
 <ul>
-<li><strong>2014-02-04 v0.30</strong>: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.</li>
+<li><strong>2014-07-27 v0.31</strong>: fixed support for large files with 4K sectors, thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added test scripts from Pillow (by hugovk). Fixed setup for Python 3 (Martin Panter)</li>
+<li>2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.</li>
 <li>2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps</li>
 <li>2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed <a href="https://bitbucket.org/decalage/olefileio_pl/issue/12/error-when-converting-timestamps-in-ole">issue #12</a></li>
 <li>2013-05-07 v0.24: new features to extract metadata (get_metadata method and OleMetadata class), improved getproperties to convert timestamps to Python datetime</li>
@@ -24,7 +25,7 @@
 <p>The archive is available on <a href="https://bitbucket.org/decalage/olefileio_pl/downloads">the project page</a>.</p>
 <h2 id="features">Features</h2>
 <ul>
-<li>Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, ...</li>
+<li>Parse and read any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes, Zeiss AxioVision ZVI files, Olympus FluoView OIB files, ...</li>
 <li>List all the streams and storages contained in an OLE file</li>
 <li>Open streams as files</li>
 <li>Parse and read property streams, containing metadata of the file</li>

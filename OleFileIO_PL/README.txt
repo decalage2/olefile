@@ -6,7 +6,7 @@ module to parse and read `Microsoft OLE2 files (also called Structured
 Storage, Compound File Binary Format or Compound Document File
 Format) <http://en.wikipedia.org/wiki/Compound_File_Binary_Format>`_,
 such as Microsoft Office documents, Image Composer and FlashPix files,
-Outlook messages, StickyNotes, ...
+Outlook messages, StickyNotes, several Microscopy file formats ...
 
 This is an improved version of the OleFileIO module from
 `PIL <http://www.pythonware.com/products/pil/index.htm>`_, the excellent
@@ -33,8 +33,12 @@ News
 
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
--  **2014-02-04 v0.30**: now compatible with Python 3.x, thanks to
-   Martin Panter who did most of the hard work.
+-  **2014-07-27 v0.31**: fixed support for large files with 4K sectors,
+   thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added
+   test scripts from Pillow (by hugovk). Fixed setup for Python 3
+   (Martin Panter)
+-  2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin
+   Panter who did most of the hard work.
 -  2013-07-24 v0.26: added methods to parse stream/storage timestamps,
    improved listdir to include storages, fixed parsing of direntry
    timestamps
@@ -73,7 +77,8 @@ Features
 -  Parse and read any OLE file such as Microsoft Office 97-2003 legacy
    document formats (Word .doc, Excel .xls, PowerPoint .ppt, Visio .vsd,
    Project .mpp), Image Composer and FlashPix files, Outlook messages,
-   StickyNotes, Zeiss AxioVision ZVI files, ...
+   StickyNotes, Zeiss AxioVision ZVI files, Olympus FluoView OIB files,
+   ...
 -  List all the streams and storages contained in an OLE file
 -  Open streams as files
 -  Parse and read property streams, containing metadata of the file
