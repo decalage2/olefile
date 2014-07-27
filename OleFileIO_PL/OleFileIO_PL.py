@@ -33,7 +33,7 @@ from __future__ import print_function # This version of OleFileIO_PL requires Py
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
 __date__    = "2014-07-27"
-__version__ = '0.31alpha'
+__version__ = '0.31'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -144,6 +144,7 @@ __version__ = '0.31alpha'
 #                      - reused i32 from Pillow's _binary
 # 2014-07-18 v0.31     - preliminary support for 4K sectors
 # 2014-07-27 v0.31 PL: - a few improvements in OleFileIO.open (header parsing)
+#                      - Fixed loadfat for large files with 4K sectors (issue #3)
 
 
 #-----------------------------------------------------------------------------
@@ -239,6 +240,7 @@ import sys
 import struct, array, os.path, datetime
 
 #[PL] Define explicitly the public API to avoid private objects in pydoc:
+#TODO: add more
 __all__ = ['OleFileIO', 'isOleFile', 'MAGIC']
 
 # For Python 3.x, need to redefine long as int:
@@ -1454,8 +1456,11 @@ class OleFileIO:
                 self._raise_defect(DEFECT_FATAL, 'incorrect DIFAT, first index out of range')
             debug( "DIFAT analysis..." )
             # We compute the necessary number of DIFAT sectors :
-            # (each DIFAT sector = 127 pointers + 1 towards next DIFAT sector)
-            nb_difat = (self.csectFat-109 + 126)//127
+            # Number of pointers per DIFAT sector = (sectorsize/4)-1
+            # (-1 because the last pointer is the next DIFAT sector number)
+            nb_difat_sectors = (self.sectorsize//4)-1
+            # (if 512 bytes: each DIFAT sector = 127 pointers + 1 towards next DIFAT sector)
+            nb_difat = (self.csectFat-109 + nb_difat_sectors-1)//nb_difat_sectors
             debug( "nb_difat = %d" % nb_difat )
             if self.csectDif != nb_difat:
                 raise IOError('incorrect DIFAT')
@@ -1466,9 +1471,9 @@ class OleFileIO:
                 sector_difat = self.getsect(isect_difat)
                 difat = self.sect2array(sector_difat)
                 self.dumpsect(sector_difat)
-                self.loadfat_sect(difat[:127])
+                self.loadfat_sect(difat[:nb_difat_sectors])
                 # last DIFAT pointer is next DIFAT sector:
-                isect_difat = difat[127]
+                isect_difat = difat[nb_difat_sectors]
                 debug( "next DIFAT sector: %X" % isect_difat )
             # checks:
             if isect_difat not in [ENDOFCHAIN, FREESECT]:
