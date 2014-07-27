@@ -7,7 +7,7 @@ Microsoft Compound Document File Format), such as Microsoft Office
 documents, Image Composer and FlashPix files, Outlook messages, ...
 This version is compatible with Python 2.6+ and 3.x
 
-version 0.30 2014-02-04 Philippe Lagadec - http://www.decalage.info
+version 0.31 2014-07-27 Philippe Lagadec - http://www.decalage.info
 
 Project website: http://www.decalage.info/python/olefileio
 
@@ -32,8 +32,8 @@ from __future__ import print_function # This version of OleFileIO_PL requires Py
 
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2014-07-18"
-__version__ = '0.31'
+__date__    = "2014-07-27"
+__version__ = '0.31alpha'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -143,6 +143,7 @@ __version__ = '0.31'
 #                      - several fixes for Python 2.6 (xrange, MAGIC)
 #                      - reused i32 from Pillow's _binary
 # 2014-07-18 v0.31     - preliminary support for 4K sectors
+# 2014-07-27 v0.31 PL: - a few improvements in OleFileIO.open (header parsing)
 
 
 #-----------------------------------------------------------------------------
@@ -1206,6 +1207,7 @@ class OleFileIO:
             # For now only common little-endian documents are handled correctly
             self._raise_defect(DEFECT_FATAL, "incorrect ByteOrder in OLE header")
             # TODO: add big-endian support for documents created on Mac ?
+            # But according to [MS-CFB] ? v20140502, ByteOrder MUST be 0xFFFE.
         self.SectorSize = 2**self.SectorShift
         debug( "SectorSize   = %d" % self.SectorSize )
         if self.SectorSize not in [512, 4096]:
@@ -1220,16 +1222,28 @@ class OleFileIO:
         if self.Reserved != 0 or self.Reserved1 != 0:
             self._raise_defect(DEFECT_INCORRECT, "incorrect OLE header (non-null reserved bytes)")
         debug( "csectDir     = %d" % self.csectDir )
+        # Number of directory sectors (only allowed if DllVersion != 3)
         if self.SectorSize==512 and self.csectDir!=0:
             self._raise_defect(DEFECT_INCORRECT, "incorrect csectDir in OLE header")
         debug( "csectFat     = %d" % self.csectFat )
+        # csectFat = number of FAT sectors in the file
         debug( "sectDirStart = %X" % self.sectDirStart )
+        # sectDirStart = 1st sector containing the directory
         debug( "signature    = %d" % self.signature )
         # Signature should be zero, BUT some implementations do not follow this
         # rule => only a potential defect:
+        # (according to MS-CFB, may be != 0 for applications supporting file
+        # transactions)
         if self.signature != 0:
             self._raise_defect(DEFECT_POTENTIAL, "incorrect OLE header (signature>0)")
         debug( "MiniSectorCutoff = %d" % self.MiniSectorCutoff )
+        # MS-CFB: This integer field MUST be set to 0x00001000. This field
+        # specifies the maximum size of a user-defined data stream allocated
+        # from the mini FAT and mini stream, and that cutoff is 4096 bytes.
+        # Any user-defined data stream larger than or equal to this cutoff size
+        # must be allocated as normal sectors from the FAT.
+        if self.MiniSectorCutoff != 0x1000:
+            self._raise_defect(DEFECT_INCORRECT, "incorrect MiniSectorCutoff in OLE header")
         debug( "MiniFatStart     = %X" % self.MiniFatStart )
         debug( "csectMiniFat     = %d" % self.csectMiniFat )
         debug( "sectDifStart     = %X" % self.sectDifStart )
@@ -1239,9 +1253,13 @@ class OleFileIO:
         # (-1 because header doesn't count)
         self.nb_sect = ( (filesize + self.SectorSize-1) // self.SectorSize) - 1
         debug( "Number of sectors in the file: %d" % self.nb_sect )
+        #TODO: change this test, because an OLE file MAY contain other data
+        # after the last sector.
 
-        # file clsid (probably never used, so we don't store it)
-        clsid = _clsid(header[8:24])
+        # file clsid
+        self.clsid = _clsid(header[8:24])
+
+        #TODO: remove redundant attributes, and fix the code which uses them?
         self.sectorsize = self.SectorSize #1 << i16(header, 30)
         self.minisectorsize = self.MiniSectorSize  #1 << i16(header, 32)
         self.minisectorcutoff = self.MiniSectorCutoff # i32(header, 56)
@@ -1402,9 +1420,10 @@ class OleFileIO:
         """
         Load the FAT table.
         """
-        # The header contains a sector  numbers
-        # for the first 109 FAT sectors.  Additional sectors are
-        # described by DIF blocks
+        # The 1st sector of the file contains sector numbers for the first 109
+        # FAT sectors, right after the header which is 76 bytes long.
+        # (always 109, whatever the sector size: 512 bytes = 76+4*109)
+        # Additional sectors are described by DIF blocks
 
         sect = header[76:512]
         debug( "len(sect)=%d, so %d integers" % (len(sect), len(sect)//4) )
@@ -1509,7 +1528,13 @@ class OleFileIO:
         sect: sector index
         returns a string containing the sector data.
         """
-        # [PL] this original code was wrong when sectors are 4KB instead of
+        # From [MS-CFB]: A sector number can be converted into a byte offset
+        # into the file by using the following formula:
+        # (sector number + 1) x Sector Size.
+        # This implies that sector #0 of the file begins at byte offset Sector
+        # Size, not at 0.
+
+        # [PL] the original code in PIL was wrong when sectors are 4KB instead of
         # 512 bytes:
         #self.fp.seek(512 + self.sectorsize * sect)
         #[PL]: added safety checks:
