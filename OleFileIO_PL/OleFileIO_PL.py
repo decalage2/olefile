@@ -7,7 +7,7 @@ Microsoft Compound Document File Format), such as Microsoft Office
 documents, Image Composer and FlashPix files, Outlook messages, ...
 This version is compatible with Python 2.6+ and 3.x
 
-version 0.31 2014-07-27 Philippe Lagadec - http://www.decalage.info
+version 0.32alpha 2014-07-30 Philippe Lagadec - http://www.decalage.info
 
 Project website: http://www.decalage.info/python/olefileio
 
@@ -32,8 +32,8 @@ from __future__ import print_function # This version of OleFileIO_PL requires Py
 
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2014-07-27"
-__version__ = '0.31'
+__date__    = "2014-07-30"
+__version__ = '0.32alpha'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -145,6 +145,7 @@ __version__ = '0.31'
 # 2014-07-18 v0.31     - preliminary support for 4K sectors
 # 2014-07-27 v0.31 PL: - a few improvements in OleFileIO.open (header parsing)
 #                      - Fixed loadfat for large files with 4K sectors (issue #3)
+# 2014-07-30 v0.32 PL: - added write_sect to write sectors
 
 
 #-----------------------------------------------------------------------------
@@ -1556,6 +1557,27 @@ class OleFileIO:
                 (sect, len(sector), self.sectorsize))
             self._raise_defect(DEFECT_FATAL, 'incomplete OLE sector')
         return sector
+
+
+    def write_sect(self, sect, data, padding='\x00'):
+        """
+        Write given sector to file on disk.
+        sect: int, sector index
+        data: bytes, sector data
+        padding: single byte, padding character if data < sector size
+        """
+        try:
+            self.fp.seek(self.sectorsize * (sect+1))
+        except:
+            debug('write_sect(): sect=%X, seek=%d, filesize=%d' %
+                (sect, self.sectorsize*(sect+1), self._filesize))
+            self._raise_defect(DEFECT_FATAL, 'OLE sector index out of range')
+        if len(data) < self.sectorsize:
+            # padding
+            data += padding * (self.sectorsize - len(data))
+        elif len(data) < self.sectorsize:
+            raise ValueError("Data is larger than sector size")
+        self.fp.write(data)
 
 
     def loaddirectory(self, sect):
