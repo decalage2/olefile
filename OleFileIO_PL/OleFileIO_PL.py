@@ -145,7 +145,8 @@ __version__ = '0.32alpha'
 # 2014-07-18 v0.31     - preliminary support for 4K sectors
 # 2014-07-27 v0.31 PL: - a few improvements in OleFileIO.open (header parsing)
 #                      - Fixed loadfat for large files with 4K sectors (issue #3)
-# 2014-07-30 v0.32 PL: - added write_sect to write sectors
+# 2014-07-30 v0.32 PL: - added write_sect to write sectors to disk
+#                      - added write_mode option to OleFileIO.__init__ and open
 
 
 #-----------------------------------------------------------------------------
@@ -1049,7 +1050,7 @@ class OleFileIO:
     TIFF files).
     """
 
-    def __init__(self, filename = None, raise_defects=DEFECT_FATAL):
+    def __init__(self, filename = None, raise_defects=DEFECT_FATAL, write_mode=False):
         """
         Constructor for OleFileIO class.
 
@@ -1057,14 +1058,17 @@ class OleFileIO:
         raise_defects: minimal level for defects to be raised as exceptions.
         (use DEFECT_FATAL for a typical application, DEFECT_INCORRECT for a
         security-oriented application, see source code for details)
+        write_mode: bool, if True the file is opened in read/write mode instead
+                    of read-only by default.
         """
         # minimal level for defects to be raised as exceptions:
         self._raise_defects_level = raise_defects
         # list of defects/issues not raised as exceptions:
         # tuples of (exception type, message)
         self.parsing_issues = []
+        self.write_mode = write_mode
         if filename:
-            self.open(filename)
+            self.open(filename, write_mode=write_mode)
 
 
     def _raise_defect(self, defect_level, message, exception_type=IOError):
@@ -1089,13 +1093,16 @@ class OleFileIO:
             self.parsing_issues.append((exception_type, message))
 
 
-    def open(self, filename):
+    def open(self, filename, write_mode=False):
         """
         Open an OLE2 file.
         Reads the header, FAT and directory.
 
         filename: string-like or file-like object
+        write_mode: bool, if True the file is opened in read/write mode instead
+                    of read-only by default.
         """
+        self.write_mode = write_mode
         #[PL] check if filename is a string-like or file-like object:
         # (it is better to check for a read() method)
         if hasattr(filename, 'read'):
@@ -1104,7 +1111,15 @@ class OleFileIO:
         else:
             # string-like object: filename of file on disk
             #TODO: if larger than 1024 bytes, this could be the actual data => BytesIO
-            self.fp = open(filename, "rb")
+            if self.write_mode:
+                # open file in mode 'read with update, binary'
+                # According to https://docs.python.org/2/library/functions.html#open
+                # 'w' would truncate the file, 'a' may only append on some Unixes
+                mode = 'r+b'
+            else:
+                # read-only mode by default
+                mode = 'rb'
+            self.fp = open(filename, mode)
         # old code fails if filename is not a plain string:
         #if isinstance(filename, (bytes, basestring)):
         #    self.fp = open(filename, "rb")
