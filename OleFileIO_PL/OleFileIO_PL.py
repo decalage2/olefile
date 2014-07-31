@@ -2,12 +2,12 @@
 # -*- coding: latin-1 -*-
 """
 OleFileIO_PL:
-Module to read Microsoft OLE2 files (also called Structured Storage or
+Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office
 documents, Image Composer and FlashPix files, Outlook messages, ...
 This version is compatible with Python 2.6+ and 3.x
 
-version 0.32alpha 2014-07-30 Philippe Lagadec - http://www.decalage.info
+version 0.32alpha 2014-07-31 Philippe Lagadec - http://www.decalage.info
 
 Project website: http://www.decalage.info/python/olefileio
 
@@ -32,7 +32,7 @@ from __future__ import print_function # This version of OleFileIO_PL requires Py
 
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2014-07-30"
+__date__    = "2014-07-31"
 __version__ = '0.32alpha'
 
 #--- LICENSE ------------------------------------------------------------------
@@ -147,7 +147,8 @@ __version__ = '0.32alpha'
 #                      - Fixed loadfat for large files with 4K sectors (issue #3)
 # 2014-07-30 v0.32 PL: - added write_sect to write sectors to disk
 #                      - added write_mode option to OleFileIO.__init__ and open
-
+# 2014-07-31       PL: - fixed padding in write_sect for Python 3, added checks
+#                      - added write_stream to write a stream to disk
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -187,13 +188,9 @@ __version__ = '0.32alpha'
 # - create a simple OLE explorer with wxPython
 
 # FUTURE EVOLUTIONS to add write support:
-# 1) add ability to write a stream back on disk from BytesIO (same size, no
-#    change in FAT/MiniFAT).
-# 2) rename a stream/storage if it doesn't change the RB tree
-# 3) use rbtree module to update the red-black tree + any rename
-# 4) remove a stream/storage: free sectors in FAT/MiniFAT
-# 5) allocate new sectors in FAT/MiniFAT
-# 6) create new storage/stream
+# see issue #6 on Bitbucket:
+# https://bitbucket.org/decalage/olefileio_pl/issue/6/improve-olefileio_pl-to-write-ole-files
+
 #-----------------------------------------------------------------------------
 
 #
@@ -1574,13 +1571,18 @@ class OleFileIO:
         return sector
 
 
-    def write_sect(self, sect, data, padding='\x00'):
+    def write_sect(self, sect, data, padding=b'\x00'):
         """
         Write given sector to file on disk.
         sect: int, sector index
         data: bytes, sector data
         padding: single byte, padding character if data < sector size
         """
+        if not isinstance(data, bytes):
+            raise TypeError("write_sect: data must be a bytes string")
+        if not isinstance(padding, bytes) or len(padding)!=1:
+            raise TypeError("write_sect: padding must be a bytes string of 1 char")
+        #TODO: we could allow padding=None for no padding at all
         try:
             self.fp.seek(self.sectorsize * (sect+1))
         except:
@@ -1588,7 +1590,7 @@ class OleFileIO:
                 (sect, self.sectorsize*(sect+1), self._filesize))
             self._raise_defect(DEFECT_FATAL, 'OLE sector index out of range')
         if len(data) < self.sectorsize:
-            # padding
+            # add padding
             data += padding * (self.sectorsize - len(data))
         elif len(data) < self.sectorsize:
             raise ValueError("Data is larger than sector size")
@@ -1783,6 +1785,65 @@ class OleFileIO:
         if entry.entry_type != STGTY_STREAM:
             raise IOError("this file is not a stream")
         return self._open(entry.isectStart, entry.size)
+
+
+    def write_stream(self, stream_name, data):
+        """
+        Write a stream to disk. For now, it is only possible to replace an
+        existing stream by data of the same size.
+
+        stream_name: path of stream in storage tree (except root entry), either:
+            - a string using Unix path syntax, for example:
+              'storage_1/storage_1.2/stream'
+            - a list of storage filenames, path to the desired stream/storage.
+              Example: ['storage_1', 'storage_1.2', 'stream']
+        data: bytes, data to be written, must be the same size as the original
+                stream.
+        """
+        if not isinstance(data, bytes):
+            raise TypeError("write_stream: data must be a bytes string")
+        sid = self._find(stream_name)
+        entry = self.direntries[sid]
+        if entry.entry_type != STGTY_STREAM:
+            raise IOError("this is not a stream")
+        size = entry.size
+        if size != len(data):
+            raise ValueError("write_stream: data must be the same size as the existing stream")
+        if size < self.minisectorcutoff:
+            raise NotImplementedError("Writing a stream in MiniFAT is not implemented yet")
+        sect = entry.isectStart
+        # number of sectors to write
+        nb_sectors = (size + (self.sectorsize-1)) // self.sectorsize
+        debug('nb_sectors = %d' % nb_sectors)
+        for i in range(nb_sectors):
+##            try:
+##                self.fp.seek(offset + self.sectorsize * sect)
+##            except:
+##                debug('sect=%d, seek=%d' %
+##                    (sect, offset+self.sectorsize*sect))
+##                raise IOError('OLE sector index out of range')
+            # extract one sector from data, the last one being smaller:
+            if i<(nb_sectors-1):
+                data_sector = data [i*self.sectorsize : (i+1)*self.sectorsize]
+                #TODO: comment this if it works
+                assert(len(data_sector)==self.sectorsize)
+            else:
+                data_sector = data [i*self.sectorsize:]
+                #TODO: comment this if it works
+                debug('write_stream: size=%d sectorsize=%d data_sector=%d size%%sectorsize=%d'
+                    % (size, self.sectorsize, len(data_sector), size % self.sectorsize))
+                assert(len(data_sector) % self.sectorsize==size % self.sectorsize)
+            self.write_sect(sect, data_sector)
+##            self.fp.write(data_sector)
+            # jump to next sector in the FAT:
+            try:
+                sect = self.fat[sect]
+            except IndexError:
+                # [PL] if pointer is out of the FAT an exception is raised
+                raise IOError('incorrect OLE FAT, sector index out of range')
+        #[PL] Last sector should be a "end of chain" marker:
+        if sect != ENDOFCHAIN:
+            raise IOError('incorrect last sector index in OLE stream')
 
 
     def get_type(self, filename):
