@@ -153,6 +153,9 @@ __version__ = '0.32alpha'
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
 # + isOleFile should accept file-like objects like open
+# + add is_stream and is_storage
+# + remove leading and trailing slashes where a path is used
+# + add functions path_list2str and path_str2list
 # + fix how all the methods handle unicode str and/or bytes as arguments
 # + add path attrib to _OleDirEntry, set it once and for all in init or
 #   append_kids (then listdir/_list can be simplified)
@@ -376,6 +379,8 @@ def isOleFile (filename):
     filename: file name or path (str, unicode)
     return: True if OLE, False otherwise.
     """
+    #TODO: check if filename is actually a file object or a large byte string
+    # (longer than 1536 bytes), like OleFileIO.open
     f = open(filename, 'rb')
     header = f.read(len(MAGIC))
     if header == MAGIC:
@@ -1107,7 +1112,8 @@ class OleFileIO:
             self.fp = filename
         else:
             # string-like object: filename of file on disk
-            #TODO: if larger than 1024 bytes, this could be the actual data => BytesIO
+            #TODO: if larger than 1536 bytes, this could be the actual data => BytesIO
+            # (1536 bytes seems to be the smallest size for an OLE file)
             if self.write_mode:
                 # open file in mode 'read with update, binary'
                 # According to https://docs.python.org/2/library/functions.html#open
@@ -1771,6 +1777,7 @@ class OleFileIO:
     def openstream(self, filename):
         """
         Open a stream as a read-only file object (BytesIO).
+        Note: filename is case-insensitive.
 
         filename: path of stream in storage tree (except root entry), either:
             - a string using Unix path syntax, for example:
@@ -1901,6 +1908,7 @@ class OleFileIO:
         """
         Test if given filename exists as a stream or a storage in the OLE
         container.
+        Note: filename is case-insensitive.
 
         filename: path of stream in storage tree. (see openstream for syntax)
         return: True if object exist, else False.
