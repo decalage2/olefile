@@ -1,12 +1,17 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-OleFileIO_PL:
+OleFileIO_PL2:
     Module to read Microsoft OLE2 files (also called Structured Storage or
     Microsoft Compound Document File Format), such as Microsoft Office
     documents, Image Composer and FlashPix files, Outlook messages, ...
 
-version 0.26 2013-07-24 Philippe Lagadec - http://www.decalage.info
+IMPORTANT NOTE: OleFileIO_PL2 is an old version of OleFileIO_PL meant to be used
+as fallback for Python 2.5 and older. For Python 2.6, 2.7 and 3.x, please use
+OleFileIO_PL which is more up-to-date. The improvements in OleFileIO_PL might
+not always be backported to OleFileIO_PL2.
+
+version 0.31py2 2013-07-24 Philippe Lagadec - http://www.decalage.info
 
 Project website: http://www.decalage.info/python/olefileio
 
@@ -25,14 +30,14 @@ WARNING: THIS IS (STILL) WORK IN PROGRESS.
 
 __author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
 __date__    = "2014-07-18"
-__version__ = '0.31'
+__version__ = '0.31py2'
 
 #--- LICENSE ------------------------------------------------------------------
 
 # OleFileIO_PL is an improved version of the OleFileIO module from the
 # Python Imaging Library (PIL).
 
-# OleFileIO_PL changes are Copyright (c) 2005-2013 by Philippe Lagadec
+# OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec
 #
 # The Python Imaging Library (PIL) is
 #    Copyright (c) 1997-2005 by Secret Labs AB
@@ -134,48 +139,9 @@ __version__ = '0.31'
 # 2014-07-18 v0.31     - preliminary support for 4K sectors
 
 #-----------------------------------------------------------------------------
-# TODO (for version 1.0):
-# + add path attrib to _OleDirEntry, set it once and for all in init or
-#   append_kids (then listdir/_list can be simplified)
-# - TESTS with Linux, MacOSX, Python 1.5.2, various files, PIL, ...
-# - add underscore to each private method, to avoid their display in
-#   pydoc/epydoc documentation - Remove it for classes to be documented
-# - replace all raised exceptions with _raise_defect (at least in OleFileIO)
-# - merge code from _OleStream and OleFileIO.getsect to read sectors
-#   (maybe add a class for FAT and MiniFAT ?)
-# - add method to check all streams (follow sectors chains without storing all
-#   stream in memory, and report anomalies)
-# - use _OleDirectoryEntry.kids_dict to improve _find and _list ?
-# - fix Unicode names handling (find some way to stay compatible with Py1.5.2)
-#   => if possible avoid converting names to Latin-1
-# - review DIFAT code: fix handling of DIFSECT blocks in FAT (not stop)
-# - rewrite OleFileIO.getproperties
-# - improve docstrings to show more sample uses
-# - see also original notes and FIXME below
-# - remove all obsolete FIXMEs
-# - OleMetadata: fix version attrib according to
-#   http://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
+# TODO:
+# + check if running on Python 2.6+, if so issue warning to use OleFileIO_PL
 
-# IDEAS:
-# - in OleFileIO._open and _OleStream, use size=None instead of 0x7FFFFFFF for
-#   streams with unknown size
-# - use arrays of int instead of long integers for FAT/MiniFAT, to improve
-#   performance and reduce memory usage ? (possible issue with values >2^31)
-# - provide tests with unittest (may need write support to create samples)
-# - move all debug code (and maybe dump methods) to a separate module, with
-#   a class which inherits OleFileIO ?
-# - fix docstrings to follow epydoc format
-# - add support for big endian byte order ?
-# - create a simple OLE explorer with wxPython
-
-# FUTURE EVOLUTIONS to add write support:
-# 1) add ability to write a stream back on disk from StringIO (same size, no
-#    change in FAT/MiniFAT).
-# 2) rename a stream/storage if it doesn't change the RB tree
-# 3) use rbtree module to update the red-black tree + any rename
-# 4) remove a stream/storage: free sectors in FAT/MiniFAT
-# 5) allocate new sectors in FAT/MiniFAT
-# 6) create new storage/stream
 #-----------------------------------------------------------------------------
 
 #
