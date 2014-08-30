@@ -7,16 +7,19 @@ This is an improved version of the OleFileIO module from [PIL](http://www.python
 
 As far as I know, this module is now the most complete and robust Python implementation to read MS OLE2 files, portable on several operating systems. (please tell me if you know other similar Python modules)
 
-OleFileIO_PL can be used as an independent module or with PIL. The goal is to have it integrated into [Pillow](http://python-imaging.github.io/), the friendly fork of PIL.
+Since 2014 OleFileIO_PL has been integrated into [Pillow](http://python-imaging.github.io/), the friendly fork of PIL. OleFileIO_PL will continue to be improved as a separate project, and new versions will be merged into Pillow regularly.
 
-OleFileIO\_PL is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data, then please also check [python-oletools](http://www.decalage.info/python/oletools), which are built upon OleFileIO_PL.
+OleFileIO_PL can be used as an independent module or with PIL/Pillow. 
+
+OleFileIO_PL is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data, then please also check [python-oletools](http://www.decalage.info/python/oletools), which are built upon OleFileIO_PL and provide a higher-level interface.
 
 News
 ----
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2014-07-27 v0.31**: fixed support for large files with 4K sectors, thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added test scripts from Pillow (by hugovk). Fixed setup for Python 3 (Martin Panter)
+- **2014-08-30 v0.32 alpha**: added initial write support for streams >4K, updated doc and license.
+- 2014-07-27 v0.31: fixed support for large files with 4K sectors, thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added test scripts from Pillow (by hugovk). Fixed setup for Python 3 (Martin Panter)
 - 2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.
 - 2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps
 - 2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed [issue #12](https://bitbucket.org/decalage/olefileio_pl/issue/12/error-when-converting-timestamps-in-ole)
@@ -144,7 +147,7 @@ For example the code below reads a file into a string, then uses BytesIO to turn
 By default, the parser is configured to be as robust and permissive as possible, allowing to parse most malformed OLE files. Only fatal errors will raise an exception. It is possible to tell the parser to be more strict in order to raise exceptions for files that do not fully conform to the OLE specifications, using the raise_defect option (new in v0.14):
 
 	:::python
-		ole = OleFileIO_PL.OleFileIO('myfile.doc', raise_defects=DEFECT_INCORRECT)
+		ole = OleFileIO_PL.OleFileIO('myfile.doc', raise_defects=OleFileIO_PL.DEFECT_INCORRECT)
 
 When the parsing is done, the list of non-fatal issues detected is available as a list in the parsing_issues attribute of the OleFileIO object (new in 0.25):
 
@@ -306,7 +309,7 @@ See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/
 About Python 2 and 3
 --------------------
 
-OleFileIO\_PL used to support only Python 2.x. As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of v0.26 is available as OleFileIO_PL2.py. See above the "import" section for a workaround.
+OleFileIO\_PL used to support only Python 2.x. As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of the old Python 2.x version is available as OleFileIO_PL2.py. See above the "import" section for a workaround.
 
 If you think OleFileIO_PL should stay compatible with Python 2.5 or older, please [contact me](http://decalage.info/contact).
 
@@ -323,10 +326,12 @@ If you would like to help us improve this module, or simply provide feedback, pl
 - write unittest test cases
 - provide tricky malformed files
 
-How to report bugs
-------------------
+How to Suggest Improvements, Report Issues or Contribute:
+---------------------------------------------------------
 
-To report a bug, for example a normal file which is not parsed correctly, please use the [issue reporting page](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open), or if you prefer to do it privately, use this [contact form](http://decalage.info/contact). Please provide all the information about the context and how to reproduce the bug. 
+This is a personal open-source project, developed on my spare time. Any contribution, suggestion, feedback or bug report is welcome.
+
+To suggest improvements, report a bug or any issue, for example a normal file which is not parsed correctly, please use the [issue reporting page](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open), or if you prefer to do it privately, use this [contact form](http://decalage.info/contact). Please provide all the information about the context and if possible sample files to reproduce the issue. 
 
 If possible please join the debugging output of OleFileIO_PL. For this, launch the following command :
 
@@ -335,14 +340,38 @@ If possible please join the debugging output of OleFileIO_PL. For this, launch t
 License
 -------
 
-OleFileIO_PL is open-source.
+OleFileIO_PL is copyright (c) 2005-2014 Philippe Lagadec ([http://www.decalage.info](http://www.decalage.info))
 
-OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+ * Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+----------
+
+OleFileIO_PL is based on source code from the OleFileIO module of the Python Imaging Library (PIL) published by Fredrik Lundh under the following license:
 
 The Python Imaging Library (PIL) is
 
 - Copyright (c) 1997-2005 by Secret Labs AB
-
 - Copyright (c) 1995-2005 by Fredrik Lundh
 
 By obtaining, using, and/or copying this software and/or its associated documentation, you agree that you have read, understood, and will comply with the following terms and conditions:
