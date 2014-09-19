@@ -1,27 +1,25 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-OleFileIO_PL:
+OleFileIO_PL version 0.32alpha 2014-07-31
+
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
-Microsoft Compound Document File Format), such as Microsoft Office
+Microsoft Compound Document File Format), such as Microsoft Office 97-2003
 documents, Image Composer and FlashPix files, Outlook messages, ...
 This version is compatible with Python 2.6+ and 3.x
 
-version 0.32alpha 2014-07-31 Philippe Lagadec - http://www.decalage.info
-
 Project website: http://www.decalage.info/python/olefileio
 
-Improved version of the OleFileIO module from PIL library v1.1.6
+OleFileIO_PL is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
+
+OleFileIO_PL is based on the OleFileIO module from the PIL library v1.1.6
 See: http://www.pythonware.com/products/pil/index.htm
 
 The Python Imaging Library (PIL) is
     Copyright (c) 1997-2005 by Secret Labs AB
     Copyright (c) 1995-2005 by Fredrik Lundh
-OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec
 
 See source code and LICENSE.txt for information on usage and redistribution.
-
-WARNING: THIS IS (STILL) WORK IN PROGRESS.
 """
 
 # Starting with OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
@@ -31,17 +29,42 @@ WARNING: THIS IS (STILL) WORK IN PROGRESS.
 from __future__ import print_function # This version of OleFileIO_PL requires Python 2.6+ or 3.x.
 
 
-__author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
+__author__  = "Philippe Lagadec"
 __date__    = "2014-07-31"
 __version__ = '0.32alpha'
 
 #--- LICENSE ------------------------------------------------------------------
 
-# OleFileIO_PL is an improved version of the OleFileIO module from the
-# Python Imaging Library (PIL).
-
-# OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec
+# OleFileIO_PL is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
 #
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# ----------
+# PIL License:
+#
+# OleFileIO_PL is based on source code from the OleFileIO module of the Python
+# Imaging Library (PIL) published by Fredrik Lundh under the following license:
+
 # The Python Imaging Library (PIL) is
 #    Copyright (c) 1997-2005 by Secret Labs AB
 #    Copyright (c) 1995-2005 by Fredrik Lundh
@@ -195,17 +218,8 @@ __version__ = '0.32alpha'
 # https://bitbucket.org/decalage/olefileio_pl/issue/6/improve-olefileio_pl-to-write-ole-files
 
 #-----------------------------------------------------------------------------
+# NOTES from PIL 1.1.6:
 
-#
-# THIS IS WORK IN PROGRESS
-#
-# The Python Imaging Library
-# $Id$
-#
-# stuff to deal with OLE2 Structured Storage files.  this module is
-# used by PIL to read Image Composer and FlashPix files, but can also
-# be used to read other files of this type.
-#
 # History:
 # 1997-01-20 fl   Created
 # 1997-01-22 fl   Fixed 64-bit portability quirk
@@ -227,12 +241,6 @@ __version__ = '0.32alpha'
 # "If this document and functionality of the Software conflict,
 #  the actual functionality of the Software represents the correct
 #  functionality" -- Microsoft, in the OLE format specification
-#
-# Copyright (c) Secret Labs AB 1997.
-# Copyright (c) Fredrik Lundh 1997.
-#
-# See the README file for information on usage and redistribution.
-#
 
 #------------------------------------------------------------------------------
 
@@ -310,15 +318,15 @@ def set_debug_mode(debug_mode):
 MAGIC = b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'
 
 #[PL]: added constants for Sector IDs (from AAF specifications)
-MAXREGSECT = 0xFFFFFFFA; # maximum SECT
-DIFSECT    = 0xFFFFFFFC; # (-4) denotes a DIFAT sector in a FAT
-FATSECT    = 0xFFFFFFFD; # (-3) denotes a FAT sector in a FAT
-ENDOFCHAIN = 0xFFFFFFFE; # (-2) end of a virtual stream chain
-FREESECT   = 0xFFFFFFFF; # (-1) unallocated sector
+MAXREGSECT = 0xFFFFFFFA # maximum SECT
+DIFSECT    = 0xFFFFFFFC # (-4) denotes a DIFAT sector in a FAT
+FATSECT    = 0xFFFFFFFD # (-3) denotes a FAT sector in a FAT
+ENDOFCHAIN = 0xFFFFFFFE # (-2) end of a virtual stream chain
+FREESECT   = 0xFFFFFFFF # (-1) unallocated sector
 
 #[PL]: added constants for Directory Entry IDs (from AAF specifications)
-MAXREGSID  = 0xFFFFFFFA; # maximum directory entry ID
-NOSTREAM   = 0xFFFFFFFF; # (-1) unallocated directory entry
+MAXREGSID  = 0xFFFFFFFA # maximum directory entry ID
+NOSTREAM   = 0xFFFFFFFF # (-1) unallocated directory entry
 
 #[PL] object types in storage (from AAF specifications)
 STGTY_EMPTY     = 0 # empty directory entry (according to OpenOffice.org doc)
