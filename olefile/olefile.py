@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-OleFileIO_PL version 0.32alpha 2014-07-31
+olefile (formerly OleFileIO_PL) version 0.40alpha 2014-09-26
 
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office 97-2003
@@ -10,9 +10,9 @@ This version is compatible with Python 2.6+ and 3.x
 
 Project website: http://www.decalage.info/python/olefileio
 
-OleFileIO_PL is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
+olefile is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
 
-OleFileIO_PL is based on the OleFileIO module from the PIL library v1.1.6
+olefile is based on the OleFileIO module from the PIL library v1.1.6
 See: http://www.pythonware.com/products/pil/index.htm
 
 The Python Imaging Library (PIL) is
@@ -22,20 +22,21 @@ The Python Imaging Library (PIL) is
 See source code and LICENSE.txt for information on usage and redistribution.
 """
 
-# Starting with OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
+# Since OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
-from __future__ import print_function # This version of OleFileIO_PL requires Python 2.6+ or 3.x.
+from __future__ import print_function # This version of olefile requires Python 2.6+ or 3.x.
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-07-31"
-__version__ = '0.32alpha'
+__date__    = "2014-09-26"
+__version__ = '0.40alpha'
 
 #--- LICENSE ------------------------------------------------------------------
 
-# OleFileIO_PL is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2014 Philippe Lagadec
+# (http://www.decalage.info)
 #
 # All rights reserved.
 #
@@ -62,7 +63,7 @@ __version__ = '0.32alpha'
 # ----------
 # PIL License:
 #
-# OleFileIO_PL is based on source code from the OleFileIO module of the Python
+# olefile is based on source code from the OleFileIO module of the Python
 # Imaging Library (PIL) published by Fredrik Lundh under the following license:
 
 # The Python Imaging Library (PIL) is
@@ -90,7 +91,7 @@ __version__ = '0.32alpha'
 # PERFORMANCE OF THIS SOFTWARE.
 
 #-----------------------------------------------------------------------------
-# CHANGELOG: (only OleFileIO_PL changes compared to PIL 1.1.6)
+# CHANGELOG: (only olefile/OleFileIO_PL changes compared to PIL 1.1.6)
 # 2005-05-11 v0.10 PL: - a few fixes for Python 2.4 compatibility
 #                        (all changes flagged with [PL])
 # 2006-02-22 v0.11 PL: - a few fixes for some Office 2003 documents which raise
@@ -172,6 +173,7 @@ __version__ = '0.32alpha'
 #                      - added write_mode option to OleFileIO.__init__ and open
 # 2014-07-31       PL: - fixed padding in write_sect for Python 3, added checks
 #                      - added write_stream to write a stream to disk
+# 2014-09-26 v0.40 PL: - renamed OleFileIO_PL to olefile
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -2126,7 +2128,7 @@ if __name__ == "__main__":
         print("""
 Launched from command line, this script parses OLE files and prints info.
 
-Usage: OleFileIO_PL.py [-d] [-c] <file> [file2 ...]
+Usage: olefile.py [-d] [-c] <file> [file2 ...]
 
 Options:
 -d : debug mode (display a lot of debug information, for developers only)
@@ -2222,3 +2224,5 @@ Options:
                 print('None')
 ##      except IOError as v:
 ##          print("***", "cannot read", file, "-", v)
+
+# this code was developed while listening to The Wedding Present "Sea Monsters"
