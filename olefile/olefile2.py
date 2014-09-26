@@ -1,44 +1,68 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-OleFileIO_PL2:
-    Module to read Microsoft OLE2 files (also called Structured Storage or
-    Microsoft Compound Document File Format), such as Microsoft Office
-    documents, Image Composer and FlashPix files, Outlook messages, ...
+olefile2 (formerly OleFileIO_PL2) version 0.40py2 2014-09-26
 
-IMPORTANT NOTE: OleFileIO_PL2 is an old version of OleFileIO_PL meant to be used
+Module to read Microsoft OLE2 files (also called Structured Storage or
+Microsoft Compound Document File Format), such as Microsoft Office
+documents, Image Composer and FlashPix files, Outlook messages, ...
+
+IMPORTANT NOTE: olefile2 is an old version of olefile meant to be used
 as fallback for Python 2.5 and older. For Python 2.6, 2.7 and 3.x, please use
-OleFileIO_PL which is more up-to-date. The improvements in OleFileIO_PL might
-not always be backported to OleFileIO_PL2.
-
-version 0.31py2 2013-07-24 Philippe Lagadec - http://www.decalage.info
+olefile which is more up-to-date. The improvements in olefile might
+not always be backported to olefile2.
 
 Project website: http://www.decalage.info/python/olefileio
 
-Improved version of the OleFileIO module from PIL library v1.1.6
+olefile2 is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
+
+olefile2 is based on the OleFileIO module from the PIL library v1.1.6
 See: http://www.pythonware.com/products/pil/index.htm
 
 The Python Imaging Library (PIL) is
     Copyright (c) 1997-2005 by Secret Labs AB
     Copyright (c) 1995-2005 by Fredrik Lundh
-OleFileIO_PL changes are Copyright (c) 2005-2013 by Philippe Lagadec
 
 See source code and LICENSE.txt for information on usage and redistribution.
-
-WARNING: THIS IS (STILL) WORK IN PROGRESS.
 """
 
-__author__  = "Philippe Lagadec, Fredrik Lundh (Secret Labs AB)"
-__date__    = "2014-07-18"
-__version__ = '0.31py2'
+__author__  = "Philippe Lagadec"
+__date__    = "2014-09-26"
+__version__ = '0.40py2'
 
 #--- LICENSE ------------------------------------------------------------------
 
-# OleFileIO_PL is an improved version of the OleFileIO module from the
-# Python Imaging Library (PIL).
-
-# OleFileIO_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2014 Philippe Lagadec
+# (http://www.decalage.info)
 #
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+#  * Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# ----------
+# PIL License:
+#
+# olefile is based on source code from the OleFileIO module of the Python
+# Imaging Library (PIL) published by Fredrik Lundh under the following license:
+
 # The Python Imaging Library (PIL) is
 #    Copyright (c) 1997-2005 by Secret Labs AB
 #    Copyright (c) 1995-2005 by Fredrik Lundh
@@ -64,7 +88,7 @@ __version__ = '0.31py2'
 # PERFORMANCE OF THIS SOFTWARE.
 
 #-----------------------------------------------------------------------------
-# CHANGELOG: (only OleFileIO_PL changes compared to PIL 1.1.6)
+# CHANGELOG: (only olefile/OleFileIO_PL changes compared to PIL 1.1.6)
 # 2005-05-11 v0.10 PL: - a few fixes for Python 2.4 compatibility
 #                        (all changes flagged with [PL])
 # 2006-02-22 v0.11 PL: - a few fixes for some Office 2003 documents which raise
@@ -137,10 +161,11 @@ __version__ = '0.31py2'
 #                      - fixed parsing of direntry timestamps
 # 2013-07-24       PL: - new options in listdir to list storages and/or streams
 # 2014-07-18 v0.31     - preliminary support for 4K sectors
+# 2014-09-26 v0.40 PL: - renamed OleFileIO_PL to olefile
 
 #-----------------------------------------------------------------------------
 # TODO:
-# + check if running on Python 2.6+, if so issue warning to use OleFileIO_PL
+# + check if running on Python 2.6+, if so issue warning to use olefile
 
 #-----------------------------------------------------------------------------
 
@@ -1918,7 +1943,7 @@ if __name__ == "__main__":
         print """
 Launched from command line, this script parses OLE files and prints info.
 
-Usage: OleFileIO_PL.py [-d] [-c] <file> [file2 ...]
+Usage: olefile2.py [-d] [-c] <file> [file2 ...]
 
 Options:
 -d : debug mode (display a lot of debug information, for developers only)
@@ -2014,3 +2039,5 @@ Options:
                 print 'None'
 ##      except IOError, v:
 ##          print "***", "cannot read", file, "-", v
+
+# this code was developed while listening to The Wedding Present "Sea Monsters"
