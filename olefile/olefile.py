@@ -253,7 +253,7 @@ import struct, array, os.path, datetime
 
 #[PL] Define explicitly the public API to avoid private objects in pydoc:
 #TODO: add more
-__all__ = ['OleFileIO', 'isOleFile', 'MAGIC']
+# __all__ = ['OleFileIO', 'isOleFile', 'MAGIC']
 
 # For Python 3.x, need to redefine long as int:
 if str is not bytes:
@@ -376,9 +376,9 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
                          # impossible
 
 #[PL] add useful constants to __all__:
-for key in list(vars().keys()):
-    if key.startswith('STGTY_') or key.startswith('DEFECT_'):
-        __all__.append(key)
+# for key in list(vars().keys()):
+#     if key.startswith('STGTY_') or key.startswith('DEFECT_'):
+#         __all__.append(key)
 
 
 #--- FUNCTIONS ----------------------------------------------------------------
