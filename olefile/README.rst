@@ -1,14 +1,14 @@
-OleFileIO\_PL
-=============
+olefile (formerly OleFileIO\_PL)
+================================
 
-`OleFileIO\_PL <http://www.decalage.info/python/olefileio>`_ is a Python
+`olefile <http://www.decalage.info/python/olefileio>`_ is a Python
 module to parse and read `Microsoft OLE2 files (also called Structured
 Storage, Compound File Binary Format or Compound Document File
 Format) <http://en.wikipedia.org/wiki/Compound_File_Binary_Format>`_,
 such as Microsoft Office documents, Image Composer and FlashPix files,
 Outlook messages, StickyNotes, several Microscopy file formats ...
 
-This is an improved version of the OleFileIO module from
+olefile is based on the OleFileIO module from
 `PIL <http://www.pythonware.com/products/pil/index.htm>`_, the excellent
 Python Imaging Library, created and maintained by Fredrik Lundh. The API
 is still compatible with PIL, but since 2005 I have improved the
@@ -19,21 +19,26 @@ As far as I know, this module is now the most complete and robust Python
 implementation to read MS OLE2 files, portable on several operating
 systems. (please tell me if you know other similar Python modules)
 
-OleFileIO\_PL can be used as an independent module or with PIL. The goal
-is to have it integrated into
+Since 2014 olefile/OleFileIO\_PL has been integrated into
 `Pillow <http://python-imaging.github.io/>`_, the friendly fork of PIL.
+olefile will continue to be improved as a separate project, and new
+versions will be merged into Pillow regularly.
 
-OleFileIO\_PL is mostly meant for developers. If you are looking for
-tools to analyze OLE files or to extract data, then please also check
+olefile can be used as an independent module or with PIL/Pillow.
+
+olefile is mostly meant for developers. If you are looking for tools to
+analyze OLE files or to extract data, then please also check
 `python-oletools <http://www.decalage.info/python/oletools>`_, which are
-built upon OleFileIO\_PL.
+built upon OleFileIO\_PL and provide a higher-level interface.
 
 News
 ----
 
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
--  **2014-07-27 v0.31**: fixed support for large files with 4K sectors,
+-  **2014-09-26 v0.40 alpha**: renamed OleFileIO\_PL to olefile, added
+   initial write support for streams >4K, updated doc and license.
+-  2014-07-27 v0.31: fixed support for large files with 4K sectors,
    thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added
    test scripts from Pillow (by hugovk). Fixed setup for Python 3
    (Martin Panter)
@@ -100,15 +105,16 @@ Main improvements over the original version of OleFileIO in PIL:
 -  Can open file-like objects
 -  Added setup.py and install.bat to ease installation
 -  More convenient slash-based syntax for stream paths
+-  Write features
 
 How to use this module
 ----------------------
 
-OleFileIO\_PL can be used as an independent module or with PIL. The main
+olefile can be used as an independent module or with PIL. The main
 functions and methods are explained below.
 
-For more information, see also the file **OleFileIO\_PL.html**, sample
-code at the end of the module itself, and docstrings within the code.
+For more information, see also the file **olefile.html**, sample code at
+the end of the module itself, and docstrings within the code.
 
 About the structure of OLE files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,29 +150,29 @@ For example, a typical MS Word document may look like this:
             dir (stream)
     ObjectPool (storage)
 
-Import OleFileIO\_PL
-~~~~~~~~~~~~~~~~~~~~
+Import olefile
+~~~~~~~~~~~~~~
 
 ::
 
-        import OleFileIO_PL
+        import olefile
 
 As of version 0.30, the code has been changed to be compatible with
 Python 3.x. As a consequence, compatibility with Python 2.5 or older is
 not provided anymore. However, a copy of v0.26 is available as
-OleFileIO\_PL2.py. If your application needs to be compatible with
-Python 2.5 or older, you may use the following code to load the old
-version when needed:
+olefile2.py. If your application needs to be compatible with Python 2.5
+or older, you may use the following code to load the old version when
+needed:
 
 ::
 
         try:
-            import OleFileIO_PL
+            import olefile
         except:
-            import OleFileIO_PL2 as OleFileIO_PL
+            import olefile2 as olefile
 
-If you think OleFileIO\_PL should stay compatible with Python 2.5 or
-older, please `contact me <http://decalage.info/contact>`_.
+If you think olefile should stay compatible with Python 2.5 or older,
+please `contact me <http://decalage.info/contact>`_.
 
 Test if a file is an OLE container
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,7 +183,7 @@ file, False otherwise (new in v0.16).
 
 ::
 
-        assert OleFileIO_PL.isOleFile('myfile.doc')
+        assert olefile.isOleFile('myfile.doc')
 
 Open an OLE file from disk
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,7 +192,7 @@ Create an OleFileIO object with the file path as parameter:
 
 ::
 
-        ole = OleFileIO_PL.OleFileIO('myfile.doc')
+        ole = olefile.OleFileIO('myfile.doc')
 
 Open an OLE file from a file-like object
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -196,7 +202,7 @@ string or as a file-like object.
 
 ::
 
-        ole = OleFileIO_PL.OleFileIO(f)
+        ole = olefile.OleFileIO(f)
 
 For example the code below reads a file into a string, then uses BytesIO
 to turn it into a file-like object.
@@ -205,7 +211,7 @@ to turn it into a file-like object.
 
         data = open('myfile.doc', 'rb').read()
         f = io.BytesIO(data) # or StringIO.StringIO for Python 2.x
-        ole = OleFileIO_PL.OleFileIO(f)
+        ole = olefile.OleFileIO(f)
 
 How to handle malformed OLE files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -219,7 +225,7 @@ v0.14):
 
 ::
 
-        ole = OleFileIO_PL.OleFileIO('myfile.doc', raise_defects=DEFECT_INCORRECT)
+        ole = olefile.OleFileIO('myfile.doc', raise_defects=olefile.DEFECT_INCORRECT)
 
 When the parsing is done, the list of non-fatal issues detected is
 available as a list in the parsing\_issues attribute of the OleFileIO
@@ -424,15 +430,15 @@ after parsing to close the file on disk. (new in v0.22)
 
         ole.close()
 
-Use OleFileIO\_PL as a script
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use olefile as a script
+~~~~~~~~~~~~~~~~~~~~~~~
 
-OleFileIO\_PL can also be used as a script from the command-line to
-display the structure of an OLE file and its metadata, for example:
+olefile can also be used as a script from the command-line to display
+the structure of an OLE file and its metadata, for example:
 
 ::
 
-    OleFileIO_PL.py myfile.doc
+    olefile.py myfile.doc
 
 You can use the option -c to check that all streams can be read fully,
 and -d to generate very verbose debugging information.
@@ -445,19 +451,19 @@ forensics <http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/>
 
 See also `this
 paper <https://computer-forensics.sans.org/community/papers/gcfa/grow-forensic-tools-taxonomy-python-libraries-helpful-forensic-analysis_6879>`_
-about python tools for forensics, which features OleFileIO\_PL.
+about python tools for forensics, which features olefile.
 
 About Python 2 and 3
 --------------------
 
-OleFileIO\_PL used to support only Python 2.x. As of version 0.30, the
-code has been changed to be compatible with Python 3.x. As a
-consequence, compatibility with Python 2.5 or older is not provided
-anymore. However, a copy of v0.26 is available as OleFileIO\_PL2.py. See
+olefile used to support only Python 2.x. As of version 0.30, the code
+has been changed to be compatible with Python 3.x. As a consequence,
+compatibility with Python 2.5 or older is not provided anymore. However,
+a copy of the old Python 2.x version is available as olefile2.py. See
 above the "import" section for a workaround.
 
-If you think OleFileIO\_PL should stay compatible with Python 2.5 or
-older, please `contact me <http://decalage.info/contact>`_.
+If you think olefile should stay compatible with Python 2.5 or older,
+please `contact me <http://decalage.info/contact>`_.
 
 How to contribute
 -----------------
@@ -476,34 +482,66 @@ help in many ways:
 -  write unittest test cases
 -  provide tricky malformed files
 
-How to report bugs
-------------------
+How to Suggest Improvements, Report Issues or Contribute:
+---------------------------------------------------------
 
-To report a bug, for example a normal file which is not parsed
-correctly, please use the `issue reporting
+This is a personal open-source project, developed on my spare time. Any
+contribution, suggestion, feedback or bug report is welcome.
+
+To suggest improvements, report a bug or any issue, for example a normal
+file which is not parsed correctly, please use the `issue reporting
 page <https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open>`_,
 or if you prefer to do it privately, use this `contact
 form <http://decalage.info/contact>`_. Please provide all the
-information about the context and how to reproduce the bug.
+information about the context and if possible sample files to reproduce
+the issue.
 
-If possible please join the debugging output of OleFileIO\_PL. For this,
+If possible please join the debugging output of olefile. For this,
 launch the following command :
 
 ::
 
-    OleFileIO_PL.py -d -c file >debug.txt 
+    olefile.py -d -c file >debug.txt 
 
 License
 -------
 
-OleFileIO\_PL is open-source.
+olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2014 Philippe
+Lagadec (`http://www.decalage.info <http://www.decalage.info>`_)
 
-OleFileIO\_PL changes are Copyright (c) 2005-2014 by Philippe Lagadec.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+-  Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+-  Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+--------------
+
+olefile is based on source code from the OleFileIO module of the Python
+Imaging Library (PIL) published by Fredrik Lundh under the following
+license:
 
 The Python Imaging Library (PIL) is
 
 -  Copyright (c) 1997-2005 by Secret Labs AB
-
 -  Copyright (c) 1995-2005 by Fredrik Lundh
 
 By obtaining, using, and/or copying this software and/or its associated
