@@ -1,7 +1,7 @@
 from __future__ import print_function
 from tester import *
 
-import OleFileIO_PL.OleFileIO_PL as OleFileIO
+import OleFileIO_PL as OleFileIO
 
 
 def test_isOleFile_false():
