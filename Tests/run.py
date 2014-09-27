@@ -14,7 +14,7 @@ try:
 except NameError:
     root = os.path.dirname(sys.argv[0])
 
-if not os.path.isfile("OleFileIO_PL/setup.py"):
+if not os.path.exists("OleFileIO_PL.py"):
     print("***", "please run this script from the olefileio_pl development directory as")
     print("***", "$ python Tests/run.py")
     sys.exit(1)
