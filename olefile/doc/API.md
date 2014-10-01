@@ -10,10 +10,17 @@ For more information, see also the file **olefile.html**, sample code at the end
 Import olefile
 --------------
 
+When the olefile package has been installed, it can be imported in Python applications with this statement:
+
 	:::python
 		import olefile
 
-As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.26 (with some backported enhancements) is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on Python 2.5 or older. (new in v0.40)
+Before v0.40, olefile was named OleFileIO_PL. To maintain backward compatibility with older applications and samples, a simple script is also installed so that the following statement imports olefile as OleFileIO_PL:
+
+	:::python
+		import OleFileIO_PL
+
+As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.26 (with some backported enhancements) is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on Python 2.5 or older. This is implemented in olefile/__init__.py. (new in v0.40)
 
 If you think olefile should stay compatible with Python 2.5 or older, please [contact me](http://decalage.info/contact).
 		
