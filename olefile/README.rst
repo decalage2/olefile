@@ -51,8 +51,9 @@ News
 
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
--  **2014-09-26 v0.40 alpha**: renamed OleFileIO\_PL to olefile, added
-   initial write support for streams >4K, updated doc and license.
+-  **2014-10-01 v0.40**: renamed OleFileIO\_PL to olefile, added initial
+   write support for streams >4K, updated doc and license, improved the
+   setup script.
 -  2014-07-27 v0.31: fixed support for large files with 4K sectors,
    thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added
    test scripts from Pillow (by hugovk). Fixed setup for Python 3
@@ -121,6 +122,19 @@ Main improvements over the original version of OleFileIO in PIL:
 -  Added setup.py and install.bat to ease installation
 -  More convenient slash-based syntax for stream paths
 -  Write features
+
+Documentation
+-------------
+
+Please see the `online
+documentation <https://bitbucket.org/decalage/olefileio_pl/wiki>`_ for
+more information, especially the `OLE
+overview <https://bitbucket.org/decalage/olefileio_pl/wiki/OLE_Overview>`_
+and the `API
+page <https://bitbucket.org/decalage/olefileio_pl/wiki/API>`_ which
+describe how to use olefile in Python applications. A copy of the same
+documentation is also provided in the doc subfolder of the olefile
+package.
 
 Real-life examples
 ------------------
