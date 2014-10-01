@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-olefile2 (formerly OleFileIO_PL2) version 0.40py2 2014-09-26
+olefile2 (formerly OleFileIO_PL2) version 0.40py2 2014-10-01
 
 Module to read Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office
@@ -27,7 +27,7 @@ See source code and LICENSE.txt for information on usage and redistribution.
 """
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-09-26"
+__date__    = "2014-10-01"
 __version__ = '0.40py2'
 
 #--- LICENSE ------------------------------------------------------------------
