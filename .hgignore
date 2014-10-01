@@ -3,3 +3,9 @@ syntax: glob
 
 *.pyc
 *~
+archives/*
+.idea/*
+dist/*
+Alternatives/*
+Bugs/*
+PIL_SVN/*
