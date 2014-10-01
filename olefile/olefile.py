@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-olefile (formerly OleFileIO_PL) version 0.40alpha 2014-09-26
+olefile (formerly OleFileIO_PL) version 0.40 2014-10-01
 
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office 97-2003
@@ -26,12 +26,12 @@ See source code and LICENSE.txt for information on usage and redistribution.
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
-from __future__ import print_function # This version of olefile requires Python 2.6+ or 3.x.
+from __future__ import print_function   # This version of olefile requires Python 2.6+ or 3.x.
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-09-26"
-__version__ = '0.40alpha'
+__date__    = "2014-10-01"
+__version__ = '0.40'
 
 #--- LICENSE ------------------------------------------------------------------
 
