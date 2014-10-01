@@ -83,6 +83,9 @@ classifiers=[
 packages=[
     "olefile",
 ]
+
+modules = ['OleFileIO_PL']
+
 ##setupdir = '.'
 ##package_dir={'': setupdir}
 
@@ -152,6 +155,8 @@ package_data={
         'README.html',
         'LICENSE.txt',
         'CONTRIBUTORS.txt',
+        'olefile.html',
+        'olefile2.html',
         ]
         # doc folder: md, html, png
         + rglob('olefile/doc', 'doc', '*.html')
@@ -260,6 +265,7 @@ def main():
 ##        package_dir=package_dir,
         packages=packages,
         package_data = package_data,
+        py_modules = modules,
         download_url=download_url,
 #        data_files=data_files,
 #        scripts=scripts,
