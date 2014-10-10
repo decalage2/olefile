@@ -17,18 +17,9 @@ To install this package, run:
 # 2012-09-11 v0.06 PL: - read long description from disk in rst format
 # 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x, added PL2 version
 # 2014-09-26 v0.08 PL: - install the olefile package instead of modules
+# 2014-10-10 v0.09 PL: - fixed compilation error on Python 3
 
 #--- TODO ---------------------------------------------------------------------
-
-# + avoid using data_files, which installs files in the main python dir/oletools
-# - deploy scripts?
-# - version for python 3 using 2to3
-
-#TODO:
-# modules = ['OleFileIO_PL']
-# if sys.version_info < (3,):
-#     modules.append('OleFileIO_PL2')
-
 
 
 #--- IMPORTS ------------------------------------------------------------------
@@ -251,6 +242,12 @@ def main():
 ##    # platform specific "site-packages" location
 ##    for scheme in list(INSTALL_SCHEMES.values()):
 ##        scheme['data'] = scheme['purelib']
+
+    # when running 'setup.py install', disable the compilation of all python
+    # modules, because olefile2.py triggers a syntax error with Python 3.
+    # For this, add the option --no-compile to the command-line:
+    if 'install' in sys.argv:
+        sys.argv.append('--no-compile')
 
     dist = setup(
         name=name,
