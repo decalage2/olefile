@@ -320,14 +320,14 @@ def set_debug_mode(debug_mode):
 MAGIC = b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'
 
 #[PL]: added constants for Sector IDs (from AAF specifications)
-MAXREGSECT = 0xFFFFFFFA # maximum SECT
+MAXREGSECT = 0xFFFFFFFA # (-6) maximum SECT
 DIFSECT    = 0xFFFFFFFC # (-4) denotes a DIFAT sector in a FAT
 FATSECT    = 0xFFFFFFFD # (-3) denotes a FAT sector in a FAT
 ENDOFCHAIN = 0xFFFFFFFE # (-2) end of a virtual stream chain
 FREESECT   = 0xFFFFFFFF # (-1) unallocated sector
 
 #[PL]: added constants for Directory Entry IDs (from AAF specifications)
-MAXREGSID  = 0xFFFFFFFA # maximum directory entry ID
+MAXREGSID  = 0xFFFFFFFA # (-6) maximum directory entry ID
 NOSTREAM   = 0xFFFFFFFF # (-1) unallocated directory entry
 
 #[PL] object types in storage (from AAF specifications)
