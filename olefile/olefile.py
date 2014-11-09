@@ -1354,7 +1354,7 @@ class OleFileIO:
         if not DEBUG_MODE:
             return
         # dictionary to convert special FAT values in human-readable strings
-        VPL=8 # valeurs par ligne (8+1 * 8+1 = 81)
+        VPL = 8 # values per line (8+1 * 8+1 = 81)
         fatnames = {
             FREESECT:   "..free..",
             ENDOFCHAIN: "[ END. ]",
@@ -1375,13 +1375,13 @@ class OleFileIO:
                     break
                 sect = fat[i]
                 if sect in fatnames:
-                    nom = fatnames[sect]
+                    name = fatnames[aux]
                 else:
                     if sect == i+1:
-                        nom = "    --->"
+                        name = "    --->"
                     else:
-                        nom = "%8X" % sect
-                print(nom, end=" ")
+                        name = "%8X" % sect
+                print(name, end=" ")
             print()
 
 
@@ -1404,8 +1404,8 @@ class OleFileIO:
                 if i>=nbsect:
                     break
                 sect = tab[i]
-                nom = "%8X" % sect
-                print(nom, end=" ")
+                name = "%8X" % sect
+                print(name, end=" ")
             print()
 
     def sect2array(self, sect):
