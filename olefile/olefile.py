@@ -1062,7 +1062,8 @@ class OleFileIO:
     TIFF files).
     """
 
-    def __init__(self, filename = None, raise_defects=DEFECT_FATAL, write_mode=False):
+    def __init__(self, filename=None, raise_defects=DEFECT_FATAL,
+                 write_mode=False, debug=False):
         """
         Constructor for OleFileIO class.
 
@@ -1073,6 +1074,7 @@ class OleFileIO:
         write_mode: bool, if True the file is opened in read/write mode instead
                     of read-only by default.
         """
+        set_debug_mode(debug)
         # minimal level for defects to be raised as exceptions:
         self._raise_defects_level = raise_defects
         # list of defects/issues not raised as exceptions:
