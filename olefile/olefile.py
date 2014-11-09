@@ -1438,9 +1438,10 @@ class OleFileIO:
             self.dumpsect(sect)
         # The FAT is a sector chain starting at the first index of itself.
         for isect in fat1:
-            #print("isect = %X" % isect)
+            debug("isect = %X" % isect)
             if isect == ENDOFCHAIN or isect == FREESECT:
                 # the end of the sector chain has been reached
+                debug("found end of sector chain")
                 break
             # read the FAT sector
             s = self.getsect(isect)
