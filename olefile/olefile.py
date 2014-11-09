@@ -274,6 +274,19 @@ if array.array('L').itemsize == 4:
 elif array.array('I').itemsize == 4:
     # on 64 bits platforms, integers in an array are 32 bits:
     UINT32 = 'I'
+elif array.array('i').itemsize == 4:
+    # On 64 bit Jython, signed integers ('i') are the only way to store our 32
+    # bit values in an array in a *somewhat* reasonable way, as the otherwise
+    # perfectly suited 'H' (unsigned int, 32 bits) results in a completely
+    # unusable behaviour. This is most likely caused by the fact that Java
+    # doesn't have unsigned values, and thus Jython's "array" implementation,
+    # which is based on "jarray", doesn't have them either.
+    # NOTE: to trick Jython into converting the values it would normally
+    # interpret as "signed" into "unsigned", a binary-and operation with
+    # 0xFFFFFFFF can be used. This way it is possible to use the same comparing
+    # operations on all platforms / implementations. The corresponding code
+    # lines are flagged with a 'JYTHON-WORKAROUND' tag below.
+    UINT32 = 'i'
 else:
     raise ValueError('Need to fix a bug with 32 bit arrays, please contact author...')
 
@@ -747,7 +760,7 @@ class _OleStream(io.BytesIO):
             data.append(sector_data)
             # jump to next sector in the FAT:
             try:
-                sect = fat[sect]
+                sect = fat[sect] & 0xFFFFFFFF  # JYTHON-WORKAROUND
             except IndexError:
                 # [PL] if pointer is out of the FAT an exception is raised
                 raise IOError('incorrect OLE FAT, sector index out of range')
@@ -1374,7 +1387,8 @@ class OleFileIO:
                 if i>=nbsect:
                     break
                 sect = fat[i]
-                if sect in fatnames:
+                aux = sect & 0xFFFFFFFF  # JYTHON-WORKAROUND
+                if aux in fatnames:
                     name = fatnames[aux]
                 else:
                     if sect == i+1:
@@ -1438,6 +1452,7 @@ class OleFileIO:
             self.dumpsect(sect)
         # The FAT is a sector chain starting at the first index of itself.
         for isect in fat1:
+            isect = isect & 0xFFFFFFFF  # JYTHON-WORKAROUND
             debug("isect = %X" % isect)
             if isect == ENDOFCHAIN or isect == FREESECT:
                 # the end of the sector chain has been reached
