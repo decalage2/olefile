@@ -1391,6 +1391,8 @@ class OleFileIO:
             return
         VPL=8 # number of values per line (8+1 * 8+1 = 81)
         tab = array.array(UINT32, sector)
+        if sys.byteorder == 'big':
+            tab.byteswap()
         nbsect = len(tab)
         nlines = (nbsect+VPL-1)//VPL
         print("index", end=" ")
