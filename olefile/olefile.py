@@ -174,6 +174,8 @@ __version__ = '0.41'
 # 2014-07-31       PL: - fixed padding in write_sect for Python 3, added checks
 #                      - added write_stream to write a stream to disk
 # 2014-09-26 v0.40 PL: - renamed OleFileIO_PL to olefile
+# 2014-11-13 v0.41 PL: - improved isOleFile and OleFileIO.open to support OLE
+#                        data in a string buffer and file-like objects.
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -386,6 +388,10 @@ DEFECT_INCORRECT = 30    # an error according to specifications, but parsing
 DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
                          # impossible
 
+# Minimal size of an empty OLE file, with 512-bytes sectors = 1536 bytes
+# (this is used in isOleFile and OleFile.open)
+MINIMAL_OLEFILE_SIZE = 1536
+
 #[PL] add useful constants to __all__:
 # for key in list(vars().keys()):
 #     if key.startswith('STGTY_') or key.startswith('DEFECT_'):
@@ -396,14 +402,29 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
 
 def isOleFile (filename):
     """
-    Test if file is an OLE container (according to its header).
-    filename: file name or path (str, unicode)
+    Test if a file is an OLE container (according to the magic bytes in its header).
+
+    filename: string-like or file-like object, OLE file to parse
+        - if filename is a string smaller than 1536 bytes, it is the path
+          of the file to open. (bytes or unicode string)
+        - if filename is a string longer than 1535 bytes, it is parsed
+          as the content of an OLE file in memory. (bytes type only)
+        - if filename is a file-like object (with read and seek methods),
+          it is parsed as-is.
     return: True if OLE, False otherwise.
     """
-    #TODO: check if filename is actually a file object or a large byte string
-    # (longer than 1536 bytes), like OleFileIO.open
-    f = open(filename, 'rb')
-    header = f.read(len(MAGIC))
+    # check if filename is a string-like or file-like object:
+    if hasattr(filename, 'read'):
+        # file-like object: use it directly
+        header = filename.read(len(MAGIC))
+        # just in case, seek back to start of file:
+        filename.seek(0)
+    elif isinstance(filename, bytes) and len(filename) >= MINIMAL_OLEFILE_SIZE:
+        # filename is a bytes string containing the OLE file to be parsed:
+        header = filename[:len(MAGIC)]
+    else:
+        # string-like object: filename of file on disk
+        header = open(filename, 'rb').read(len(MAGIC))
     if header == MAGIC:
         return True
     else:
@@ -1090,6 +1111,8 @@ class OleFileIO:
         # tuples of (exception type, message)
         self.parsing_issues = []
         self.write_mode = write_mode
+        self._filesize = None
+        self.fp = None
         if filename:
             self.open(filename, write_mode=write_mode)
 
@@ -1118,23 +1141,32 @@ class OleFileIO:
 
     def open(self, filename, write_mode=False):
         """
-        Open an OLE2 file.
-        Reads the header, FAT and directory.
+        Open an OLE2 file in read-only or read/write mode.
+        Read and parse the header, FAT and directory.
 
-        filename: string-like or file-like object
+        filename: string-like or file-like object, OLE file to parse
+            - if filename is a string smaller than 1536 bytes, it is the path
+              of the file to open. (bytes or unicode string)
+            - if filename is a string longer than 1535 bytes, it is parsed
+              as the content of an OLE file in memory. (bytes type only)
+            - if filename is a file-like object (with read, seek and tell methods),
+              it is parsed as-is.
         write_mode: bool, if True the file is opened in read/write mode instead
-                    of read-only by default.
+                    of read-only by default. (ignored if filename is not a path)
         """
         self.write_mode = write_mode
         #[PL] check if filename is a string-like or file-like object:
         # (it is better to check for a read() method)
         if hasattr(filename, 'read'):
-            # file-like object
+            #TODO: also check seek and tell methods?
+            # file-like object: use it directly
             self.fp = filename
+        elif isinstance(filename, bytes) and len(filename) >= MINIMAL_OLEFILE_SIZE:
+            # filename is a bytes string containing the OLE file to be parsed:
+            # convert it to BytesIO
+            self.fp = io.BytesIO(filename)
         else:
             # string-like object: filename of file on disk
-            #TODO: if larger than 1536 bytes, this could be the actual data => BytesIO
-            # (1536 bytes seems to be the smallest size for an OLE file)
             if self.write_mode:
                 # open file in mode 'read with update, binary'
                 # According to https://docs.python.org/2/library/functions.html#open
@@ -1144,15 +1176,11 @@ class OleFileIO:
                 # read-only mode by default
                 mode = 'rb'
             self.fp = open(filename, mode)
-        # old code fails if filename is not a plain string:
-        #if isinstance(filename, (bytes, basestring)):
-        #    self.fp = open(filename, "rb")
-        #else:
-        #    self.fp = filename
         # obtain the filesize by using seek and tell, which should work on most
         # file-like objects:
         #TODO: do it above, using getsize with filename when possible?
         #TODO: fix code to fail with clear exception when filesize cannot be obtained
+        filesize=0
         self.fp.seek(0, os.SEEK_END)
         try:
             filesize = self.fp.tell()
