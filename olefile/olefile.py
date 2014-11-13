@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
 """
-olefile (formerly OleFileIO_PL) version 0.40 2014-10-01
+olefile (formerly OleFileIO_PL) version 0.41 2014-11-13
 
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office 97-2003
@@ -30,8 +30,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-10-01"
-__version__ = '0.40'
+__date__    = "2014-11-13"
+__version__ = '0.41'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -178,6 +178,7 @@ __version__ = '0.40'
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
 # + isOleFile should accept file-like objects like open
+# + get rid of print statements, to simplify Python 2.x and 3.x support
 # + add is_stream and is_storage
 # + remove leading and trailing slashes where a path is used
 # + add functions path_list2str and path_str2list
@@ -251,6 +252,8 @@ import io
 import sys
 import struct, array, os.path, datetime
 
+#=== COMPATIBILITY WORKAROUNDS ================================================
+
 #[PL] Define explicitly the public API to avoid private objects in pydoc:
 #TODO: add more
 # __all__ = ['OleFileIO', 'isOleFile', 'MAGIC']
@@ -296,6 +299,10 @@ except NameError:
 # if False (default PIL behaviour), all filenames are converted to Latin-1.
 KEEP_UNICODE_NAMES = False
 
+#=== DEBUGGING ===============================================================
+
+#TODO: replace this by proper logging
+
 #[PL] DEBUG display mode: False by default, use set_debug_mode() or "-d" on
 # command line to change it.
 DEBUG_MODE = False
@@ -317,6 +324,10 @@ def set_debug_mode(debug_mode):
     else:
         debug = debug_pass
 
+
+#=== CONSTANTS ===============================================================
+
+# magic bytes that should be at the beginning of every OLE file:
 MAGIC = b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'
 
 #[PL]: added constants for Sector IDs (from AAF specifications)
@@ -381,7 +392,7 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
 #         __all__.append(key)
 
 
-#--- FUNCTIONS ----------------------------------------------------------------
+#=== FUNCTIONS ===============================================================
 
 def isOleFile (filename):
     """
@@ -1064,7 +1075,7 @@ class OleFileIO:
 
     def __init__(self, filename = None, raise_defects=DEFECT_FATAL, write_mode=False):
         """
-        Constructor for OleFileIO class.
+        Constructor for the OleFileIO class.
 
         filename: file to open.
         raise_defects: minimal level for defects to be raised as exceptions.
