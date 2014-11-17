@@ -279,6 +279,19 @@ if array.array('L').itemsize == 4:
 elif array.array('I').itemsize == 4:
     # on 64 bits platforms, integers in an array are 32 bits:
     UINT32 = 'I'
+elif array.array('i').itemsize == 4:
+    # On 64 bit Jython, signed integers ('i') are the only way to store our 32
+    # bit values in an array in a *somewhat* reasonable way, as the otherwise
+    # perfectly suited 'H' (unsigned int, 32 bits) results in a completely
+    # unusable behaviour. This is most likely caused by the fact that Java
+    # doesn't have unsigned values, and thus Jython's "array" implementation,
+    # which is based on "jarray", doesn't have them either.
+    # NOTE: to trick Jython into converting the values it would normally
+    # interpret as "signed" into "unsigned", a binary-and operation with
+    # 0xFFFFFFFF can be used. This way it is possible to use the same comparing
+    # operations on all platforms / implementations. The corresponding code
+    # lines are flagged with a 'JYTHON-WORKAROUND' tag below.
+    UINT32 = 'i'
 else:
     raise ValueError('Need to fix a bug with 32 bit arrays, please contact author...')
 
@@ -333,14 +346,14 @@ def set_debug_mode(debug_mode):
 MAGIC = b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'
 
 #[PL]: added constants for Sector IDs (from AAF specifications)
-MAXREGSECT = 0xFFFFFFFA # maximum SECT
+MAXREGSECT = 0xFFFFFFFA # (-6) maximum SECT
 DIFSECT    = 0xFFFFFFFC # (-4) denotes a DIFAT sector in a FAT
 FATSECT    = 0xFFFFFFFD # (-3) denotes a FAT sector in a FAT
 ENDOFCHAIN = 0xFFFFFFFE # (-2) end of a virtual stream chain
 FREESECT   = 0xFFFFFFFF # (-1) unallocated sector
 
 #[PL]: added constants for Directory Entry IDs (from AAF specifications)
-MAXREGSID  = 0xFFFFFFFA # maximum directory entry ID
+MAXREGSID  = 0xFFFFFFFA # (-6) maximum directory entry ID
 NOSTREAM   = 0xFFFFFFFF # (-1) unallocated directory entry
 
 #[PL] object types in storage (from AAF specifications)
@@ -779,7 +792,7 @@ class _OleStream(io.BytesIO):
             data.append(sector_data)
             # jump to next sector in the FAT:
             try:
-                sect = fat[sect]
+                sect = fat[sect] & 0xFFFFFFFF  # JYTHON-WORKAROUND
             except IndexError:
                 # [PL] if pointer is out of the FAT an exception is raised
                 raise IOError('incorrect OLE FAT, sector index out of range')
@@ -1094,7 +1107,8 @@ class OleFileIO:
     TIFF files).
     """
 
-    def __init__(self, filename = None, raise_defects=DEFECT_FATAL, write_mode=False):
+    def __init__(self, filename=None, raise_defects=DEFECT_FATAL,
+                 write_mode=False, debug=False):
         """
         Constructor for the OleFileIO class.
 
@@ -1105,6 +1119,7 @@ class OleFileIO:
         write_mode: bool, if True the file is opened in read/write mode instead
                     of read-only by default.
         """
+        set_debug_mode(debug)
         # minimal level for defects to be raised as exceptions:
         self._raise_defects_level = raise_defects
         # list of defects/issues not raised as exceptions:
@@ -1391,7 +1406,7 @@ class OleFileIO:
         if not DEBUG_MODE:
             return
         # dictionary to convert special FAT values in human-readable strings
-        VPL=8 # valeurs par ligne (8+1 * 8+1 = 81)
+        VPL = 8 # values per line (8+1 * 8+1 = 81)
         fatnames = {
             FREESECT:   "..free..",
             ENDOFCHAIN: "[ END. ]",
@@ -1411,14 +1426,15 @@ class OleFileIO:
                 if i>=nbsect:
                     break
                 sect = fat[i]
-                if sect in fatnames:
-                    nom = fatnames[sect]
+                aux = sect & 0xFFFFFFFF  # JYTHON-WORKAROUND
+                if aux in fatnames:
+                    name = fatnames[aux]
                 else:
                     if sect == i+1:
-                        nom = "    --->"
+                        name = "    --->"
                     else:
-                        nom = "%8X" % sect
-                print(nom, end=" ")
+                        name = "%8X" % sect
+                print(name, end=" ")
             print()
 
 
@@ -1428,6 +1444,8 @@ class OleFileIO:
             return
         VPL=8 # number of values per line (8+1 * 8+1 = 81)
         tab = array.array(UINT32, sector)
+        if sys.byteorder == 'big':
+            tab.byteswap()
         nbsect = len(tab)
         nlines = (nbsect+VPL-1)//VPL
         print("index", end=" ")
@@ -1441,8 +1459,8 @@ class OleFileIO:
                 if i>=nbsect:
                     break
                 sect = tab[i]
-                nom = "%8X" % sect
-                print(nom, end=" ")
+                name = "%8X" % sect
+                print(name, end=" ")
             print()
 
     def sect2array(self, sect):
@@ -1473,9 +1491,11 @@ class OleFileIO:
             self.dumpsect(sect)
         # The FAT is a sector chain starting at the first index of itself.
         for isect in fat1:
-            #print("isect = %X" % isect)
+            isect = isect & 0xFFFFFFFF  # JYTHON-WORKAROUND
+            debug("isect = %X" % isect)
             if isect == ENDOFCHAIN or isect == FREESECT:
                 # the end of the sector chain has been reached
+                debug("found end of sector chain")
                 break
             # read the FAT sector
             s = self.getsect(isect)
