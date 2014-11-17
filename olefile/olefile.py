@@ -174,6 +174,7 @@ __version__ = '0.41'
 # 2014-07-31       PL: - fixed padding in write_sect for Python 3, added checks
 #                      - added write_stream to write a stream to disk
 # 2014-09-26 v0.40 PL: - renamed OleFileIO_PL to olefile
+# 2014-11-09       NE: - added support for Jython (Niko Ehrenfeuchter)
 # 2014-11-13 v0.41 PL: - improved isOleFile and OleFileIO.open to support OLE
 #                        data in a string buffer and file-like objects.
 
@@ -1118,6 +1119,7 @@ class OleFileIO:
         security-oriented application, see source code for details)
         write_mode: bool, if True the file is opened in read/write mode instead
                     of read-only by default.
+        debug: bool, set debug mode
         """
         set_debug_mode(debug)
         # minimal level for defects to be raised as exceptions:
