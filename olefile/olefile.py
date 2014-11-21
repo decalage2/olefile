@@ -1,26 +1,26 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1 -*-
-"""
-olefile (formerly OleFileIO_PL) version 0.41 2014-11-13
 
-Module to read/write Microsoft OLE2 files (also called Structured Storage or
-Microsoft Compound Document File Format), such as Microsoft Office 97-2003
-documents, Image Composer and FlashPix files, Outlook messages, ...
-This version is compatible with Python 2.6+ and 3.x
+# olefile (formerly OleFileIO_PL) version 0.41 2014-11-21
+#
+# Module to read/write Microsoft OLE2 files (also called Structured Storage or
+# Microsoft Compound Document File Format), such as Microsoft Office 97-2003
+# documents, Image Composer and FlashPix files, Outlook messages, ...
+# This version is compatible with Python 2.6+ and 3.x
+#
+# Project website: http://www.decalage.info/olefile
+#
+# olefile is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
+#
+# olefile is based on the OleFileIO module from the PIL library v1.1.6
+# See: http://www.pythonware.com/products/pil/index.htm
+#
+# The Python Imaging Library (PIL) is
+# Copyright (c) 1997-2005 by Secret Labs AB
+# Copyright (c) 1995-2005 by Fredrik Lundh
+#
+# See source code and LICENSE.txt for information on usage and redistribution.
 
-Project website: http://www.decalage.info/python/olefileio
-
-olefile is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
-
-olefile is based on the OleFileIO module from the PIL library v1.1.6
-See: http://www.pythonware.com/products/pil/index.htm
-
-The Python Imaging Library (PIL) is
-Copyright (c) 1997-2005 by Secret Labs AB
-Copyright (c) 1995-2005 by Fredrik Lundh
-
-See source code and LICENSE.txt for information on usage and redistribution.
-"""
 
 # Since OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
 # This import enables print() as a function rather than a keyword
@@ -30,7 +30,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-11-13"
+__date__    = "2014-11-21"
 __version__ = '0.41'
 
 #--- LICENSE ------------------------------------------------------------------
@@ -2221,15 +2221,18 @@ if __name__ == "__main__":
 
     # [PL] display quick usage info if launched from command-line
     if len(sys.argv) <= 1:
-        print(__doc__)
-        print("""
-Launched from command line, this script parses OLE files and prints info.
+        print('olefile version %s %s - %s' % (__version__, __date__, __author__))
+        print(
+"""
+Launched from the command line, this script parses OLE files and prints info.
 
 Usage: olefile.py [-d] [-c] <file> [file2 ...]
 
 Options:
--d : debug mode (display a lot of debug information, for developers only)
+-d : debug mode (displays a lot of debug information, for developers only)
 -c : check all streams (for debugging purposes)
+
+For more information, see http://www.decalage.info/olefile
 """)
         sys.exit()
 
