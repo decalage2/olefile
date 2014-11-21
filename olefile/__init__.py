@@ -8,7 +8,7 @@ Microsoft Compound Document File Format), such as Microsoft Office 97-2003
 documents, Image Composer and FlashPix files, Outlook messages, ...
 This version is compatible with Python 2.6+ and 3.x
 
-Project website: http://www.decalage.info/python/olefileio
+Project website: http://www.decalage.info/olefile
 
 olefile is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
 
@@ -26,7 +26,7 @@ try:
     # first try to import olefile for Python 2.6+/3.x
     from .olefile import *
     # import metadata not covered by *:
-    from .olefile import __doc__, __version__, __author__, __date__
+    from .olefile import __version__, __author__, __date__
 
 except:
     # if it fails, fallback to the old version olefile2 for Python 2.x:
