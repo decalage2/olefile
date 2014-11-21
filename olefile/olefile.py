@@ -1,5 +1,4 @@
-#!/usr/local/bin/python
-# -*- coding: latin-1 -*-
+#!/usr/bin/env python
 
 # olefile (formerly OleFileIO_PL) version 0.41 2014-11-21
 #
