@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# olefile (formerly OleFileIO_PL) version 0.41 2014-11-21
+# olefile (formerly OleFileIO_PL) version 0.41 2014-11-25
 #
 # Module to read/write Microsoft OLE2 files (also called Structured Storage or
 # Microsoft Compound Document File Format), such as Microsoft Office 97-2003
@@ -29,7 +29,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-11-21"
+__date__    = "2014-11-25"
 __version__ = '0.41'
 
 #--- LICENSE ------------------------------------------------------------------

@@ -13,18 +13,10 @@
 <p>An OLE file can also contain <strong>storages</strong>. A storage is a folder that contains streams or other storages. For example, a MS Word document with VBA macros has a storage called &quot;Macros&quot;.</p>
 <p>Special streams can contain <strong>properties</strong>. A property is a specific value that can be used to store information such as the metadata of a document (title, author, creation date, etc). Property stream names usually start with the character '05'.</p>
 <p>For example, a typical MS Word document may look like this:</p>
-<pre><code>\x05DocumentSummaryInformation (stream)
-\x05SummaryInformation (stream)
-WordDocument (stream)
-Macros (storage)
-    PROJECT (stream)
-    PROJECTwm (stream)
-    VBA (storage)
-        Module1 (stream)
-        ThisDocument (stream)
-        _VBA_PROJECT (stream)
-        dir (stream)
-ObjectPool (storage)</code></pre>
+<div class="figure">
+<img src="OLE_VBA_sample.png" /><p class="caption"></p>
+</div>
+<p>Go to the <a href="API.html">API</a> page to see how to use all olefile features to parse OLE files.</p>
 <hr />
 <h2 id="olefile-documentation">olefile documentation</h2>
 <ul>

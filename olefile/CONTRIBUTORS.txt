@@ -7,6 +7,7 @@ Please contact me if I forgot to mention your name.
 
 A big thank you to all of them:
 
+- Niko Ehrenfeuchter: added support for Jython
 - Niko Ehrenfeuchter, Martijn Berger and Dave Jones: helped fix 4K sector support
 - Martin Panter: conversion to Python 3.x/2.6+
 - mete0r_kr: added support for file-like objects

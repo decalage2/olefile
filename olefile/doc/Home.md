@@ -1,12 +1,12 @@
-olefile v0.40 documentation
+olefile v0.41 documentation
 ===========================
 
 This is the home page of the documentation for olefile. The latest version can be found [online](https://bitbucket.org/decalage/olefileio_pl/wiki), otherwise a copy is provided in the doc subfolder of the package.
 
-[olefile](http://www.decalage.info/python/olefileio) is a Python package to parse, read and write [Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)](http://en.wikipedia.org/wiki/Compound_File_Binary_Format), such as Microsoft Office 97-2003 documents, Image Composer and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats, McAfee antivirus quarantine files, etc.
+[olefile](http://www.decalage.info/olefile) is a Python package to parse, read and write [Microsoft OLE2 files (also called Structured Storage, Compound File Binary Format or Compound Document File Format)](http://en.wikipedia.org/wiki/Compound_File_Binary_Format), such as Microsoft Office 97-2003 documents, Image Composer and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats, McAfee antivirus quarantine files, etc.
   
 
-**Quick links:** [Home page](http://www.decalage.info/python/olefileio) - [Download](https://bitbucket.org/decalage/olefileio_pl/downloads) - [Documentation](https://bitbucket.org/decalage/olefileio_pl/wiki) - [Report Issues/Suggestions/Questions](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open) - [Contact the author](http://decalage.info/contact) - [Repository](https://bitbucket.org/decalage/olefileio_pl) - [Updates on Twitter](https://twitter.com/decalage2)
+**Quick links:** [Home page](http://www.decalage.info/olefile) - [Download/Install](https://bitbucket.org/decalage/olefileio_pl/wiki/Install) - [Documentation](https://bitbucket.org/decalage/olefileio_pl/wiki) - [Report Issues/Suggestions/Questions](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open) - [Contact the author](http://decalage.info/contact) - [Repository](https://bitbucket.org/decalage/olefileio_pl) - [Updates on Twitter](https://twitter.com/decalage2)
 
 History
 -------
