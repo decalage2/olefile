@@ -29,8 +29,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2014-11-25"
-__version__ = '0.41'
+__date__    = "2014-12-02"
+__version__ = '0.42 alpha'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -177,6 +177,7 @@ __version__ = '0.41'
 # 2014-11-13 v0.41 PL: - improved isOleFile and OleFileIO.open to support OLE
 #                        data in a string buffer and file-like objects.
 # 2014-11-21       PL: - updated comments according to Pillow's commits
+# 2014-12-02 v0.42 PL: - isOleFile now supports file-like objects without seek
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -432,8 +433,11 @@ def isOleFile (filename):
     if hasattr(filename, 'read'):
         # file-like object: use it directly
         header = filename.read(len(MAGIC))
-        # just in case, seek back to start of file:
-        filename.seek(0)
+        # just in case (and if supported), seek back to start of file:
+        try:
+            filename.seek(0)
+        except:
+            pass
     elif isinstance(filename, bytes) and len(filename) >= MINIMAL_OLEFILE_SIZE:
         # filename is a bytes string containing the OLE file to be parsed:
         header = filename[:len(MAGIC)]
