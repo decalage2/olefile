@@ -30,7 +30,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 __author__  = "Philippe Lagadec"
 __date__    = "2015-01-25"
-__version__ = '0.42b'
+__version__ = '0.42c'
 
 #--- LICENSE ------------------------------------------------------------------
 
