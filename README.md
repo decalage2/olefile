@@ -1,9 +1,10 @@
 olefile (formerly OleFileIO_PL)
 ===============================
 
-[olefile](http://www.decalage.info/python/olefileio) is a Python package to parse, read and write [Microsoft OLE2 files 
-(also called Structured Storage, Compound File Binary Format or Compound Document File Format)]
-(http://en.wikipedia.org/wiki/Compound_File_Binary_Format), such as Microsoft Office 97-2003 documents, Image Composer 
+[olefile](http://www.decalage.info/olefile) is a Python package to parse, read and write 
+[Microsoft OLE2 files] (http://en.wikipedia.org/wiki/Compound_File_Binary_Format)
+(also called Structured Storage, Compound File Binary Format or Compound Document File Format), 
+such as Microsoft Office 97-2003 documents, vbaProject.bin in MS Office 2007+ files, Image Composer 
 and FlashPix files, Outlook messages, StickyNotes, several Microscopy file formats, McAfee antivirus quarantine files, 
 etc.
   
@@ -17,31 +18,14 @@ etc.
 [Updates on Twitter](https://twitter.com/decalage2)
 
 
-olefile is based on the OleFileIO module from [PIL](http://www.pythonware.com/products/pil/index.htm), the excellent 
-Python Imaging Library, created and maintained by Fredrik Lundh. The olefile API is still compatible with PIL, but 
-since 2005 I have improved the internal implementation significantly, with new features, bugfixes and a more robust 
-design. From 2005 to 2014 the project was called OleFileIO_PL, and in 2014 I changed its name to olefile to celebrate 
-its 9 years and its new write features. 
-
-As far as I know, this module is the most complete and robust Python implementation to read MS OLE2 files, portable on 
-several operating systems. (please tell me if you know other similar Python modules)
-
-Since 2014 olefile/OleFileIO_PL has been integrated into [Pillow](http://python-imaging.github.io/), the friendly fork 
-of PIL. olefile will continue to be improved as a separate project, and new versions will be merged into Pillow 
-regularly.
-
-olefile can be used as an independent module or with PIL/Pillow. 
-
-olefile is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data (especially 
-for security purposes such as malware analysis and forensics), then please also check my [python-oletools]
-(http://www.decalage.info/python/oletools), which are built upon olefile and provide a higher-level interface.
-
 News
 ----
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2014-11-25 v0.41**: OleFileIO.open and isOleFile now support OLE files stored in byte strings, fixed installer for 
+- **2015-01-25 v0.42**: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8
+    instead of Latin-1), fixed bug in listdir with empty storages.
+- 2014-11-25 v0.41: OleFileIO.open and isOleFile now support OLE files stored in byte strings, fixed installer for 
     python 3, added support for Jython (Niko Ehrenfeuchter)
 - 2014-10-01 v0.40: renamed OleFileIO_PL to olefile, added initial write support for streams >4K, updated doc and 
     license, improved the setup script.
@@ -68,7 +52,11 @@ Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 Download/Install
 ----------------
 
-If you have pip or setuptools installed, you may simply run "**pip install olefile**" or "**easy_install olefile**". 
+If you have pip or setuptools installed (pip is included in Python 2.7.9+), you may simply run **pip install olefile** 
+or **easy_install olefile** for the first installation.
+ 
+To update olefile, run **pip install -U olefile**.
+ 
 Otherwise, see https://bitbucket.org/decalage/olefileio_pl/wiki/Install
 
 Features
@@ -81,6 +69,29 @@ Features
 - Open streams as files
 - Parse and read property streams, containing metadata of the file
 - Portable, pure Python module, no dependency
+
+olefile can be used as an independent package or with PIL/Pillow. 
+
+olefile is mostly meant for developers. If you are looking for tools to analyze OLE files or to extract data (especially 
+for security purposes such as malware analysis and forensics), then please also check my [python-oletools]
+(http://www.decalage.info/python/oletools), which are built upon olefile and provide a higher-level interface.
+
+
+History
+-------
+
+olefile is based on the OleFileIO module from [PIL](http://www.pythonware.com/products/pil/index.htm), the excellent 
+Python Imaging Library, created and maintained by Fredrik Lundh. The olefile API is still compatible with PIL, but 
+since 2005 I have improved the internal implementation significantly, with new features, bugfixes and a more robust 
+design. From 2005 to 2014 the project was called OleFileIO_PL, and in 2014 I changed its name to olefile to celebrate 
+its 9 years and its new write features. 
+
+As far as I know, olefile is the most complete and robust Python implementation to read MS OLE2 files, portable on 
+several operating systems. (please tell me if you know other similar Python modules)
+
+Since 2014 olefile/OleFileIO_PL has been integrated into [Pillow](http://python-imaging.github.io/), the friendly fork 
+of PIL. olefile will continue to be improved as a separate project, and new versions will be merged into Pillow 
+regularly.
 
 
 Main improvements over the original version of OleFileIO in PIL:
@@ -119,7 +130,7 @@ See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/
 License
 -------
 
-olefile (formerly OleFileIO_PL) is copyright (c) 2005-2014 Philippe Lagadec 
+olefile (formerly OleFileIO_PL) is copyright (c) 2005-2015 Philippe Lagadec 
 ([http://www.decalage.info](http://www.decalage.info))
 
 All rights reserved.
