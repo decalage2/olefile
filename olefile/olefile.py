@@ -29,8 +29,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2015-01-25"
-__version__ = '0.42.1'
+__date__    = "2015-10-19"
+__version__ = '0.43'
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -181,6 +181,8 @@ __version__ = '0.42.1'
 #                        to UTF-8 on Python 2.x (Unicode on Python 3.x)
 #                      - added path_encoding option to override the default
 #                      - fixed a bug in _list when a storage is empty
+# 2015-10-19 v0.43 PL: - fixed issue #26 in OleFileIO.getproperties
+#                        (using id and type as local variable names)
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -694,6 +696,7 @@ class _OleStream(io.BytesIO):
 
         - size: actual size of data stream, after it was opened.
     """
+    #TODO: use _raise_defect instead of exceptions
 
     # FIXME: should store the list of sects obtained by following
     # the fat chain, and load new sectors on demand instead of
@@ -802,6 +805,7 @@ class _OleStream(io.BytesIO):
         else:
             # read data is less than expected:
             debug('len(data)=%d, size=%d' % (len(data), size))
+            # TODO: provide details in exception message
             raise IOError('OLE stream size is less than declared')
         # when all data is read in memory, BytesIO constructor is called
         io.BytesIO.__init__(self, data)
@@ -2113,31 +2117,31 @@ class OleFileIO:
             return data
 
         for i in range(num_props):
+            property_id = 0 # just in case of an exception
             try:
-                id = 0 # just in case of an exception
-                id = i32(s, 8+i*8)
+                property_id = i32(s, 8+i*8)
                 offset = i32(s, 12+i*8)
-                type = i32(s, offset)
+                property_type = i32(s, offset)
 
-                debug ('property id=%d: type=%d offset=%X' % (id, type, offset))
+                debug ('property id=%d: type=%d offset=%X' % (property_id, property_type, offset))
 
                 # test for common types first (should perhaps use
                 # a dictionary instead?)
 
-                if type == VT_I2: # 16-bit signed integer
+                if property_type == VT_I2: # 16-bit signed integer
                     value = i16(s, offset+4)
                     if value >= 32768:
                         value = value - 65536
-                elif type == VT_UI2: # 2-byte unsigned integer
+                elif property_type == VT_UI2: # 2-byte unsigned integer
                     value = i16(s, offset+4)
-                elif type in (VT_I4, VT_INT, VT_ERROR):
+                elif property_type in (VT_I4, VT_INT, VT_ERROR):
                     # VT_I4: 32-bit signed integer
                     # VT_ERROR: HRESULT, similar to 32-bit signed integer,
                     # see http://msdn.microsoft.com/en-us/library/cc230330.aspx
                     value = i32(s, offset+4)
-                elif type in (VT_UI4, VT_UINT): # 4-byte unsigned integer
+                elif property_type in (VT_UI4, VT_UINT): # 4-byte unsigned integer
                     value = i32(s, offset+4) # FIXME
-                elif type in (VT_BSTR, VT_LPSTR):
+                elif property_type in (VT_BSTR, VT_LPSTR):
                     # CodePageString, see http://msdn.microsoft.com/en-us/library/dd942354.aspx
                     # size is a 32 bits integer, including the null terminator, and
                     # possibly trailing or embedded null chars
@@ -2146,25 +2150,25 @@ class OleFileIO:
                     value = s[offset+8:offset+8+count-1]
                     # remove all null chars:
                     value = value.replace(b'\x00', b'')
-                elif type == VT_BLOB:
+                elif property_type == VT_BLOB:
                     # binary large object (BLOB)
                     # see http://msdn.microsoft.com/en-us/library/dd942282.aspx
                     count = i32(s, offset+4)
                     value = s[offset+8:offset+8+count]
-                elif type == VT_LPWSTR:
+                elif property_type == VT_LPWSTR:
                     # UnicodeString
                     # see http://msdn.microsoft.com/en-us/library/dd942313.aspx
                     # "the string should NOT contain embedded or additional trailing
                     # null characters."
                     count = i32(s, offset+4)
                     value = self._decode_utf16_str(s[offset+8:offset+8+count*2])
-                elif type == VT_FILETIME:
+                elif property_type == VT_FILETIME:
                     value = long(i32(s, offset+4)) + (long(i32(s, offset+8))<<32)
                     # FILETIME is a 64-bit int: "number of 100ns periods
                     # since Jan 1,1601".
-                    if convert_time and id not in no_conversion:
+                    if convert_time and property_id not in no_conversion:
                         debug('Converting property #%d to python datetime, value=%d=%fs'
-                                %(id, value, float(value)/10000000))
+                                %(property_id, value, float(value)/10000000))
                         # convert FILETIME to Python datetime.datetime
                         # inspired from http://code.activestate.com/recipes/511425-filetime-to-datetime/
                         _FILETIME_null_date = datetime.datetime(1601, 1, 1, 0, 0, 0)
@@ -2174,22 +2178,22 @@ class OleFileIO:
                         # legacy code kept for backward compatibility: returns a
                         # number of seconds since Jan 1,1601
                         value = value // 10000000 # seconds
-                elif type == VT_UI1: # 1-byte unsigned integer
+                elif property_type == VT_UI1: # 1-byte unsigned integer
                     value = i8(s[offset+4])
-                elif type == VT_CLSID:
+                elif property_type == VT_CLSID:
                     value = _clsid(s[offset+4:offset+20])
-                elif type == VT_CF:
+                elif property_type == VT_CF:
                     # PropertyIdentifier or ClipboardData??
                     # see http://msdn.microsoft.com/en-us/library/dd941945.aspx
                     count = i32(s, offset+4)
                     value = s[offset+8:offset+8+count]
-                elif type == VT_BOOL:
+                elif property_type == VT_BOOL:
                     # VARIANT_BOOL, 16 bits bool, 0x0000=Fals, 0xFFFF=True
                     # see http://msdn.microsoft.com/en-us/library/cc237864.aspx
                     value = bool(i16(s, offset+4))
                 else:
                     value = None # everything else yields "None"
-                    debug ('property id=%d: type=%d not implemented in parser yet' % (id, type))
+                    debug ('property id=%d: type=%d not implemented in parser yet' % (property_id, property_type))
 
                 # missing: VT_EMPTY, VT_NULL, VT_R4, VT_R8, VT_CY, VT_DATE,
                 # VT_DECIMAL, VT_I1, VT_I8, VT_UI8,
@@ -2201,15 +2205,15 @@ class OleFileIO:
                 # type of items, e.g. VT_VECTOR|VT_BSTR
                 # see http://msdn.microsoft.com/en-us/library/dd942011.aspx
 
-                #print("%08x" % id, repr(value), end=" ")
+                #print("%08x" % property_id, repr(value), end=" ")
                 #print("(%s)" % VT[i32(s, offset) & 0xFFF])
 
-                data[id] = value
+                data[property_id] = value
             except BaseException as exc:
                 # catch exception while parsing each property, and only raise
                 # a DEFECT_INCORRECT, because parsing can go on
                 msg = 'Error while parsing property id %d in stream %s: %s' % (
-                    id, repr(streampath), exc)
+                    property_id, repr(streampath), exc)
                 self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
 
         return data
