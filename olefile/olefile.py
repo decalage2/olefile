@@ -925,7 +925,7 @@ class _OleDirectoryEntry:
 
         log.debug('DirEntry SID=%d: %s' % (self.sid, repr(self.name)))
         log.debug(' - type: %d' % self.entry_type)
-        log.debug(' - sect: %d' % self.isectStart)
+        log.debug(' - sect: %Xh' % self.isectStart)
         log.debug(' - SID left: %d, right: %d, child: %d' % (self.sid_left,
             self.sid_right, self.sid_child))
 
@@ -1438,10 +1438,10 @@ class OleFileIO:
         :param minifat: bool, if True, stream is located in the MiniFAT, else in the FAT
         """
         if minifat:
-            log.debug('_check_duplicate_stream: sect=%d in MiniFAT' % first_sect)
+            log.debug('_check_duplicate_stream: sect=%Xh in MiniFAT' % first_sect)
             used_streams = self._used_streams_minifat
         else:
-            log.debug('_check_duplicate_stream: sect=%d in FAT' % first_sect)
+            log.debug('_check_duplicate_stream: sect=%Xh in FAT' % first_sect)
             # some values can be safely ignored (not a real stream):
             if first_sect in (DIFSECT,FATSECT,ENDOFCHAIN,FREESECT):
                 return
@@ -1817,7 +1817,7 @@ class OleFileIO:
         :param force_FAT: if False (default), stream will be opened in FAT or MiniFAT
             according to size. If True, it will always be opened in FAT.
         """
-        log.debug('OleFileIO.open(): sect=%d, size=%d, force_FAT=%s' %
+        log.debug('OleFileIO.open(): sect=%Xh, size=%d, force_FAT=%s' %
             (start, size, str(force_FAT)))
         # stream size is compared to the MiniSectorCutoff threshold:
         if size < self.minisectorcutoff and not force_FAT:
@@ -1828,7 +1828,7 @@ class OleFileIO:
                 # The first sector index of the miniFAT stream is stored in the
                 # root directory entry:
                 size_ministream = self.root.size
-                log.debug('Opening MiniStream: sect=%d, size=%d' %
+                log.debug('Opening MiniStream: sect=%Xh, size=%d' %
                     (self.root.isectStart, size_ministream))
                 self.ministream = self._open(self.root.isectStart,
                     size_ministream, force_FAT=True)
@@ -1985,7 +1985,7 @@ class OleFileIO:
             else:
                 data_sector = data [i*self.sectorsize:]
                 #TODO: comment this if it works
-                log.debug('write_stream: size=%d sectorsize=%d data_sector=%d size%%sectorsize=%d'
+                log.debug('write_stream: size=%d sectorsize=%d data_sector=%Xh size%%sectorsize=%d'
                     % (size, self.sectorsize, len(data_sector), size % self.sectorsize))
                 assert(len(data_sector) % self.sectorsize==size % self.sectorsize)
             self.write_sect(sect, data_sector)
@@ -2307,22 +2307,25 @@ if __name__ == "__main__":
             ole.dumpdirectory()
             for streamname in ole.listdir():
                 if streamname[-1][0] == "\005":
-                    print(streamname, ": properties")
-                    props = ole.getproperties(streamname, convert_time=True)
-                    props = sorted(props.items())
-                    for k, v in props:
-                        #[PL]: avoid to display too large or binary values:
-                        if isinstance(v, (basestring, bytes)):
-                            if len(v) > 50:
-                                v = v[:50]
-                        if isinstance(v, bytes):
-                            # quick and dirty binary check:
-                            for c in (1,2,3,4,5,6,7,11,12,14,15,16,17,18,19,20,
-                                21,22,23,24,25,26,27,28,29,30,31):
-                                if c in bytearray(v):
-                                    v = '(binary data)'
-                                    break
-                        print("   ", k, v)
+                    print("%r: properties" % streamname)
+                    try:
+                        props = ole.getproperties(streamname, convert_time=True)
+                        props = sorted(props.items())
+                        for k, v in props:
+                            #[PL]: avoid to display too large or binary values:
+                            if isinstance(v, (basestring, bytes)):
+                                if len(v) > 50:
+                                    v = v[:50]
+                            if isinstance(v, bytes):
+                                # quick and dirty binary check:
+                                for c in (1,2,3,4,5,6,7,11,12,14,15,16,17,18,19,20,
+                                    21,22,23,24,25,26,27,28,29,30,31):
+                                    if c in bytearray(v):
+                                        v = '(binary data)'
+                                        break
+                            print("   ", k, v)
+                    except:
+                        log.exception('Error while parsing property stream %r' % streamname)
 
             if options.check_streams:
                 # Read all streams to check if there are errors:
@@ -2353,8 +2356,11 @@ if __name__ == "__main__":
             print()
 
             # parse and display metadata:
-            meta = ole.get_metadata()
-            meta.dump()
+            try:
+                meta = ole.get_metadata()
+                meta.dump()
+            except:
+                log.exception('Error while parsing metadata')
             print()
             #[PL] Test a few new methods:
             root = ole.get_rootentry_name()
