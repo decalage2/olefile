@@ -181,11 +181,14 @@ __version__ = '0.43'
 #                        to UTF-8 on Python 2.x (Unicode on Python 3.x)
 #                      - added path_encoding option to override the default
 #                      - fixed a bug in _list when a storage is empty
-# 2015-10-19 v0.43 PL: - fixed issue #26 in OleFileIO.getproperties
+# 2015-04-17 v0.43 PL: - slight changes in _OleDirectoryEntry
+# 2015-10-19           - fixed issue #26 in OleFileIO.getproperties
 #                        (using id and type as local variable names)
 # 2015-10-29           - replaced debug() with proper logging
 #                      - use optparse to handle command line options
 #                      - improved attribute names in OleFileIO class
+# 2015-11-05           - fixed issue #27 by correcting the MiniFAT sector
+#                        cutoff size if invalid.
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -842,7 +845,7 @@ class _OleDirectoryEntry:
     # struct to parse directory entries:
     # <: little-endian byte order, standard sizes
     #    (note: this should guarantee that Q returns a 64 bits int)
-    # 64s: string containing entry name in unicode (max 31 chars) + null char
+    # 64s: string containing entry name in unicode UTF-16 (max 31 chars) + null char = 64 bytes
     # H: uint16, number of bytes used in name buffer, including null = (len+1)*2
     # B: uint8, dir entry type (between 0 and 5)
     # B: uint8, color: 0=black, 1=red
@@ -887,8 +890,8 @@ class _OleDirectoryEntry:
         self.used = False
         # decode DirEntry
         (
-            name,
-            namelength,
+            self.name_raw, # 64s: string containing entry name in unicode UTF-16 (max 31 chars) + null char = 64 bytes
+            self.namelength, # H: uint16, number of bytes used in name buffer, including null = (len+1)*2
             self.entry_type,
             self.color,
             self.sid_left,
@@ -899,8 +902,8 @@ class _OleDirectoryEntry:
             self.createTime,
             self.modifyTime,
             self.isectStart,
-            sizeLow,
-            sizeHigh
+            self.sizeLow,
+            self.sizeHigh
         ) = struct.unpack(_OleDirectoryEntry.STRUCT_DIRENTRY, entry)
         if self.entry_type not in [STGTY_ROOT, STGTY_STORAGE, STGTY_STREAM, STGTY_EMPTY]:
             olefile._raise_defect(DEFECT_INCORRECT, 'unhandled OLE storage type')
@@ -912,17 +915,17 @@ class _OleDirectoryEntry:
         #log.debug(struct.unpack(fmt_entry, entry[:len_entry]))
         # name should be at most 31 unicode characters + null character,
         # so 64 bytes in total (31*2 + 2):
-        if namelength>64:
-            olefile._raise_defect(DEFECT_INCORRECT, 'incorrect DirEntry name length')
+        if self.namelength>64:
+            olefile._raise_defect(DEFECT_INCORRECT, 'incorrect DirEntry name length >64 bytes')
             # if exception not raised, namelength is set to the maximum value:
-            namelength = 64
+            self.namelength = 64
         # only characters without ending null char are kept:
-        name = name[:(namelength-2)]
+        self.name_utf16 = self.name_raw[:(self.namelength-2)]
         #TODO: check if the name is actually followed by a null unicode character ([MS-CFB] 2.6.1)
         #TODO: check if the name does not contain forbidden characters:
         # [MS-CFB] 2.6.1: "The following characters are illegal and MUST NOT be part of the name: '/', '\', ':', '!'."
         # name is converted from UTF-16LE to the path encoding specified in the OleFileIO:
-        self.name = olefile._decode_utf16_str(name)
+        self.name = olefile._decode_utf16_str(self.name_utf16)
 
         log.debug('DirEntry SID=%d: %s' % (self.sid, repr(self.name)))
         log.debug(' - type: %d' % self.entry_type)
@@ -934,14 +937,14 @@ class _OleDirectoryEntry:
         # sectors, BUT apparently some implementations set it as 0xFFFFFFFF, 1
         # or some other value so it cannot be raised as a defect in general:
         if olefile.sectorsize == 512:
-            if sizeHigh != 0 and sizeHigh != 0xFFFFFFFF:
+            if self.sizeHigh != 0 and self.sizeHigh != 0xFFFFFFFF:
                 log.debug('sectorsize=%d, sizeLow=%d, sizeHigh=%d (%X)' %
-                    (olefile.sectorsize, sizeLow, sizeHigh, sizeHigh))
+                    (olefile.sectorsize, self.sizeLow, self.sizeHigh, self.sizeHigh))
                 olefile._raise_defect(DEFECT_UNSURE, 'incorrect OLE stream size')
-            self.size = sizeLow
+            self.size = self.sizeLow
         else:
-            self.size = sizeLow + (long(sizeHigh)<<32)
-        log.debug(' - size: %d (sizeLow=%d, sizeHigh=%d)' % (self.size, sizeLow, sizeHigh))
+            self.size = self.sizeLow + (long(self.sizeHigh)<<32)
+        log.debug(' - size: %d (sizeLow=%d, sizeHigh=%d)' % (self.size, self.sizeLow, self.sizeHigh))
 
         self.clsid = _clsid(clsid)
         # a storage should have a null size, BUT some implementations such as
@@ -1388,6 +1391,10 @@ class OleFileIO:
         # must be allocated as normal sectors from the FAT.
         if self.mini_stream_cutoff_size != 0x1000:
             self._raise_defect(DEFECT_INCORRECT, "incorrect mini_stream_cutoff_size in OLE header")
+            # if no exception is raised, the cutoff size is fixed to 0x1000
+            log.warning('Fixing the mini_stream_cutoff_size to 4096 (mandatory value) instead of %d' %
+                        self.mini_stream_cutoff_size)
+            self.mini_stream_cutoff_size = 0x1000
         log.debug( "first_mini_fat_sector     = %Xh" % self.first_mini_fat_sector )
         log.debug( "num_mini_fat_sectors      = %d" % self.num_mini_fat_sectors )
         log.debug( "first_difat_sector        = %Xh" % self.first_difat_sector )
