@@ -23,7 +23,10 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2015-01-25 v0.42**: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8
+- **2015-11-28 v0.43**: fixed issues [#26](https://bitbucket.org/decalage/olefileio_pl/issues/26/variable-referenced-before-assignment)
+    and [#27](https://bitbucket.org/decalage/olefileio_pl/issues/27/incomplete-ole-stream-incorrect-ole-fat),
+    better handling of malformed files, use python logging.
+- 2015-01-25 v0.42: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8
     instead of Latin-1), fixed bug in listdir with empty storages.
 - 2014-11-25 v0.41: OleFileIO.open and isOleFile now support OLE files stored in byte strings, fixed installer for 
     python 3, added support for Jython (Niko Ehrenfeuchter)
