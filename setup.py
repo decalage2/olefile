@@ -18,6 +18,8 @@ To install this package, run:
 # 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x, added PL2 version
 # 2014-09-26 v0.08 PL: - install the olefile package instead of modules
 # 2014-10-10 v0.09 PL: - fixed compilation error on Python 3
+# 2016-01-29 v0.10 PL: - fixed issue #28, removed DEBUG_MODE test
+
 
 #--- TODO ---------------------------------------------------------------------
 
@@ -33,11 +35,7 @@ from distutils.core import setup
 
 import sys, os, fnmatch
 
-from olefile import __version__, __author__, DEBUG_MODE
-
-# debug mode should be off for usual releases:
-if DEBUG_MODE:
-    raise ValueError("WARNING: DEBUG_MODE should be False !")
+from olefile import __version__, __author__
 
 
 #--- METADATA -----------------------------------------------------------------
