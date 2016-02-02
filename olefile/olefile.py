@@ -29,7 +29,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2015-10-29"
+__date__    = "2016-02-02"
 __version__ = '0.43'
 
 #--- LICENSE ------------------------------------------------------------------
@@ -189,6 +189,7 @@ __version__ = '0.43'
 #                      - improved attribute names in OleFileIO class
 # 2015-11-05           - fixed issue #27 by correcting the MiniFAT sector
 #                        cutoff size if invalid.
+# 2016-02-02           - logging is disabled by default
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -346,13 +347,14 @@ class NullHandler(logging.Handler):
     def emit(self, record):
         pass
 
-def get_logger(name, level=logging.NOTSET):
+def get_logger(name, level=logging.CRITICAL+1):
     """
     Create a suitable logger object for this module.
     The goal is not to change settings of the root logger, to avoid getting
     other modules' logs on the screen.
     If a logger exists with same name, reuse it. (Else it would have duplicate
     handlers and messages would be doubled.)
+    The level is set to CRITICAL+1 by default, to avoid any logging.
     """
     # First, test if there is already a logger with the same name, else it
     # will generate duplicate messages (due to duplicate handlers):
@@ -2310,6 +2312,9 @@ if __name__ == "__main__":
 
     # setup logging to the console
     logging.basicConfig(level=LOG_LEVELS[options.loglevel], format='%(levelname)-8s %(message)s')
+
+    # also set the same log level for the module's logger to enable it:
+    log.setLevel(LOG_LEVELS[options.loglevel])
 
     for filename in args:
         try:
