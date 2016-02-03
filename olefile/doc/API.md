@@ -27,7 +27,7 @@ simple script is also installed so that the following statement imports olefile 
 As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with
 Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.26 (with some backported enhancements)
 is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on
-Python 2.5 or older. This is implemented in olefile/__init__.py. (new in v0.40)
+Python 2.5 or older. This is implemented in olefile/\_\_init\_\_.py. (new in v0.40)
 
 If you think olefile should stay compatible with Python 2.5 or older, please [contact me](http://decalage.info/contact).
 		
@@ -204,8 +204,8 @@ get_type(path) returns the type of a stream/storage, as one of the following con
 get\_ctime(path) and get\_mtime(path) return the creation and modification timestamps of a stream/storage, as a Python datetime object with UTC timezone. Please note that these timestamps are only present if the application that created the OLE file explicitly stored them, which is rarely the case. When not present, these methods return None (new in v0.26).
 
 	:::python
-    c = ole.get_ctime('WordDocument')
-    m = ole.get_mtime('WordDocument')
+    c = ole.getctime('WordDocument')
+    m = ole.getmtime('WordDocument')
 	
 The root storage is a special case: You can get its creation and modification timestamps using the OleFileIO.root attribute (new in v0.26):
 
@@ -291,6 +291,11 @@ Unless your application is a simple script that terminates after processing an O
 	:::python
     ole.close()
 		
+## Enable logging
+
+TODO
+
+
 ## Use olefile as a script for testing/debugging
 		
 olefile can also be used as a script from the command-line to display the structure of an OLE file and its metadata, for example:
@@ -299,6 +304,8 @@ olefile can also be used as a script from the command-line to display the struct
     olefile.py myfile.doc
 
 You can use the option -c to check that all streams can be read fully, and -d to generate very verbose debugging information.
+
+You may also add the option "-l debug" to display debugging messages (very verbose).
 
 --------------------------------------------------------------------------
 

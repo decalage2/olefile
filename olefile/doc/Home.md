@@ -1,4 +1,4 @@
-olefile v0.42 documentation
+olefile v0.43 documentation
 ===========================
 
 This is the home page of the documentation for olefile. The latest version can be found 
