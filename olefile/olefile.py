@@ -9,7 +9,7 @@
 #
 # Project website: http://www.decalage.info/olefile
 #
-# olefile is copyright (c) 2005-2015 Philippe Lagadec (http://www.decalage.info)
+# olefile is copyright (c) 2005-2016 Philippe Lagadec (http://www.decalage.info)
 #
 # olefile is based on the OleFileIO module from the PIL library v1.1.6
 # See: http://www.pythonware.com/products/pil/index.htm
@@ -30,11 +30,11 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 __author__  = "Philippe Lagadec"
 __date__    = "2016-02-02"
-__version__ = '0.43'
+__version__ = '0.44'
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2015 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2016 Philippe Lagadec
 # (http://www.decalage.info)
 #
 # All rights reserved.
@@ -813,8 +813,8 @@ class _OleStream(io.BytesIO):
                 # [PL] if pointer is out of the FAT an exception is raised
                 raise IOError('incorrect OLE FAT, sector index out of range')
         #[PL] Last sector should be a "end of chain" marker:
-        if sect != ENDOFCHAIN:
-            raise IOError('incorrect last sector index in OLE stream')
+        # if sect != ENDOFCHAIN:
+        #     raise IOError('incorrect last sector index in OLE stream')
         data = b"".join(data)
         # Data is truncated to the actual stream size:
         if len(data) >= size:
@@ -1785,6 +1785,10 @@ class OleFileIO:
         root_entry = self._load_direntry(0)
         # Root entry is the first entry:
         self.root = self.direntries[0]
+        # TODO: read ALL directory entries (ignore bad entries?)
+        # TODO: adapt build_storage_tree to avoid duplicate reads
+        # for i in range(1, max_entries):
+        #     self._load_direntry(i)
         # read and build all storage trees, starting from the root:
         self.root.build_storage_tree()
 
