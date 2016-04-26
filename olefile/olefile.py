@@ -94,7 +94,7 @@ __version__ = '0.44'
 # 2005-05-11 v0.10 PL: - a few fixes for Python 2.4 compatibility
 #                        (all changes flagged with [PL])
 # 2006-02-22 v0.11 PL: - a few fixes for some Office 2003 documents which raise
-#                        exceptions in _OleStream.__init__()
+#                        exceptions in OleStream.__init__()
 # 2006-06-09 v0.12 PL: - fixes for files above 6.8MB (DIFAT in loadfat)
 #                      - added some constants
 #                      - added header values checks
@@ -107,26 +107,26 @@ __version__ = '0.44'
 #                      - converted tabs to 4 spaces
 # 2007-11-19 v0.14 PL: - added OleFileIO._raise_defect() to adapt sensitivity
 #                      - improved _unicode() to use Python 2.x unicode support
-#                      - fixed bug in _OleDirectoryEntry
+#                      - fixed bug in OleDirectoryEntry
 # 2007-11-25 v0.15 PL: - added safety checks to detect FAT loops
-#                      - fixed _OleStream which didn't check stream size
+#                      - fixed OleStream which didn't check stream size
 #                      - added/improved many docstrings and comments
 #                      - moved helper functions _unicode and _clsid out of
 #                        OleFileIO class
 #                      - improved OleFileIO._find() to add Unix path syntax
 #                      - OleFileIO._find() is now case-insensitive
 #                      - added get_type() and get_rootentry_name()
-#                      - rewritten loaddirectory and _OleDirectoryEntry
-# 2007-11-27 v0.16 PL: - added _OleDirectoryEntry.kids_dict
+#                      - rewritten loaddirectory and OleDirectoryEntry
+# 2007-11-27 v0.16 PL: - added OleDirectoryEntry.kids_dict
 #                      - added detection of duplicate filenames in storages
 #                      - added detection of duplicate references to streams
-#                      - added get_size() and exists() to _OleDirectoryEntry
+#                      - added get_size() and exists() to OleDirectoryEntry
 #                      - added isOleFile to check header before parsing
 #                      - added __all__ list to control public keywords in pydoc
 # 2007-12-04 v0.17 PL: - added _load_direntry to fix a bug in loaddirectory
 #                      - improved _unicode(), added workarounds for Python <2.3
 #                      - added set_debug_mode and -d option to set debug mode
-#                      - fixed bugs in OleFileIO.open and _OleDirectoryEntry
+#                      - fixed bugs in OleFileIO.open and OleDirectoryEntry
 #                      - added safety check in main for large or binary
 #                        properties
 #                      - allow size>0 for storages for some implementations
@@ -181,7 +181,7 @@ __version__ = '0.44'
 #                        to UTF-8 on Python 2.x (Unicode on Python 3.x)
 #                      - added path_encoding option to override the default
 #                      - fixed a bug in _list when a storage is empty
-# 2015-04-17 v0.43 PL: - slight changes in _OleDirectoryEntry
+# 2015-04-17 v0.43 PL: - slight changes in OleDirectoryEntry
 # 2015-10-19           - fixed issue #26 in OleFileIO.getproperties
 #                        (using id and type as local variable names)
 # 2015-10-29           - replaced debug() with proper logging
@@ -191,6 +191,7 @@ __version__ = '0.44'
 #                        cutoff size if invalid.
 # 2016-02-02           - logging is disabled by default
 # 2016-04-26 v0.44 PL: - added enable_logging
+#                      - renamed _OleDirectoryEntry and _OleStream without '_'
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -205,11 +206,11 @@ __version__ = '0.44'
 # - add underscore to each private method, to avoid their display in
 #   pydoc/epydoc documentation - Remove it for classes to be documented
 # - replace all raised exceptions with _raise_defect (at least in OleFileIO)
-# - merge code from _OleStream and OleFileIO.getsect to read sectors
+# - merge code from OleStream and OleFileIO.getsect to read sectors
 #   (maybe add a class for FAT and MiniFAT ?)
 # - add method to check all streams (follow sectors chains without storing all
 #   stream in memory, and report anomalies)
-# - use _OleDirectoryEntry.kids_dict to improve _find and _list ?
+# - use OleDirectoryEntry.kids_dict to improve _find and _list ?
 # - fix Unicode names handling (find some way to stay compatible with Py1.5.2)
 #   => if possible avoid converting names to Latin-1
 # - review DIFAT code: fix handling of DIFSECT blocks in FAT (not stop)
@@ -221,7 +222,7 @@ __version__ = '0.44'
 #   http://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
 
 # IDEAS:
-# - in OleFileIO._open and _OleStream, use size=None instead of 0x7FFFFFFF for
+# - in OleFileIO._open and OleStream, use size=None instead of 0x7FFFFFFF for
 #   streams with unknown size
 # - use arrays of int instead of long integers for FAT/MiniFAT, to improve
 #   performance and reduce memory usage ? (possible issue with values >2^31)
@@ -712,9 +713,9 @@ class OleMetadata:
             print('- %s: %s' % (prop, repr(value)))
 
 
-#--- _OleStream ---------------------------------------------------------------
+#--- OleStream ---------------------------------------------------------------
 
-class _OleStream(io.BytesIO):
+class OleStream(io.BytesIO):
     """
     OLE2 Stream
 
@@ -738,7 +739,7 @@ class _OleStream(io.BytesIO):
 
     def __init__(self, fp, sect, size, offset, sectorsize, fat, filesize):
         """
-        Constructor for _OleStream class.
+        Constructor for OleStream class.
 
         :param fp: file object, the OLE container or the MiniFAT stream
         :param sect: sector index of first sector in the stream
@@ -749,7 +750,7 @@ class _OleStream(io.BytesIO):
         :param filesize: size of OLE file (for debugging)
         :returns: a BytesIO instance containing the OLE stream
         """
-        log.debug('_OleStream.__init__:')
+        log.debug('OleStream.__init__:')
         log.debug('  sect=%d (%X), size=%d, offset=%d, sectorsize=%d, len(fat)=%d, fp=%s'
             %(sect,sect,size,offset,sectorsize,len(fat), repr(fp)))
         #[PL] To detect malformed documents with FAT loops, we compute the
@@ -843,12 +844,12 @@ class _OleStream(io.BytesIO):
             raise IOError('OLE stream size is less than declared')
         # when all data is read in memory, BytesIO constructor is called
         io.BytesIO.__init__(self, data)
-        # Then the _OleStream object can be used as a read-only file object.
+        # Then the OleStream object can be used as a read-only file object.
 
 
-#--- _OleDirectoryEntry -------------------------------------------------------
+#--- OleDirectoryEntry -------------------------------------------------------
 
-class _OleDirectoryEntry:
+class OleDirectoryEntry:
 
     """
     OLE2 Directory Entry
@@ -881,7 +882,7 @@ class _OleDirectoryEntry:
 
     def __init__(self, entry, sid, olefile):
         """
-        Constructor for an _OleDirectoryEntry object.
+        Constructor for an OleDirectoryEntry object.
         Parses a 128-bytes entry from the OLE Directory stream.
 
         :param entry  : string (must be 128 bytes long)
@@ -892,7 +893,7 @@ class _OleDirectoryEntry:
         # ref to olefile is stored for future use
         self.olefile = olefile
         # kids is a list of children entries, if this entry is a storage:
-        # (list of _OleDirectoryEntry objects)
+        # (list of OleDirectoryEntry objects)
         self.kids = []
         # kids_dict is a dictionary of children entries, indexed by their
         # name in lowercase: used to quickly find an entry, and to detect
@@ -917,7 +918,7 @@ class _OleDirectoryEntry:
             self.isectStart,
             self.sizeLow,
             self.sizeHigh
-        ) = struct.unpack(_OleDirectoryEntry.STRUCT_DIRENTRY, entry)
+        ) = struct.unpack(OleDirectoryEntry.STRUCT_DIRENTRY, entry)
         if self.entry_type not in [STGTY_ROOT, STGTY_STORAGE, STGTY_STREAM, STGTY_EMPTY]:
             olefile._raise_defect(DEFECT_INCORRECT, 'unhandled OLE storage type')
         # only first directory entry can (and should) be root:
@@ -978,7 +979,7 @@ class _OleDirectoryEntry:
 
     def build_storage_tree(self):
         """
-        Read and build the red-black tree attached to this _OleDirectoryEntry
+        Read and build the red-black tree attached to this OleDirectoryEntry
         object, if it is a storage.
         Note that this method builds a tree of all subentries, so it should
         only be called for the root object once.
@@ -1029,7 +1030,7 @@ class _OleDirectoryEntry:
         if name_lower in self.kids_dict:
             self.olefile._raise_defect(DEFECT_INCORRECT,
                 "Duplicate filename in OLE storage")
-        # Then the child_sid _OleDirectoryEntry object is appended to the
+        # Then the child_sid OleDirectoryEntry object is appended to the
         # kids list and dictionary:
         self.kids.append(child)
         self.kids_dict[name_lower] = child
@@ -1791,7 +1792,7 @@ class OleFileIO:
 ##            entry = fp.read(128)
 ##            if not entry:
 ##                break
-##            self.direntries.append(_OleDirectoryEntry(entry, sid, self))
+##            self.direntries.append(OleDirectoryEntry(entry, sid, self))
         # load root entry:
         root_entry = self._load_direntry(0)
         # Root entry is the first entry:
@@ -1811,7 +1812,7 @@ class OleFileIO:
         loading the directory.
 
         :param sid: index of storage/stream in the directory.
-        :returns: a _OleDirectoryEntry object
+        :returns: a OleDirectoryEntry object
 
         :exception IOError: if the entry has always been referenced.
         """
@@ -1826,7 +1827,7 @@ class OleFileIO:
             return self.direntries[sid]
         self.directory_fp.seek(sid * 128)
         entry = self.directory_fp.read(128)
-        self.direntries[sid] = _OleDirectoryEntry(entry, sid, self)
+        self.direntries[sid] = OleDirectoryEntry(entry, sid, self)
         return self.direntries[sid]
 
 
@@ -1862,15 +1863,15 @@ class OleFileIO:
                     (self.root.isectStart, size_ministream))
                 self.ministream = self._open(self.root.isectStart,
                     size_ministream, force_FAT=True)
-            return _OleStream(fp=self.ministream, sect=start, size=size,
-                              offset=0, sectorsize=self.minisectorsize,
-                              fat=self.minifat, filesize=self.ministream.size)
+            return OleStream(fp=self.ministream, sect=start, size=size,
+                             offset=0, sectorsize=self.minisectorsize,
+                             fat=self.minifat, filesize=self.ministream.size)
         else:
             # standard stream
-            return _OleStream(fp=self.fp, sect=start, size=size,
-                              offset=self.sectorsize,
-                              sectorsize=self.sectorsize, fat=self.fat,
-                              filesize=self._filesize)
+            return OleStream(fp=self.fp, sect=start, size=size,
+                             offset=self.sectorsize,
+                             sectorsize=self.sectorsize, fat=self.fat,
+                             filesize=self._filesize)
 
 
     def _list(self, files, prefix, node, streams=True, storages=False):
@@ -1879,7 +1880,7 @@ class OleFileIO:
 
         :param files: list of files to fill in
         :param prefix: current location in storage tree (list of names)
-        :param node: current node (_OleDirectoryEntry object)
+        :param node: current node (OleDirectoryEntry object)
         :param streams: bool, include streams if True (True by default) - new in v0.26
         :param storages: bool, include storages if True (False by default) - new in v0.26
             (note: the root storage is never included)
