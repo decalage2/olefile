@@ -190,6 +190,7 @@ __version__ = '0.44'
 # 2015-11-05           - fixed issue #27 by correcting the MiniFAT sector
 #                        cutoff size if invalid.
 # 2016-02-02           - logging is disabled by default
+# 2016-04-26 v0.44 PL: - added enable_logging
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -373,8 +374,18 @@ def get_logger(name, level=logging.CRITICAL+1):
     logger.setLevel(level)
     return logger
 
+
 # a global logger object used for debugging:
 log = get_logger('olefile')
+
+
+def enable_logging():
+    """
+    Enable logging for this module (disabled by default).
+    This will set the module-specific logger level to NOTSET, which
+    means the main application controls the actual logging level.
+    """
+    log.setLevel(logging.NOTSET)
 
 
 #=== CONSTANTS ===============================================================
@@ -2317,8 +2328,8 @@ if __name__ == "__main__":
     # setup logging to the console
     logging.basicConfig(level=LOG_LEVELS[options.loglevel], format='%(levelname)-8s %(message)s')
 
-    # also set the same log level for the module's logger to enable it:
-    log.setLevel(LOG_LEVELS[options.loglevel])
+    # also enable the module's logger:
+    enable_logging()
 
     for filename in args:
         try:
