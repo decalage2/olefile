@@ -29,7 +29,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 
 __author__  = "Philippe Lagadec"
-__date__    = "2016-02-02"
+__date__    = "2016-04-26"
 __version__ = '0.44'
 
 #--- LICENSE ------------------------------------------------------------------
@@ -192,6 +192,7 @@ __version__ = '0.44'
 # 2016-02-02           - logging is disabled by default
 # 2016-04-26 v0.44 PL: - added enable_logging
 #                      - renamed _OleDirectoryEntry and _OleStream without '_'
+#                      - in OleStream use _raise_defect instead of exceptions
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -731,13 +732,11 @@ class OleStream(io.BytesIO):
 
         - size: actual size of data stream, after it was opened.
     """
-    #TODO: use _raise_defect instead of exceptions
-
     # FIXME: should store the list of sects obtained by following
     # the fat chain, and load new sectors on demand instead of
     # loading it all in one go.
 
-    def __init__(self, fp, sect, size, offset, sectorsize, fat, filesize):
+    def __init__(self, fp, sect, size, offset, sectorsize, fat, filesize, olefileio):
         """
         Constructor for OleStream class.
 
@@ -748,11 +747,13 @@ class OleStream(io.BytesIO):
         :param sectorsize: size of one sector
         :param fat: array/list of sector indexes (FAT or MiniFAT)
         :param filesize: size of OLE file (for debugging)
+        :param olefileio: OleFileIO object containing this stream
         :returns: a BytesIO instance containing the OLE stream
         """
         log.debug('OleStream.__init__:')
         log.debug('  sect=%d (%X), size=%d, offset=%d, sectorsize=%d, len(fat)=%d, fp=%s'
             %(sect,sect,size,offset,sectorsize,len(fat), repr(fp)))
+        self.ole = olefileio
         #[PL] To detect malformed documents with FAT loops, we compute the
         # expected number of sectors in the stream:
         unknown_size = False
@@ -769,7 +770,7 @@ class OleStream(io.BytesIO):
         # This number should (at least) be less than the total number of
         # sectors in the given FAT:
         if nb_sectors > len(fat):
-            raise IOError('malformed OLE document, stream too large')
+            self.ole._raise_defect(DEFECT_INCORRECT, 'malformed OLE document, stream too large')
         # optimization(?): data is first a list of strings, and join() is called
         # at the end to concatenate all in one string.
         # (this may not be really useful with recent Python versions)
@@ -777,7 +778,7 @@ class OleStream(io.BytesIO):
         # if size is zero, then first sector index should be ENDOFCHAIN:
         if size == 0 and sect != ENDOFCHAIN:
             log.debug('size == 0 and sect != ENDOFCHAIN:')
-            raise IOError('incorrect OLE sector index for empty stream')
+            self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE sector index for empty stream')
         #[PL] A fixed-length for loop is used instead of an undefined while
         # loop to avoid DoS attacks:
         for i in range(nb_sectors):
@@ -788,7 +789,7 @@ class OleStream(io.BytesIO):
                 else:
                     # else this means that the stream is smaller than declared:
                     log.debug('sect=ENDOFCHAIN before expected size')
-                    raise IOError('incomplete OLE stream')
+                    self.ole._raise_defect(DEFECT_INCORRECT, 'incomplete OLE stream')
             # sector index should be within FAT:
             if sect<0 or sect>=len(fat):
                 log.debug('sect=%d (%X) / len(fat)=%d' % (sect, sect, len(fat)))
@@ -798,7 +799,7 @@ class OleStream(io.BytesIO):
 ##                f.write(tmp_data)
 ##                f.close()
 ##                log.debug('data read so far: %d bytes' % len(tmp_data))
-                raise IOError('incorrect OLE FAT, sector index out of range')
+                self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE FAT, sector index out of range')
             #TODO: merge this code with OleFileIO.getsect() ?
             #TODO: check if this works with 4K sectors:
             try:
@@ -806,7 +807,7 @@ class OleStream(io.BytesIO):
             except:
                 log.debug('sect=%d, seek=%d, filesize=%d' %
                     (sect, offset+sectorsize*sect, filesize))
-                raise IOError('OLE sector index out of range')
+                self.ole._raise_defect(DEFECT_INCORRECT, 'OLE sector index out of range')
             sector_data = fp.read(sectorsize)
             # [PL] check if there was enough data:
             # Note: if sector is the last of the file, sometimes it is not a
@@ -816,14 +817,14 @@ class OleStream(io.BytesIO):
                 log.debug('sect=%d / len(fat)=%d, seek=%d / filesize=%d, len read=%d' %
                     (sect, len(fat), offset+sectorsize*sect, filesize, len(sector_data)))
                 log.debug('seek+len(read)=%d' % (offset+sectorsize*sect+len(sector_data)))
-                raise IOError('incomplete OLE sector')
+                self.ole._raise_defect(DEFECT_INCORRECT, 'incomplete OLE sector')
             data.append(sector_data)
             # jump to next sector in the FAT:
             try:
                 sect = fat[sect] & 0xFFFFFFFF  # JYTHON-WORKAROUND
             except IndexError:
                 # [PL] if pointer is out of the FAT an exception is raised
-                raise IOError('incorrect OLE FAT, sector index out of range')
+                self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE FAT, sector index out of range')
         #[PL] Last sector should be a "end of chain" marker:
         # if sect != ENDOFCHAIN:
         #     raise IOError('incorrect last sector index in OLE stream')
@@ -841,7 +842,7 @@ class OleStream(io.BytesIO):
             # read data is less than expected:
             log.debug('len(data)=%d, size=%d' % (len(data), size))
             # TODO: provide details in exception message
-            raise IOError('OLE stream size is less than declared')
+            self.ole._raise_defect(DEFECT_INCORRECT, 'OLE stream size is less than declared')
         # when all data is read in memory, BytesIO constructor is called
         io.BytesIO.__init__(self, data)
         # Then the OleStream object can be used as a read-only file object.
@@ -1865,13 +1866,15 @@ class OleFileIO:
                     size_ministream, force_FAT=True)
             return OleStream(fp=self.ministream, sect=start, size=size,
                              offset=0, sectorsize=self.minisectorsize,
-                             fat=self.minifat, filesize=self.ministream.size)
+                             fat=self.minifat, filesize=self.ministream.size,
+                             olefileio=self)
         else:
             # standard stream
             return OleStream(fp=self.fp, sect=start, size=size,
                              offset=self.sectorsize,
                              sectorsize=self.sectorsize, fat=self.fat,
-                             filesize=self._filesize)
+                             filesize=self._filesize,
+                             olefileio=self)
 
 
     def _list(self, files, prefix, node, streams=True, storages=False):
