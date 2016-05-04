@@ -28,10 +28,6 @@
 from __future__ import print_function   # This version of olefile requires Python 2.6+ or 3.x.
 
 
-__author__  = "Philippe Lagadec"
-__date__    = "2016-04-26"
-__version__ = '0.44'
-
 #--- LICENSE ------------------------------------------------------------------
 
 # olefile (formerly OleFileIO_PL) is copyright (c) 2005-2016 Philippe Lagadec
@@ -195,6 +191,11 @@ __version__ = '0.44'
 #                      - in OleStream use _raise_defect instead of exceptions
 # 2016-04-27           - added support for incomplete streams and incorrect
 #                        directory entries (to read malformed documents)
+# 2016-05-04           - fixed slight bug in OleStream
+
+__date__    = "2016-05-04"
+__version__ = '0.44'
+__author__  = "Philippe Lagadec"
 
 #-----------------------------------------------------------------------------
 # TODO (for version 1.0):
@@ -856,6 +857,7 @@ class OleStream(io.BytesIO):
             # read data is less than expected:
             log.debug('Read data of length %d, less than expected stream size %d' % (len(data), size))
             # TODO: provide details in exception message
+            self.size = len(data)
             self.ole._raise_defect(DEFECT_INCORRECT, 'OLE stream size is less than declared')
         # when all data is read in memory, BytesIO constructor is called
         io.BytesIO.__init__(self, data)
