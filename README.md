@@ -10,11 +10,11 @@ etc.
   
 
 **Quick links:** [Home page](http://www.decalage.info/olefile) - 
-[Download/Install](https://bitbucket.org/decalage/olefileio_pl/wiki/Install) - 
-[Documentation](https://bitbucket.org/decalage/olefileio_pl/wiki) - 
-[Report Issues/Suggestions/Questions](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open) - 
+[Download/Install](https://github.com/decalage2/olefile/wiki/Install) -
+[Documentation](https://github.com/decalage2/olefile/wiki) -
+[Report Issues/Suggestions/Questions](https://github.com/decalage2/olefile/issues) -
 [Contact the author](http://decalage.info/contact) - 
-[Repository](https://bitbucket.org/decalage/olefileio_pl) - 
+[Repository](https://github.com/decalage2/olefile) -
 [Updates on Twitter](https://twitter.com/decalage2)
 
 
@@ -23,6 +23,7 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
+- **2016-05-20**: moved olefile repository to [GitHub](https://github.com/decalage2/olefile)
 - **2016-02-02 v0.43**: fixed issues [#26](https://bitbucket.org/decalage/olefileio_pl/issues/26/variable-referenced-before-assignment)
     and [#27](https://bitbucket.org/decalage/olefileio_pl/issues/27/incomplete-ole-stream-incorrect-ole-fat),
     better handling of malformed files, use python logging.
