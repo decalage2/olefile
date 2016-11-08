@@ -1,7 +1,7 @@
 olefile (formerly OleFileIO_PL)
 ===============================
 
-[olefile](http://www.decalage.info/olefile) is a Python package to parse, read and write 
+[olefile](https://www.decalage.info/olefile) is a Python package to parse, read and write 
 [Microsoft OLE2 files](http://en.wikipedia.org/wiki/Compound_File_Binary_Format)
 (also called Structured Storage, Compound File Binary Format or Compound Document File Format), 
 such as Microsoft Office 97-2003 documents, vbaProject.bin in MS Office 2007+ files, Image Composer 
@@ -9,11 +9,11 @@ and FlashPix files, Outlook messages, StickyNotes, several Microscopy file forma
 etc.
   
 
-**Quick links:** [Home page](http://www.decalage.info/olefile) - 
+**Quick links:** [Home page](https://www.decalage.info/olefile) - 
 [Download/Install](https://github.com/decalage2/olefile/wiki/Install) -
 [Documentation](https://github.com/decalage2/olefile/wiki) -
 [Report Issues/Suggestions/Questions](https://github.com/decalage2/olefile/issues) -
-[Contact the author](http://decalage.info/contact) - 
+[Contact the author](https://www.decalage.info/contact) - 
 [Repository](https://github.com/decalage2/olefile) -
 [Updates on Twitter](https://twitter.com/decalage2)
 
@@ -60,7 +60,7 @@ or **easy_install olefile** for the first installation.
  
 To update olefile, run **pip install -U olefile**.
  
-Otherwise, see https://bitbucket.org/decalage/olefileio_pl/wiki/Install
+Otherwise, see https://github.com/decalage2/olefile/wiki/Install
 
 Features
 --------
@@ -116,9 +116,9 @@ Main improvements over the original version of OleFileIO in PIL:
 Documentation
 -------------
 
-Please see the [online documentation](https://bitbucket.org/decalage/olefileio_pl/wiki) for more information, 
-especially the [OLE overview](https://bitbucket.org/decalage/olefileio_pl/wiki/OLE_Overview) and the 
-[API page](https://bitbucket.org/decalage/olefileio_pl/wiki/API) which describe how to use olefile in Python applications. 
+Please see the [online documentation](https://github.com/decalage2/olefile/wiki) for more information, 
+especially the [OLE overview](https://github.com/decalage2/olefile/wiki/OLE_Overview) and the 
+[API page](https://github.com/decalage2/olefile/wiki/API) which describe how to use olefile in Python applications. 
 A copy of the same documentation is also provided in the doc subfolder of the olefile package.
 
 
@@ -133,7 +133,7 @@ License
 -------
 
 olefile (formerly OleFileIO_PL) is copyright (c) 2005-2016 Philippe Lagadec
-([http://www.decalage.info](http://www.decalage.info))
+([https://www.decalage.info](https://www.decalage.info))
 
 All rights reserved.
 
