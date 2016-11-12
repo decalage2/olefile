@@ -494,7 +494,8 @@ def isOleFile (filename):
         header = filename[:len(MAGIC)]
     else:
         # string-like object: filename of file on disk
-        header = open(filename, 'rb').read(len(MAGIC))
+        with open(filename, 'rb') as fp:
+            header = fp.read(len(MAGIC))
     if header == MAGIC:
         return True
     else:
