@@ -1,0 +1,27 @@
+language: python
+
+python:
+ - pypy
+ - pypy3
+ - 2.6
+ - 2.7
+ - 3.2
+ - 3.3
+ - 3.4
+ - 3.5
+
+# Use container-based infrastructure
+sudo: false
+
+install:
+
+script:
+ - python Tests/run.py
+
+after_success:
+ - pip install pep8 pyflakes
+ - pyflakes .
+ - pep8 --statistics --count .
+
+matrix:
+  fast_finish: true
