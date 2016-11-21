@@ -1,10 +1,10 @@
 @echo off
 rem INSTALL.BAT - Easy installer for Python modules on Windows
 
-rem version 0.03 2013-05-07 Philippe Lagadec - http://www.decalage.info
+rem version 0.03 2013-05-07 Philippe Lagadec - https://www.decalage.info
 
-rem License: 
-rem This file install.bat can freely used, modified and redistributed, as 
+rem License:
+rem This file install.bat can freely used, modified and redistributed, as
 rem long as credit to the author is kept intact. Please send any feedback,
 rem issues or improvements to decalage at laposte.net.
 
@@ -25,22 +25,22 @@ goto end
 
 rem 2) test for usual python.exe paths:
 
-REM Python 2.7: 
+REM Python 2.7:
 c:\python27\python.exe --version >NUL 2>&1
 if errorlevel 1 goto notpy27
 echo Python.exe found in C:\Python27
 c:\python27\python.exe setup.py install
 if errorlevel 1 goto error
-goto end 
+goto end
 :NOTPY27
 
-REM Python 2.6: 
+REM Python 2.6:
 c:\python26\python.exe --version >NUL 2>&1
 if errorlevel 1 goto notpy26
 echo Python.exe found in C:\Python26
 c:\python26\python.exe setup.py install
 if errorlevel 1 goto error
-goto end 
+goto end
 :NOTPY26
 
 c:\python25\python.exe --version >NUL 2>&1
@@ -48,7 +48,7 @@ if errorlevel 1 goto notpy25
 echo Python.exe found in C:\Python25
 c:\python25\python.exe setup.py install
 if errorlevel 1 goto error
-goto end 
+goto end
 :NOTPY25
 
 c:\python24\python.exe --version >NUL 2>&1
@@ -56,7 +56,7 @@ if errorlevel 1 goto notpy24
 echo Python.exe found in C:\Python24
 c:\python24\python.exe setup.py install
 if errorlevel 1 goto error
-goto end 
+goto end
 :NOTPY24
 
 c:\python23\python.exe --version >NUL 2>&1
@@ -64,7 +64,7 @@ if errorlevel 1 goto notpy23
 echo Python.exe found in C:\Python23
 c:\python23\python.exe setup.py install
 if errorlevel 1 goto error
-goto end 
+goto end
 :NOTPY23
 
 "c:\program files\python\python.exe" --version >NUL 2>&1
@@ -72,7 +72,7 @@ if errorlevel 1 goto notpf
 echo Python.exe found in C:\Program Files\Python
 "c:\program files\python\python.exe" setup.py install
 if errorlevel 1 goto error
-goto end 
+goto end
 :NOTPF
 
 rem 3) last we just try to launch the script, if .py is associated to python.exe

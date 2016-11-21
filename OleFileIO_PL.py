@@ -8,9 +8,9 @@ Microsoft Compound Document File Format), such as Microsoft Office 97-2003
 documents, Image Composer and FlashPix files, Outlook messages, ...
 This version is compatible with Python 2.6+ and 3.x
 
-Project website: http://www.decalage.info/olefile
+Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2016 Philippe Lagadec (http://www.decalage.info)
+olefile is copyright (c) 2005-2016 Philippe Lagadec (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.6
 See: http://www.pythonware.com/products/pil/index.htm
