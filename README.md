@@ -1,6 +1,8 @@
 olefile (formerly OleFileIO_PL)
 ===============================
 
+[![Build Status](https://travis-ci.org/decalage2/olefile.svg?branch=master)](https://travis-ci.org/decalage2/olefile)
+
 [olefile](https://www.decalage.info/olefile) is a Python package to parse, read and write 
 [Microsoft OLE2 files](http://en.wikipedia.org/wiki/Compound_File_Binary_Format)
 (also called Structured Storage, Compound File Binary Format or Compound Document File Format), 
