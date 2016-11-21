@@ -49,7 +49,7 @@ author       = __author__
 author_email = "http://www.decalage.info/contact"
 url          = "http://www.decalage.info/python/olefileio"
 license      = "BSD"
-download_url = "https://bitbucket.org/decalage/olefileio_pl/downloads"
+download_url = "https://github.com/decalage2/olefile/tarball/master"
 
 classifiers=[
     "Development Status :: 4 - Beta",
