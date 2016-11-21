@@ -1,10 +1,10 @@
 How to use olefile - API
 ========================
 
-This page is part of the documentation for [olefile](https://bitbucket.org/decalage/olefileio_pl/wiki). It explains
+This page is part of the documentation for [olefile](https://github.com/decalage2/olefile/wiki). It explains
 how to use all its features to parse and write OLE files. For more information about OLE files, see [[OLE_Overview]].
 
-olefile can be used as an independent module or with PIL/Pillow. The main functions and methods are explained below. 
+olefile can be used as an independent module or with PIL/Pillow. The main functions and methods are explained below.
 
 For more information, see also the file **olefile.html**, sample code at the end of the module itself, and docstrings within the code.
 
@@ -29,8 +29,8 @@ Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.
 is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on
 Python 2.5 or older. This is implemented in olefile/\_\_init\_\_.py. (new in v0.40)
 
-If you think olefile should stay compatible with Python 2.5 or older, please [contact me](http://decalage.info/contact).
-		
+If you think olefile should stay compatible with Python 2.5 or older, please [contact me](https://www.decalage.info/contact).
+
 
 ## Test if a file is an OLE container
 
@@ -45,7 +45,7 @@ The argument of isOleFile can be (new in v0.41):
 - the path of the file to open on disk (bytes or unicode string smaller than 1536 bytes),
 - or a bytes string containing the file in memory. (bytes string longer than 1535 bytes),
 - or a file-like object (with read and seek methods).
-		
+
 ## Open an OLE file from disk
 
 Create an **OleFileIO** object with the file path as parameter:
@@ -59,7 +59,7 @@ This is useful if the file is already stored in memory as a bytes string.
 
 	:::python
 	ole = olefile.OleFileIO(s)
-		
+
 Note: olefile checks the size of the string provided as argument to determine if it is a file path or the content of an
 OLE file. An OLE file cannot be smaller than 1536 bytes. If the string is larger than 1535 bytes, then it is expected to
 contain an OLE file, otherwise it is expected to be a file path.
@@ -109,20 +109,20 @@ Before using the write features, the OLE file must be opened in read/write mode:
 
 (new in v0.40)
 
-The code for write features is new and it has not been thoroughly tested yet. See [issue #6](https://bitbucket.org/decalage/olefileio_pl/issue/6/improve-olefileio_pl-to-write-ole-files) for the roadmap and the implementation status. If you encounter any issue, please send me your [feedback](http://www.decalage.info/en/contact) or [report issues](https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open).
+The code for write features is new and it has not been thoroughly tested yet. See [issue #6](https://github.com/decalage2/olefile/issue/6) for the roadmap and the implementation status. If you encounter any issue, please send me your [feedback](https://www.decalage.info/en/contact) or [report issues](https://github.com/decalage2/olefile/issues/new).
 
 
 ## Syntax for stream and storage paths
 
 Two different syntaxes are allowed for methods that need or return the path of streams and storages:
 
-1) Either a **list of strings** including all the storages from the root up to the stream/storage name. For example a 
-stream called "WordDocument" at the root will have ['WordDocument'] as full path. A stream called "ThisDocument" 
-located in the storage "Macros/VBA" will be ['Macros', 'VBA', 'ThisDocument']. This is the original syntax from PIL. 
+1) Either a **list of strings** including all the storages from the root up to the stream/storage name. For example a
+stream called "WordDocument" at the root will have ['WordDocument'] as full path. A stream called "ThisDocument"
+located in the storage "Macros/VBA" will be ['Macros', 'VBA', 'ThisDocument']. This is the original syntax from PIL.
 While hard to read and not very convenient, this syntax works in all cases.
 
-2) Or a **single string with slashes** to separate storage and stream names (similar to the Unix path syntax). 
-The previous examples would be 'WordDocument' and 'Macros/VBA/ThisDocument'. This syntax is easier, but may fail if a 
+2) Or a **single string with slashes** to separate storage and stream names (similar to the Unix path syntax).
+The previous examples would be 'WordDocument' and 'Macros/VBA/ThisDocument'. This syntax is easier, but may fail if a
 stream or storage name contains a slash (which is normally not allowed, according to the Microsoft specifications [MS-CFB]). (new in v0.15)
 
 Both are case-insensitive.
@@ -133,20 +133,20 @@ Switching between the two is easy:
     slash_path = '/'.join(list_path)
     list_path  = slash_path.split('/')
 
-**Encoding**: 
+**Encoding**:
 
 - Stream and Storage names are stored in Unicode format in OLE files, which means they may contain special characters
     (e.g. Greek, Cyrillic, Japanese, etc) that applications must support to avoid exceptions.
 - **On Python 2.x**, all stream and storage paths are handled by olefile in bytes strings, using the **UTF-8 encoding**
-    by default. If you need to use Unicode instead, add the option **path_encoding=None** when creating the OleFileIO 
-    object. This is new in v0.42. Olefile was using the Latin-1 encoding until v0.41, therefore special characters were 
-    not supported.  
+    by default. If you need to use Unicode instead, add the option **path_encoding=None** when creating the OleFileIO
+    object. This is new in v0.42. Olefile was using the Latin-1 encoding until v0.41, therefore special characters were
+    not supported.
 - **On Python 3.x**, all stream and storage paths are handled by olefile in unicode strings, without encoding.
 
 ## Get the list of streams
 
-listdir() returns a list of all the streams contained in the OLE file, including those stored in storages. 
-Each stream is listed itself as a list, as described above. 
+listdir() returns a list of all the streams contained in the OLE file, including those stored in storages.
+Each stream is listed itself as a list, as described above.
 
 	:::python
     print(ole.listdir())
@@ -164,7 +164,7 @@ As an option it is possible to choose if storages should also be listed, with or
 	:::python
     ole.listdir (streams=False, storages=True)
 
-		
+
 ## Test if known streams/storages exist:
 
 exists(path) checks if a given stream or storage exists in the OLE file (new in v0.16). The provided path is case-insensitive.
@@ -174,8 +174,8 @@ exists(path) checks if a given stream or storage exists in the OLE file (new in 
         print("This is a Word document.")
         if ole.exists('macros/vba'):
              print("This document seems to contain VBA macros.")
-	
-	
+
+
 ## Read data from a stream
 
 openstream(path) opens a stream as a file-like object. The provided path is case-insensitive.
@@ -206,7 +206,7 @@ get\_ctime(path) and get\_mtime(path) return the creation and modification times
 	:::python
     c = ole.getctime('WordDocument')
     m = ole.getmtime('WordDocument')
-	
+
 The root storage is a special case: You can get its creation and modification timestamps using the OleFileIO.root attribute (new in v0.26):
 
 	:::python
@@ -273,7 +273,7 @@ See the source code of the OleMetadata class for more information.
 
 ## Parse a property stream
 
-get\_properties(path) can be used to parse any property stream that is not handled by get\_metadata. It returns a dictionary indexed by integers. Each integer is the index of the property, pointing to its value. For example in the standard property stream '\x05SummaryInformation', the document title is property #2, and the subject is #3.  
+get\_properties(path) can be used to parse any property stream that is not handled by get\_metadata. It returns a dictionary indexed by integers. Each integer is the index of the property, pointing to its value. For example in the standard property stream '\x05SummaryInformation', the document title is property #2, and the subject is #3.
 
 	:::python
     p = ole.getproperties('specialprops')
@@ -290,14 +290,14 @@ Unless your application is a simple script that terminates after processing an O
 
 	:::python
     ole.close()
-		
+
 ## Enable logging
 
 TODO
 
 
 ## Use olefile as a script for testing/debugging
-		
+
 olefile can also be used as a script from the command-line to display the structure of an OLE file and its metadata, for example:
 
 	:::text

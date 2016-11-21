@@ -1,6 +1,6 @@
 <p>How to use olefile - API</p>
 <p>========================</p>
-<p>This page is part of the documentation for <a href="https://bitbucket.org/decalage/olefileio_pl/wiki">olefile</a>. It explains</p>
+<p>This page is part of the documentation for <a href="https://github.com/decalage2/olefile/wiki">olefile</a>. It explains</p>
 <p>how to use all its features to parse and write OLE files. For more information about OLE files, see <a href="OLE_Overview.html">OLE_Overview</a>.</p>
 <p>olefile can be used as an independent module or with PIL/Pillow. The main functions and methods are explained below.</p>
 <p>For more information, see also the file <strong>olefile.html</strong>, sample code at the end of the module itself, and docstrings within the code.</p>
@@ -15,7 +15,7 @@
 <p>Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.26 (with some backported enhancements)</p>
 <p>is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on</p>
 <p>Python 2.5 or older. This is implemented in olefile/__init__.py. (new in v0.40)</p>
-<p>If you think olefile should stay compatible with Python 2.5 or older, please <a href="http://decalage.info/contact">contact me</a>.</p>
+<p>If you think olefile should stay compatible with Python 2.5 or older, please <a href="https://www.decalage.info/contact">contact me</a>.</p>
 <h2 id="test-if-a-file-is-an-ole-container">Test if a file is an OLE container</h2>
 <p>Use <strong>isOleFile</strong> to check if the first bytes of the file contain the Magic for OLE files, before opening it. isOleFile</p>
 <p>returns True if it is an OLE file, False otherwise (new in v0.16).</p>
@@ -63,7 +63,7 @@ else:
 <p>Before using the write features, the OLE file must be opened in read/write mode:</p>
 <pre><code>ole = olefile.OleFileIO(&#39;test.doc&#39;, write_mode=True)</code></pre>
 <p>(new in v0.40)</p>
-<p>The code for write features is new and it has not been thoroughly tested yet. See <a href="https://bitbucket.org/decalage/olefileio_pl/issue/6/improve-olefileio_pl-to-write-ole-files">issue #6</a> for the roadmap and the implementation status. If you encounter any issue, please send me your <a href="http://www.decalage.info/en/contact">feedback</a> or <a href="https://bitbucket.org/decalage/olefileio_pl/issues?status=new&amp;status=open">report issues</a>.</p>
+<p>The code for write features is new and it has not been thoroughly tested yet. See <a href="https://github.com/decalage2/olefile/issue/6">issue #6</a> for the roadmap and the implementation status. If you encounter any issue, please send me your <a href="https://www.decalage.info/en/contact">feedback</a> or <a href="https://github.com/decalage2/olefile/issues/new">report issues</a>.</p>
 <h2 id="syntax-for-stream-and-storage-paths">Syntax for stream and storage paths</h2>
 <p>Two different syntaxes are allowed for methods that need or return the path of streams and storages:</p>
 <ol style="list-style-type: decimal">
