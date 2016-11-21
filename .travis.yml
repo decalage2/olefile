@@ -1,8 +1,26 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "nightly"
-install: "pip install ."
-script: "python -m unittest discover"
+ - pypy
+ - pypy3
+ - 2.6
+ - 2.7
+ - 3.2
+ - 3.3
+ - 3.4
+ - 3.5
+
+# Use container-based infrastructure
+sudo: false
+
+install:
+
+script:
+ - python -m unittest tests
+
+after_success:
+ - pip install pep8 pyflakes
+ - pyflakes .
+ - pep8 --statistics --count .
+
+matrix:
+  fast_finish: true
