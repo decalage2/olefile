@@ -24,12 +24,12 @@ simple script is also installed so that the following statement imports olefile 
 	:::python
 	import OleFileIO_PL
 
-As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with
-Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.26 (with some backported enhancements)
+As of version 0.44, olefile is compatible with Python 2.6, 2.7 and 3.x.
+
+As of version 0.30, the code is compatible with Python 3.x. As a consequence, compatibility with
+Python 2.5 or older is not provided anymore. However, in versions before 0.44, a copy of OleFileIO_PL v0.26 (with some backported enhancements)
 is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on
 Python 2.5 or older. This is implemented in olefile/\_\_init\_\_.py. (new in v0.40)
-
-If you think olefile should stay compatible with Python 2.5 or older, please [contact me](https://www.decalage.info/contact).
 
 
 ## Test if a file is an OLE container
