@@ -193,6 +193,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2016-04-27           - added support for incomplete streams and incorrect
 #                        directory entries (to read malformed documents)
 # 2016-05-04           - fixed slight bug in OleStream
+# 2016-11-27       DR: - added method to get the clsid of a storage/stream
+#                        (Daniel Roethlisberger)
 
 __date__    = "2016-05-04"
 __version__ = '0.44'
@@ -2071,6 +2073,21 @@ class OleFileIO:
             return entry.entry_type
         except:
             return False
+
+
+    def getclsid(self, filename):
+        """
+        Return clsid of a stream/storage.
+
+        :param filename: path of stream/storage in storage tree. (see openstream for
+            syntax)
+        :returns: Empty string if clsid is null, a printable representation of the clsid otherwise
+
+        new in version (unreleased)
+        """
+        sid = self._find(filename)
+        entry = self.direntries[sid]
+        return repr(entry.clsid)
 
 
     def getmtime(self, filename):
