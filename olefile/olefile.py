@@ -2087,7 +2087,7 @@ class OleFileIO:
         """
         sid = self._find(filename)
         entry = self.direntries[sid]
-        return repr(entry.clsid)
+        return entry.clsid
 
 
     def getmtime(self, filename):
