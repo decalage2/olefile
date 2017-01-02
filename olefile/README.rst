@@ -1,7 +1,7 @@
 olefile (formerly OleFileIO\_PL)
 ================================
 
-`olefile <http://www.decalage.info/olefile>`__ is a Python package to
+`olefile <https://www.decalage.info/olefile>`__ is a Python package to
 parse, read and write `Microsoft OLE2
 files <http://en.wikipedia.org/wiki/Compound_File_Binary_Format>`__
 (also called Structured Storage, Compound File Binary Format or Compound
@@ -10,13 +10,13 @@ vbaProject.bin in MS Office 2007+ files, Image Composer and FlashPix
 files, Outlook messages, StickyNotes, several Microscopy file formats,
 McAfee antivirus quarantine files, etc.
 
-**Quick links:** `Home page <http://www.decalage.info/olefile>`__ -
-`Download/Install <https://bitbucket.org/decalage/olefileio_pl/wiki/Install>`__
-- `Documentation <https://bitbucket.org/decalage/olefileio_pl/wiki>`__ -
+**Quick links:** `Home page <https://www.decalage.info/olefile>`__ -
+`Download/Install <https://github.com/decalage2/olefile/wiki/Install>`__
+- `Documentation <https://github.com/decalage2/olefile/wiki>`__ -
 `Report
-Issues/Suggestions/Questions <https://bitbucket.org/decalage/olefileio_pl/issues?status=new&status=open>`__
-- `Contact the author <http://decalage.info/contact>`__ -
-`Repository <https://bitbucket.org/decalage/olefileio_pl>`__ - `Updates
+Issues/Suggestions/Questions <https://github.com/decalage2/olefile/issues/new>`__
+- `Contact the author <https://www.decalage.info/contact>`__ -
+`Repository <https://github.com/decalage2/olefile>`__ - `Updates
 on Twitter <https://twitter.com/decalage2>`__
 
 News
@@ -25,9 +25,9 @@ News
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
 -  **2016-02-02 v0.43**: fixed issues
-   `#26 <https://bitbucket.org/decalage/olefileio_pl/issues/26/variable-referenced-before-assignment>`__
+   `#26 <https://github.com/decalage2/olefile/issues/26>`__
    and
-   `#27 <https://bitbucket.org/decalage/olefileio_pl/issues/27/incomplete-ole-stream-incorrect-ole-fat>`__,
+   `#27 <https://github.com/decalage2/olefile/issues/27>`__,
    better handling of malformed files, use python logging.
 -  2015-01-25 v0.42: improved handling of special characters in
    stream/storage names on Python 2.x (using UTF-8 instead of Latin-1),
@@ -49,15 +49,15 @@ Follow all updates and news on Twitter: https://twitter.com/decalage2
    timestamps
 -  2013-05-27 v0.25: improved metadata extraction, properties parsing
    and exception handling, fixed `issue
-   #12 <https://bitbucket.org/decalage/olefileio_pl/issue/12/error-when-converting-timestamps-in-ole>`__
+   #12 <https://github.com/decalage2/olefile/issues/12>`__
 -  2013-05-07 v0.24: new features to extract metadata (get\_metadata
    method and OleMetadata class), improved getproperties to convert
    timestamps to Python datetime
 -  2012-10-09: published
-   `python-oletools <http://www.decalage.info/python/oletools>`__, a
+   `python-oletools <https://www.decalage.info/python/oletools>`__, a
    package of analysis tools based on OleFileIO\_PL
 -  2012-09-11 v0.23: added support for file-like objects, fixed `issue
-   #8 <https://bitbucket.org/decalage/olefileio_pl/issue/8/bug-with-file-object>`__
+   #8 <https://github.com/decalage2/olefile/issues/8>`__
 -  2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2
    (added close method)
 -  2011-10-20: code hosted on bitbucket to ease contributions and bug
@@ -79,7 +79,7 @@ olefile** for the first installation.
 
 To update olefile, run **pip install -U olefile**.
 
-Otherwise, see https://bitbucket.org/decalage/olefileio\_pl/wiki/Install
+Otherwise, see https://github.com/decalage2/olefile/wiki/Install
 
 Features
 --------
@@ -99,7 +99,7 @@ olefile can be used as an independent package or with PIL/Pillow.
 olefile is mostly meant for developers. If you are looking for tools to
 analyze OLE files or to extract data (especially for security purposes
 such as malware analysis and forensics), then please also check my
-`python-oletools <http://www.decalage.info/python/oletools>`__, which
+`python-oletools <https://www.decalage.info/python/oletools>`__, which
 are built upon olefile and provide a higher-level interface.
 
 History
@@ -145,11 +145,11 @@ Documentation
 -------------
 
 Please see the `online
-documentation <https://bitbucket.org/decalage/olefileio_pl/wiki>`__ for
+documentation <https://github.com/decalage2/olefile/wiki>`__ for
 more information, especially the `OLE
-overview <https://bitbucket.org/decalage/olefileio_pl/wiki/OLE_Overview>`__
+overview <https://github.com/decalage2/olefile/wiki/OLE_Overview>`__
 and the `API
-page <https://bitbucket.org/decalage/olefileio_pl/wiki/API>`__ which
+page <https://github.com/decalage2/olefile/wiki/API>`__ which
 describe how to use olefile in Python applications. A copy of the same
 documentation is also provided in the doc subfolder of the olefile
 package.
@@ -168,7 +168,7 @@ License
 -------
 
 olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2016 Philippe
-Lagadec (http://www.decalage.info)
+Lagadec (https://www.decalage.info)
 
 All rights reserved.
 

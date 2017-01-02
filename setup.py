@@ -46,10 +46,10 @@ desc         = "Python package to parse, read and write Microsoft OLE2 files (St
 # read long description from disk in restructuredtext format:
 long_desc    = open('olefile/README.rst').read()
 author       = __author__
-author_email = "http://www.decalage.info/contact"
-url          = "http://www.decalage.info/python/olefileio"
+author_email = "https://www.decalage.info/contact"
+url          = "https://www.decalage.info/python/olefileio"
 license      = "BSD"
-download_url = "https://bitbucket.org/decalage/olefileio_pl/downloads"
+download_url = "https://github.com/decalage2/olefile/tarball/master"
 
 classifiers=[
     "Development Status :: 4 - Beta",
@@ -269,6 +269,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

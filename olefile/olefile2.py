@@ -12,9 +12,10 @@ as fallback for Python 2.5 and older. For Python 2.6, 2.7 and 3.x, please use
 olefile which is more up-to-date. The improvements in olefile might
 not always be backported to olefile2.
 
-Project website: http://www.decalage.info/python/olefileio
+Project website: https://www.decalage.info/python/olefileio
 
-olefile2 is copyright (c) 2005-2014 Philippe Lagadec (http://www.decalage.info)
+olefile2 is copyright (c) 2005-2014 Philippe Lagadec
+(https://www.decalage.info)
 
 olefile2 is based on the OleFileIO module from the PIL library v1.1.6
 See: http://www.pythonware.com/products/pil/index.htm
@@ -33,7 +34,7 @@ __version__ = '0.40py2'
 #--- LICENSE ------------------------------------------------------------------
 
 # olefile (formerly OleFileIO_PL) is copyright (c) 2005-2014 Philippe Lagadec
-# (http://www.decalage.info)
+# (https://www.decalage.info)
 #
 # All rights reserved.
 #
@@ -136,7 +137,7 @@ __version__ = '0.40py2'
 # 2009-12-11 v0.20 PL: - bugfix in OleFileIO.open when filename is not plain str
 # 2010-01-22 v0.21 PL: - added support for big-endian CPUs such as PowerPC Macs
 # 2012-02-16 v0.22 PL: - fixed bug in getproperties, patch by chuckleberryfinn
-#                        (https://bitbucket.org/decalage/olefileio_pl/issue/7)
+#                        (https://github.com/decalage2/olefile/issues/7)
 #                      - added close method to OleFileIO (fixed issue #2)
 # 2012-07-25 v0.23 PL: - added support for file-like objects (patch by mete0r_kr)
 # 2013-05-05 v0.24 PL: - getproperties: added conversion from filetime to python

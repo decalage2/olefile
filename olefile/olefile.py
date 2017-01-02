@@ -7,9 +7,10 @@
 # documents, Image Composer and FlashPix files, Outlook messages, ...
 # This version is compatible with Python 2.6+ and 3.x
 #
-# Project website: http://www.decalage.info/olefile
+# Project website: https://www.decalage.info/olefile
 #
-# olefile is copyright (c) 2005-2016 Philippe Lagadec (http://www.decalage.info)
+# olefile is copyright (c) 2005-2016 Philippe Lagadec
+# (https://www.decalage.info)
 #
 # olefile is based on the OleFileIO module from the PIL library v1.1.6
 # See: http://www.pythonware.com/products/pil/index.htm
@@ -31,7 +32,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 #--- LICENSE ------------------------------------------------------------------
 
 # olefile (formerly OleFileIO_PL) is copyright (c) 2005-2016 Philippe Lagadec
-# (http://www.decalage.info)
+# (https://www.decalage.info)
 #
 # All rights reserved.
 #
@@ -134,7 +135,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2009-12-11 v0.20 PL: - bugfix in OleFileIO.open when filename is not plain str
 # 2010-01-22 v0.21 PL: - added support for big-endian CPUs such as PowerPC Macs
 # 2012-02-16 v0.22 PL: - fixed bug in getproperties, patch by chuckleberryfinn
-#                        (https://bitbucket.org/decalage/olefileio_pl/issue/7)
+#                        (https://github.com/decalage2/olefile/issues/7)
 #                      - added close method to OleFileIO (fixed issue #2)
 # 2012-07-25 v0.23 PL: - added support for file-like objects (patch by mete0r_kr)
 # 2013-05-05 v0.24 PL: - getproperties: added conversion from filetime to python
@@ -192,6 +193,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2016-04-27           - added support for incomplete streams and incorrect
 #                        directory entries (to read malformed documents)
 # 2016-05-04           - fixed slight bug in OleStream
+# 2016-11-27       DR: - added method to get the clsid of a storage/stream
+#                        (Daniel Roethlisberger)
 
 __date__    = "2016-05-04"
 __version__ = '0.44'
@@ -223,7 +226,7 @@ __author__  = "Philippe Lagadec"
 # - see also original notes and FIXME below
 # - remove all obsolete FIXMEs
 # - OleMetadata: fix version attrib according to
-#   http://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
+#   https://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
 
 # IDEAS:
 # - in OleFileIO._open and OleStream, use size=None instead of 0x7FFFFFFF for
@@ -238,8 +241,8 @@ __author__  = "Philippe Lagadec"
 # - create a simple OLE explorer with wxPython
 
 # FUTURE EVOLUTIONS to add write support:
-# see issue #6 on Bitbucket:
-# https://bitbucket.org/decalage/olefileio_pl/issue/6/improve-olefileio_pl-to-write-ole-files
+# see issue #6 on GitHub:
+# https://github.com/decalage2/olefile/issues/6
 
 #-----------------------------------------------------------------------------
 # NOTES from PIL 1.1.6:
@@ -317,17 +320,10 @@ else:
 
 #[PL] These workarounds were inspired from the Path module
 # (see http://www.jorendorff.com/articles/python/path/)
-#TODO: test with old Python versions
-
-# Pre-2.3 workaround for basestring.
 try:
     basestring
 except NameError:
-    try:
-        # is Unicode supported (Python >2.0 or >1.6 ?)
-        basestring = (str, unicode)
-    except NameError:
-        basestring = str
+    basestring = str
 
 #[PL] Experimental setting: if True, OLE filenames will be kept in Unicode
 # if False (default PIL behaviour), all filenames are converted to Latin-1.
@@ -518,23 +514,20 @@ def i16(c, o = 0):
     """
     Converts a 2-bytes (16 bits) string to an integer.
 
-    :param c: string containing bytes to convert
-    :param o: offset of bytes to convert in string
+    c: string containing bytes to convert
+    o: offset of bytes to convert in string
     """
-    return i8(c[o]) | (i8(c[o+1])<<8)
+    return struct.unpack("<H", c[o:o+2])[0]
 
 
 def i32(c, o = 0):
     """
     Converts a 4-bytes (32 bits) string to an integer.
 
-    :param c: string containing bytes to convert
-    :param o: offset of bytes to convert in string
+    c: string containing bytes to convert
+    o: offset of bytes to convert in string
     """
-##    return int(ord(c[o])+(ord(c[o+1])<<8)+(ord(c[o+2])<<16)+(ord(c[o+3])<<24))
-##    # [PL]: added int() because "<<" gives long int since Python 2.4
-    # copied from Pillow's _binary:
-    return i8(c[o]) | (i8(c[o+1])<<8) | (i8(c[o+2])<<16) | (i8(c[o+3])<<24)
+    return struct.unpack("<I", c[o:o+4])[0]
 
 
 def _clsid(clsid):
@@ -559,7 +552,7 @@ def filetime2datetime(filetime):
         convert FILETIME (64 bits int) to Python datetime.datetime
         """
         # TODO: manage exception when microseconds is too large
-        # inspired from http://code.activestate.com/recipes/511425-filetime-to-datetime/
+        # inspired from https://code.activestate.com/recipes/511425-filetime-to-datetime/
         _FILETIME_null_date = datetime.datetime(1601, 1, 1, 0, 0, 0)
         #log.debug('timedelta days=%d' % (filetime//(10*1000000*3600*24)))
         return _FILETIME_null_date + datetime.timedelta(microseconds=filetime//10)
@@ -586,17 +579,17 @@ class OleMetadata:
     OLE file.
 
     References for SummaryInformation stream:
-    - http://msdn.microsoft.com/en-us/library/dd942545.aspx
-    - http://msdn.microsoft.com/en-us/library/dd925819%28v=office.12%29.aspx
-    - http://msdn.microsoft.com/en-us/library/windows/desktop/aa380376%28v=vs.85%29.aspx
-    - http://msdn.microsoft.com/en-us/library/aa372045.aspx
-    - http://sedna-soft.de/summary-information-stream/
-    - http://poi.apache.org/apidocs/org/apache/poi/hpsf/SummaryInformation.html
+    - https://msdn.microsoft.com/en-us/library/dd942545.aspx
+    - https://msdn.microsoft.com/en-us/library/dd925819%28v=office.12%29.aspx
+    - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380376%28v=vs.85%29.aspx
+    - https://msdn.microsoft.com/en-us/library/aa372045.aspx
+    - http://sedna-soft.de/articles/summary-information-stream/
+    - https://poi.apache.org/apidocs/org/apache/poi/hpsf/SummaryInformation.html
 
     References for DocumentSummaryInformation stream:
-    - http://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
-    - http://msdn.microsoft.com/en-us/library/windows/desktop/aa380374%28v=vs.85%29.aspx
-    - http://poi.apache.org/apidocs/org/apache/poi/hpsf/DocumentSummaryInformation.html
+    - https://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
+    - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380374%28v=vs.85%29.aspx
+    - https://poi.apache.org/apidocs/org/apache/poi/hpsf/DocumentSummaryInformation.html
 
     new in version 0.25
     """
@@ -2082,6 +2075,21 @@ class OleFileIO:
             return False
 
 
+    def getclsid(self, filename):
+        """
+        Return clsid of a stream/storage.
+
+        :param filename: path of stream/storage in storage tree. (see openstream for
+            syntax)
+        :returns: Empty string if clsid is null, a printable representation of the clsid otherwise
+
+        new in version (unreleased)
+        """
+        sid = self._find(filename)
+        entry = self.direntries[sid]
+        return entry.clsid
+
+
     def getmtime(self, filename):
         """
         Return modification time of a stream/storage.
@@ -2223,12 +2231,12 @@ class OleFileIO:
                 elif property_type in (VT_I4, VT_INT, VT_ERROR):
                     # VT_I4: 32-bit signed integer
                     # VT_ERROR: HRESULT, similar to 32-bit signed integer,
-                    # see http://msdn.microsoft.com/en-us/library/cc230330.aspx
+                    # see https://msdn.microsoft.com/en-us/library/cc230330.aspx
                     value = i32(s, offset+4)
                 elif property_type in (VT_UI4, VT_UINT): # 4-byte unsigned integer
                     value = i32(s, offset+4) # FIXME
                 elif property_type in (VT_BSTR, VT_LPSTR):
-                    # CodePageString, see http://msdn.microsoft.com/en-us/library/dd942354.aspx
+                    # CodePageString, see https://msdn.microsoft.com/en-us/library/dd942354.aspx
                     # size is a 32 bits integer, including the null terminator, and
                     # possibly trailing or embedded null chars
                     #TODO: if codepage is unicode, the string should be converted as such
@@ -2238,12 +2246,12 @@ class OleFileIO:
                     value = value.replace(b'\x00', b'')
                 elif property_type == VT_BLOB:
                     # binary large object (BLOB)
-                    # see http://msdn.microsoft.com/en-us/library/dd942282.aspx
+                    # see https://msdn.microsoft.com/en-us/library/dd942282.aspx
                     count = i32(s, offset+4)
                     value = s[offset+8:offset+8+count]
                 elif property_type == VT_LPWSTR:
                     # UnicodeString
-                    # see http://msdn.microsoft.com/en-us/library/dd942313.aspx
+                    # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
                     # "the string should NOT contain embedded or additional trailing
                     # null characters."
                     count = i32(s, offset+4)
@@ -2256,7 +2264,7 @@ class OleFileIO:
                         log.debug('Converting property #%d to python datetime, value=%d=%fs'
                                 %(property_id, value, float(value)/10000000))
                         # convert FILETIME to Python datetime.datetime
-                        # inspired from http://code.activestate.com/recipes/511425-filetime-to-datetime/
+                        # inspired from https://code.activestate.com/recipes/511425-filetime-to-datetime/
                         _FILETIME_null_date = datetime.datetime(1601, 1, 1, 0, 0, 0)
                         log.debug('timedelta days=%d' % (value//(10*1000000*3600*24)))
                         value = _FILETIME_null_date + datetime.timedelta(microseconds=value//10)
@@ -2270,12 +2278,12 @@ class OleFileIO:
                     value = _clsid(s[offset+4:offset+20])
                 elif property_type == VT_CF:
                     # PropertyIdentifier or ClipboardData??
-                    # see http://msdn.microsoft.com/en-us/library/dd941945.aspx
+                    # see https://msdn.microsoft.com/en-us/library/dd941945.aspx
                     count = i32(s, offset+4)
                     value = s[offset+8:offset+8+count]
                 elif property_type == VT_BOOL:
                     # VARIANT_BOOL, 16 bits bool, 0x0000=Fals, 0xFFFF=True
-                    # see http://msdn.microsoft.com/en-us/library/cc237864.aspx
+                    # see https://msdn.microsoft.com/en-us/library/cc237864.aspx
                     value = bool(i16(s, offset+4))
                 else:
                     value = None # everything else yields "None"
@@ -2283,13 +2291,13 @@ class OleFileIO:
 
                 # missing: VT_EMPTY, VT_NULL, VT_R4, VT_R8, VT_CY, VT_DATE,
                 # VT_DECIMAL, VT_I1, VT_I8, VT_UI8,
-                # see http://msdn.microsoft.com/en-us/library/dd942033.aspx
+                # see https://msdn.microsoft.com/en-us/library/dd942033.aspx
 
                 # FIXME: add support for VT_VECTOR
                 # VT_VECTOR is a 32 uint giving the number of items, followed by
                 # the items in sequence. The VT_VECTOR value is combined with the
                 # type of items, e.g. VT_VECTOR|VT_BSTR
-                # see http://msdn.microsoft.com/en-us/library/dd942011.aspx
+                # see https://msdn.microsoft.com/en-us/library/dd942011.aspx
 
                 #print("%08x" % property_id, repr(value), end=" ")
                 #print("(%s)" % VT[i32(s, offset) & 0xFFF])
@@ -2345,7 +2353,7 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
 
-    print('olefile version %s %s - http://www.decalage.info/en/olefile\n' % (__version__, __date__))
+    print('olefile version %s %s - https://www.decalage.info/en/olefile\n' % (__version__, __date__))
 
     # Print help if no arguments are passed
     if len(args) == 0:

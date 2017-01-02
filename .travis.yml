@@ -1,5 +1,4 @@
 language: python
-
 python:
  - pypy
  - pypy3
@@ -16,7 +15,7 @@ sudo: false
 install:
 
 script:
- - python Tests/run.py
+ - python -m unittest tests
 
 after_success:
  - pip install pep8 pyflakes
