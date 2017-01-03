@@ -845,7 +845,7 @@ class OleStream(io.BytesIO):
         elif unknown_size:
             # actual stream size was not known, now we know the size of read
             # data:
-            log.debug('Read data of length %d, the stream size was unkown' % len(data))
+            log.debug('Read data of length %d, the stream size was unknown' % len(data))
             self.size = len(data)
         else:
             # read data is less than expected:
