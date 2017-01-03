@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-# -*- coding: latin-1 -*-
 """
 olefile (formerly OleFileIO_PL)
 
