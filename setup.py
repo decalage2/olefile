@@ -106,7 +106,7 @@ def riglob(top, prefix='', pattern='*'):
     - top: path to start searching from
     - prefix: path to use instead of top when generating file path (in order to
       choose the root of relative paths)
-    - pattern: wilcards to select files (same syntax as fnmatch)
+    - pattern: wildcards to select files (same syntax as fnmatch)
 
     Yields each file found in top and subdirectories, matching pattern
     """
