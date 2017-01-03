@@ -271,6 +271,10 @@ __author__  = "Philippe Lagadec"
 
 #------------------------------------------------------------------------------
 
+__all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
+           'MAGIC', 'STGTY_EMPTY',
+           'STGTY_STREAM', 'STGTY_STORAGE', 'STGTY_ROOT', 'STGTY_PROPERTY',
+           'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',]
 
 import io
 import sys
@@ -391,27 +395,27 @@ def enable_logging():
 
 #=== CONSTANTS ===============================================================
 
-# magic bytes that should be at the beginning of every OLE file:
+#: magic bytes that should be at the beginning of every OLE file:
 MAGIC = b'\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'
 
 #[PL]: added constants for Sector IDs (from AAF specifications)
-MAXREGSECT = 0xFFFFFFFA # (-6) maximum SECT
-DIFSECT    = 0xFFFFFFFC # (-4) denotes a DIFAT sector in a FAT
-FATSECT    = 0xFFFFFFFD # (-3) denotes a FAT sector in a FAT
-ENDOFCHAIN = 0xFFFFFFFE # (-2) end of a virtual stream chain
-FREESECT   = 0xFFFFFFFF # (-1) unallocated sector
+MAXREGSECT = 0xFFFFFFFA #: (-6) maximum SECT
+DIFSECT    = 0xFFFFFFFC #: (-4) denotes a DIFAT sector in a FAT
+FATSECT    = 0xFFFFFFFD #: (-3) denotes a FAT sector in a FAT
+ENDOFCHAIN = 0xFFFFFFFE #: (-2) end of a virtual stream chain
+FREESECT   = 0xFFFFFFFF #: (-1) unallocated sector
 
 #[PL]: added constants for Directory Entry IDs (from AAF specifications)
-MAXREGSID  = 0xFFFFFFFA # (-6) maximum directory entry ID
-NOSTREAM   = 0xFFFFFFFF # (-1) unallocated directory entry
+MAXREGSID  = 0xFFFFFFFA #: (-6) maximum directory entry ID
+NOSTREAM   = 0xFFFFFFFF #: (-1) unallocated directory entry
 
 #[PL] object types in storage (from AAF specifications)
-STGTY_EMPTY     = 0 # empty directory entry (according to OpenOffice.org doc)
-STGTY_STORAGE   = 1 # element is a storage object
-STGTY_STREAM    = 2 # element is a stream object
-STGTY_LOCKBYTES = 3 # element is an ILockBytes object
-STGTY_PROPERTY  = 4 # element is an IPropertyStorage object
-STGTY_ROOT      = 5 # element is a root storage
+STGTY_EMPTY     = 0 #: empty directory entry
+STGTY_STORAGE   = 1 #: element is a storage object
+STGTY_STREAM    = 2 #: element is a stream object
+STGTY_LOCKBYTES = 3 #: element is an ILockBytes object
+STGTY_PROPERTY  = 4 #: element is an IPropertyStorage object
+STGTY_ROOT      = 5 #: element is a root storage
 
 # Unknown size for a stream (used by OleStream):
 UNKNOWN_SIZE = 0x7FFFFFFF
@@ -579,6 +583,7 @@ class OleMetadata:
     OLE file.
 
     References for SummaryInformation stream:
+
     - https://msdn.microsoft.com/en-us/library/dd942545.aspx
     - https://msdn.microsoft.com/en-us/library/dd925819%28v=office.12%29.aspx
     - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380376%28v=vs.85%29.aspx
@@ -587,6 +592,7 @@ class OleMetadata:
     - https://poi.apache.org/apidocs/org/apache/poi/hpsf/SummaryInformation.html
 
     References for DocumentSummaryInformation stream:
+
     - https://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
     - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380374%28v=vs.85%29.aspx
     - https://poi.apache.org/apidocs/org/apache/poi/hpsf/DocumentSummaryInformation.html
@@ -1017,7 +1023,7 @@ class OleDirectoryEntry:
         Walk through red-black tree of children of this directory entry to add
         all of them to the kids list. (recursive method)
 
-        :param child_sid : index of child directory entry to use, or None when called
+        :param child_sid: index of child directory entry to use, or None when called
             first time for the root. (only used during recursion)
         """
         log.debug('append_kids: child_sid=%d' % child_sid)

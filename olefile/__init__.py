@@ -10,7 +10,7 @@ This version is compatible with Python 2.6+ and 3.x
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2015 Philippe Lagadec (https://www.decalage.info)
+olefile is copyright (c) 2005-2017 Philippe Lagadec (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.6
 See: http://www.pythonware.com/products/pil/index.htm
@@ -25,3 +25,9 @@ See source code and LICENSE.txt for information on usage and redistribution.
 from .olefile import *
 # import metadata not covered by *:
 from .olefile import __version__, __author__, __date__
+
+
+__all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
+           'MAGIC', 'STGTY_EMPTY',
+           'STGTY_STREAM', 'STGTY_STORAGE', 'STGTY_ROOT', 'STGTY_PROPERTY',
+           'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',]

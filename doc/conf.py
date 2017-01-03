@@ -19,7 +19,7 @@
 import os
 import sys
 _thismodule_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-_olefile_dir = os.path.normpath(os.path.join(_thismodule_dir, '..', 'olefile'))
+_olefile_dir = os.path.normpath(os.path.join(_thismodule_dir, '..')) #, 'olefile'))
 if not _olefile_dir in sys.path:
     sys.path.insert(0, _olefile_dir)
 
@@ -163,5 +163,5 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
+autoclass_content = 'both'
 
