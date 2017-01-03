@@ -109,7 +109,7 @@ Before using the write features, the OLE file must be opened in read/write mode:
 
 (new in v0.40)
 
-The code for write features is new and it has not been thoroughly tested yet. See [issue #6](https://github.com/decalage2/olefile/issue/6) for the roadmap and the implementation status. If you encounter any issue, please send me your [feedback](https://www.decalage.info/en/contact) or [report issues](https://github.com/decalage2/olefile/issues/new).
+The code for write features is new and it has not been thoroughly tested yet. See [issue #6](https://github.com/decalage2/olefile/issues/6) for the roadmap and the implementation status. If you encounter any issue, please send me your [feedback](https://www.decalage.info/en/contact) or [report issues](https://github.com/decalage2/olefile/issues/new).
 
 
 ## Syntax for stream and storage paths

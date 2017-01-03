@@ -49,7 +49,7 @@ Follow all updates and news on Twitter: https://twitter.com/decalage2
    timestamps
 -  2013-05-27 v0.25: improved metadata extraction, properties parsing
    and exception handling, fixed `issue
-   #12 <https://github.com/decalage2/olefile/issue/12>`__
+   #12 <https://github.com/decalage2/olefile/issues/12>`__
 -  2013-05-07 v0.24: new features to extract metadata (get\_metadata
    method and OleMetadata class), improved getproperties to convert
    timestamps to Python datetime
@@ -57,7 +57,7 @@ Follow all updates and news on Twitter: https://twitter.com/decalage2
    `python-oletools <https://www.decalage.info/python/oletools>`__, a
    package of analysis tools based on OleFileIO\_PL
 -  2012-09-11 v0.23: added support for file-like objects, fixed `issue
-   #8 <https://github.com/decalage2/olefile/issue/8>`__
+   #8 <https://github.com/decalage2/olefile/issues/8>`__
 -  2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2
    (added close method)
 -  2011-10-20: code hosted on bitbucket to ease contributions and bug
