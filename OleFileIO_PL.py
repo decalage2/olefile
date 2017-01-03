@@ -24,14 +24,6 @@ See source code and LICENSE.txt for information on usage and redistribution.
 
 # The OleFileIO_PL module is for backward compatibility
 
-try:
-    # first try to import olefile for Python 2.6+/3.x
-    from olefile.olefile import *
-    # import metadata not covered by *:
-    from olefile.olefile import __version__, __author__, __date__
-
-except:
-    # if it fails, fallback to the old version olefile2 for Python 2.x:
-    from olefile.olefile2 import *
-    # import metadata not covered by *:
-    from olefile.olefile2 import __doc__, __version__, __author__, __date__
+from olefile.olefile import *
+# import metadata not covered by *:
+from olefile.olefile import __version__, __author__, __date__

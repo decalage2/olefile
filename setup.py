@@ -53,23 +53,25 @@ download_url = "https://github.com/decalage2/olefile/tarball/master"
 
 classifiers=[
     "Development Status :: 4 - Beta",
-    'Intended Audience :: Developers',
+    "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
     "Intended Audience :: Science/Research",
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 2",  # with olefile2
-    'Programming Language :: Python :: 2.6',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.2',
-    'Programming Language :: Python :: 3.3',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6',
-    'Topic :: Software Development :: Libraries :: Python Modules'
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.6",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.2",
+    "Programming Language :: Python :: 3.3",
+    "Programming Language :: Python :: 3.4",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
 #--- PACKAGES -----------------------------------------------------------------
@@ -150,7 +152,6 @@ package_data={
         'LICENSE.txt',
         'CONTRIBUTORS.txt',
         'olefile.html',
-        'olefile2.html',
         ]
         # doc folder: md, html, png
         + rglob('olefile/doc', 'doc', '*.html')
@@ -245,12 +246,6 @@ def main():
 ##    # platform specific "site-packages" location
 ##    for scheme in list(INSTALL_SCHEMES.values()):
 ##        scheme['data'] = scheme['purelib']
-
-    # when running 'setup.py install', disable the compilation of all python
-    # modules, because olefile2.py triggers a syntax error with Python 3.
-    # For this, add the option --no-compile to the command-line:
-    if 'install' in sys.argv:
-        sys.argv.append('--no-compile')
 
     dist = setup(
         name=name,

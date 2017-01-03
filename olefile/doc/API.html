@@ -11,11 +11,11 @@
 <p>Before v0.40, olefile was named OleFileIO_PL. To maintain backward compatibility with older applications and samples, a</p>
 <p>simple script is also installed so that the following statement imports olefile as OleFileIO_PL:</p>
 <pre><code>import OleFileIO_PL</code></pre>
+<p>As of version 0.44, olefile is compatible with Python 2.6, 2.7 and 3.x.
 <p>As of version 0.30, the code has been changed to be compatible with Python 3.x. As a consequence, compatibility with</p>
-<p>Python 2.5 or older is not provided anymore. However, a copy of OleFileIO_PL v0.26 (with some backported enhancements)</p>
+<p>Python 2.5 or older is not provided anymore. However, in versions before 0.44, a copy of OleFileIO_PL v0.26 (with some backported enhancements)</p>
 <p>is available as olefile2.py. When importing the olefile package, it falls back automatically to olefile2 if running on</p>
 <p>Python 2.5 or older. This is implemented in olefile/__init__.py. (new in v0.40)</p>
-<p>If you think olefile should stay compatible with Python 2.5 or older, please <a href="https://www.decalage.info/contact">contact me</a>.</p>
 <h2 id="test-if-a-file-is-an-ole-container">Test if a file is an OLE container</h2>
 <p>Use <strong>isOleFile</strong> to check if the first bytes of the file contain the Magic for OLE files, before opening it. isOleFile</p>
 <p>returns True if it is an OLE file, False otherwise (new in v0.16).</p>
