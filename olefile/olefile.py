@@ -135,7 +135,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2009-12-11 v0.20 PL: - bugfix in OleFileIO.open when filename is not plain str
 # 2010-01-22 v0.21 PL: - added support for big-endian CPUs such as PowerPC Macs
 # 2012-02-16 v0.22 PL: - fixed bug in getproperties, patch by chuckleberryfinn
-#                        (https://github.com/decalage2/olefile/issue/7)
+#                        (https://github.com/decalage2/olefile/issues/7)
 #                      - added close method to OleFileIO (fixed issue #2)
 # 2012-07-25 v0.23 PL: - added support for file-like objects (patch by mete0r_kr)
 # 2013-05-05 v0.24 PL: - getproperties: added conversion from filetime to python
@@ -193,6 +193,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2016-04-27           - added support for incomplete streams and incorrect
 #                        directory entries (to read malformed documents)
 # 2016-05-04           - fixed slight bug in OleStream
+# 2016-11-27       DR: - added method to get the clsid of a storage/stream
+#                        (Daniel Roethlisberger)
 
 __date__    = "2016-05-04"
 __version__ = '0.44'
@@ -240,7 +242,7 @@ __author__  = "Philippe Lagadec"
 
 # FUTURE EVOLUTIONS to add write support:
 # see issue #6 on GitHub:
-# https://github.com/decalage2/olefile/issue/6
+# https://github.com/decalage2/olefile/issues/6
 
 #-----------------------------------------------------------------------------
 # NOTES from PIL 1.1.6:
@@ -843,7 +845,7 @@ class OleStream(io.BytesIO):
         elif unknown_size:
             # actual stream size was not known, now we know the size of read
             # data:
-            log.debug('Read data of length %d, the stream size was unkown' % len(data))
+            log.debug('Read data of length %d, the stream size was unknown' % len(data))
             self.size = len(data)
         else:
             # read data is less than expected:
@@ -2071,6 +2073,21 @@ class OleFileIO:
             return entry.entry_type
         except:
             return False
+
+
+    def getclsid(self, filename):
+        """
+        Return clsid of a stream/storage.
+
+        :param filename: path of stream/storage in storage tree. (see openstream for
+            syntax)
+        :returns: Empty string if clsid is null, a printable representation of the clsid otherwise
+
+        new in version (unreleased)
+        """
+        sid = self._find(filename)
+        entry = self.direntries[sid]
+        return entry.clsid
 
 
     def getmtime(self, filename):
