@@ -15,10 +15,8 @@ Document File Format), such as Microsoft Office 97-2003 documents, Image
 Composer and FlashPix files, Outlook messages, StickyNotes, several
 Microscopy file formats, McAfee antivirus quarantine files, etc.
 
-.. TODO: fix the install link once published on RTD
-
 **Quick links:** `Home page <https://www.decalage.info/olefile>`__ -
-`Download/Install <https://github.com/decalage2/olefile/wiki/Install>`__ -
+`Download/Install <http://olefile.readthedocs.io/en/latest/Install.html>`__ -
 `Documentation <http://olefile.readthedocs.io/en/latest/>`__ -
 `Report Issues/Suggestions/Questions <https://github.com/decalage2/olefile/issues>`__ -
 `Contact the author <http://decalage.info/contact>`__ -
