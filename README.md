@@ -14,8 +14,8 @@ etc.
 
 
 **Quick links:** [Home page](https://www.decalage.info/olefile) -
-[Download/Install](https://github.com/decalage2/olefile/wiki/Install) -
-[Documentation](https://github.com/decalage2/olefile/wiki) -
+[Download/Install](http://olefile.readthedocs.io/en/latest/Install.html) -
+[Documentation](http://olefile.readthedocs.io/en/latest) -
 [Report Issues/Suggestions/Questions](https://github.com/decalage2/olefile/issues) -
 [Contact the author](https://www.decalage.info/contact) -
 [Repository](https://github.com/decalage2/olefile) -
@@ -27,6 +27,7 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
+- **2017-01-04**: moved the documentation to [ReadTheDocs](http://olefile.readthedocs.io/en/latest)
 - **2016-05-20**: moved olefile repository to [GitHub](https://github.com/decalage2/olefile)
 - **2016-02-02 v0.43**: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
     and [#27](https://github.com/decalage2/olefile/issues/27),
@@ -64,7 +65,7 @@ or **easy_install olefile** for the first installation.
 
 To update olefile, run **pip install -U olefile**.
 
-Otherwise, see https://github.com/decalage2/olefile/wiki/Install
+Otherwise, see http://olefile.readthedocs.io/en/latest/Install.html
 
 Features
 --------
@@ -120,10 +121,7 @@ Main improvements over the original version of OleFileIO in PIL:
 Documentation
 -------------
 
-Please see the [online documentation](https://github.com/decalage2/olefile/wiki) for more information,
-especially the [OLE overview](https://github.com/decalage2/olefile/wiki/OLE_Overview) and the
-[API page](https://github.com/decalage2/olefile/wiki/API) which describe how to use olefile in Python applications.
-A copy of the same documentation is also provided in the doc subfolder of the olefile package.
+Please see the [online documentation](http://olefile.readthedocs.io/en/latest) for more information.
 
 
 ## Real-life examples ##
@@ -136,7 +134,7 @@ See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/
 License
 -------
 
-olefile (formerly OleFileIO_PL) is copyright (c) 2005-2016 Philippe Lagadec
+olefile (formerly OleFileIO_PL) is copyright (c) 2005-2017 Philippe Lagadec
 ([https://www.decalage.info](https://www.decalage.info))
 
 All rights reserved.
