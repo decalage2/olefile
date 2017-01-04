@@ -19,7 +19,7 @@
 import os
 import sys
 _thismodule_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-_olefile_dir = os.path.normpath(os.path.join(_thismodule_dir, '..')) #, 'olefile'))
+_olefile_dir = os.path.normpath(os.path.join(_thismodule_dir, '..', 'olefile'))
 if not _olefile_dir in sys.path:
     sys.path.insert(0, _olefile_dir)
 
@@ -32,7 +32,7 @@ if not _olefile_dir in sys.path:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,21 +40,22 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = ['.rst', '.md']
-#source_suffix = '.rst'
+# source_suffix = ['.rst', '.md']
+source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
 
 # General information about the project.
 project = u'olefile'
-copyright = u'2017, Philippe Lagadec'
+copyright = u'2005-2017, Philippe Lagadec'
 author = u'Philippe Lagadec'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
+# TODO: get the version from olefile
 # The short X.Y version.
 version = u'0.44'
 # The full version, including alpha/beta/rc tags.

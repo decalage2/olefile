@@ -9,7 +9,7 @@
 #
 # Project website: https://www.decalage.info/olefile
 #
-# olefile is copyright (c) 2005-2016 Philippe Lagadec
+# olefile is copyright (c) 2005-2017 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # olefile is based on the OleFileIO module from the PIL library v1.1.6
@@ -472,7 +472,13 @@ def isOleFile (filename):
     """
     Test if a file is an OLE container (according to the magic bytes in its header).
 
-    :param filename: string-like or file-like object, OLE file to parse
+    .. note::
+        This function only checks the first 8 bytes of the file, not the
+        rest of the OLE structure.
+
+    .. versionadded:: 0.16
+
+    :param filename: filename, contents or file-like object of the OLE file (string-like or file-like object)
 
         - if filename is a string smaller than 1536 bytes, it is the path
           of the file to open. (bytes or unicode string)
@@ -481,7 +487,9 @@ def isOleFile (filename):
         - if filename is a file-like object (with read and seek methods),
           it is parsed as-is.
 
+    :type filename: bytes or str or unicode or file
     :returns: True if OLE, False otherwise.
+    :rtype: bool
     """
     # check if filename is a string-like or file-like object:
     if hasattr(filename, 'read'):
@@ -676,7 +684,7 @@ class OleMetadata:
     def parse_properties(self, olefile):
         """
         Parse standard properties of an OLE file, from the streams
-        "\x05SummaryInformation" and "\x05DocumentSummaryInformation",
+        ``\\x05SummaryInformation`` and ``\\x05DocumentSummaryInformation``,
         if present.
         Properties are converted to strings, integers or python datetime objects.
         If a property is not present, its value is set to None.
@@ -1188,8 +1196,8 @@ class OleFileIO:
         """
         # minimal level for defects to be raised as exceptions:
         self._raise_defects_level = raise_defects
-        # list of defects/issues not raised as exceptions:
-        # tuples of (exception type, message)
+        #: list of defects/issues not raised as exceptions:
+        #: tuples of (exception type, message)
         self.parsing_issues = []
         self.write_mode = write_mode
         self.path_encoding = path_encoding
