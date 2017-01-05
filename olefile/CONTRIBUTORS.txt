@@ -17,3 +17,6 @@ A big thank you to all of them:
 - Jon Dufresne: improved isOleFile
 - Philippe Lagadec: main author and maintainer since 2005
 - and of course Fredrik Lundh: original author of OleFileIO from 1995 to 2005
+
+See also the list of contributors on GitHub:
+https://github.com/decalage2/olefile/graphs/contributors
