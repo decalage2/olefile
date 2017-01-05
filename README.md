@@ -85,39 +85,6 @@ for security purposes such as malware analysis and forensics), then please also 
 [python-oletools](https://www.decalage.info/python/oletools), which are built upon olefile and provide a higher-level interface.
 
 
-History
--------
-
-olefile is based on the OleFileIO module from [PIL](http://www.pythonware.com/products/pil/index.htm), the excellent
-Python Imaging Library, created and maintained by Fredrik Lundh. The olefile API is still compatible with PIL, but
-since 2005 I have improved the internal implementation significantly, with new features, bugfixes and a more robust
-design. From 2005 to 2014 the project was called OleFileIO_PL, and in 2014 I changed its name to olefile to celebrate
-its 9 years and its new write features.
-
-As far as I know, olefile is the most complete and robust Python implementation to read MS OLE2 files, portable on
-several operating systems. (please tell me if you know other similar Python modules)
-
-Since 2014 olefile/OleFileIO_PL has been integrated into [Pillow](http://python-imaging.github.io/), the friendly fork
-of PIL. olefile will continue to be improved as a separate project, and new versions will be merged into Pillow
-regularly.
-
-
-Main improvements over the original version of OleFileIO in PIL:
-----------------------------------------------------------------
-
-- Compatible with Python 3.x and 2.6+
-- Many bug fixes
-- Support for files larger than 6.8MB
-- Support for 64 bits platforms and big-endian CPUs
-- Robust: many checks to detect malformed files
-- Runtime option to choose if malformed files should be parsed or raise exceptions
-- Improved API
-- Metadata extraction, stream/storage timestamps (e.g. for document forensics)
-- Can open file-like objects
-- Added setup.py and install.bat to ease installation
-- More convenient slash-based syntax for stream paths
-- Write features
-
 Documentation
 -------------
 

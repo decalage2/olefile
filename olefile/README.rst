@@ -11,24 +11,26 @@ files, Outlook messages, StickyNotes, several Microscopy file formats,
 McAfee antivirus quarantine files, etc.
 
 **Quick links:** `Home page <https://www.decalage.info/olefile>`__ -
-`Download/Install <https://github.com/decalage2/olefile/wiki/Install>`__
-- `Documentation <https://github.com/decalage2/olefile/wiki>`__ -
-`Report
-Issues/Suggestions/Questions <https://github.com/decalage2/olefile/issues/new>`__
+`Download/Install <http://olefile.readthedocs.io/en/latest/Install.html>`__
+- `Documentation <http://olefile.readthedocs.io/en/latest>`__ - `Report
+Issues/Suggestions/Questions <https://github.com/decalage2/olefile/issues>`__
 - `Contact the author <https://www.decalage.info/contact>`__ -
-`Repository <https://github.com/decalage2/olefile>`__ - `Updates
-on Twitter <https://twitter.com/decalage2>`__
+`Repository <https://github.com/decalage2/olefile>`__ - `Updates on
+Twitter <https://twitter.com/decalage2>`__
 
 News
 ----
 
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
+-  **2017-01-04**: moved the documentation to
+   `ReadTheDocs <http://olefile.readthedocs.io/en/latest>`__
+-  **2016-05-20**: moved olefile repository to
+   `GitHub <https://github.com/decalage2/olefile>`__
 -  **2016-02-02 v0.43**: fixed issues
-   `#26 <https://github.com/decalage2/olefile/issues/26>`__
-   and
-   `#27 <https://github.com/decalage2/olefile/issues/27>`__,
-   better handling of malformed files, use python logging.
+   `#26 <https://github.com/decalage2/olefile/issues/26>`__ and
+   `#27 <https://github.com/decalage2/olefile/issues/27>`__, better
+   handling of malformed files, use python logging.
 -  2015-01-25 v0.42: improved handling of special characters in
    stream/storage names on Python 2.x (using UTF-8 instead of Latin-1),
    fixed bug in listdir with empty storages.
@@ -79,7 +81,7 @@ olefile** for the first installation.
 
 To update olefile, run **pip install -U olefile**.
 
-Otherwise, see https://github.com/decalage2/olefile/wiki/Install
+Otherwise, see http://olefile.readthedocs.io/en/latest/Install.html
 
 Features
 --------
@@ -102,57 +104,12 @@ such as malware analysis and forensics), then please also check my
 `python-oletools <https://www.decalage.info/python/oletools>`__, which
 are built upon olefile and provide a higher-level interface.
 
-History
--------
-
-olefile is based on the OleFileIO module from
-`PIL <http://www.pythonware.com/products/pil/index.htm>`__, the
-excellent Python Imaging Library, created and maintained by Fredrik
-Lundh. The olefile API is still compatible with PIL, but since 2005 I
-have improved the internal implementation significantly, with new
-features, bugfixes and a more robust design. From 2005 to 2014 the
-project was called OleFileIO\_PL, and in 2014 I changed its name to
-olefile to celebrate its 9 years and its new write features.
-
-As far as I know, olefile is the most complete and robust Python
-implementation to read MS OLE2 files, portable on several operating
-systems. (please tell me if you know other similar Python modules)
-
-Since 2014 olefile/OleFileIO\_PL has been integrated into
-`Pillow <http://python-imaging.github.io/>`__, the friendly fork of PIL.
-olefile will continue to be improved as a separate project, and new
-versions will be merged into Pillow regularly.
-
-Main improvements over the original version of OleFileIO in PIL:
-----------------------------------------------------------------
-
--  Compatible with Python 3.x and 2.6+
--  Many bug fixes
--  Support for files larger than 6.8MB
--  Support for 64 bits platforms and big-endian CPUs
--  Robust: many checks to detect malformed files
--  Runtime option to choose if malformed files should be parsed or raise
-   exceptions
--  Improved API
--  Metadata extraction, stream/storage timestamps (e.g. for document
-   forensics)
--  Can open file-like objects
--  Added setup.py and install.bat to ease installation
--  More convenient slash-based syntax for stream paths
--  Write features
-
 Documentation
 -------------
 
 Please see the `online
-documentation <https://github.com/decalage2/olefile/wiki>`__ for
-more information, especially the `OLE
-overview <https://github.com/decalage2/olefile/wiki/OLE_Overview>`__
-and the `API
-page <https://github.com/decalage2/olefile/wiki/API>`__ which
-describe how to use olefile in Python applications. A copy of the same
-documentation is also provided in the doc subfolder of the olefile
-package.
+documentation <http://olefile.readthedocs.io/en/latest>`__ for more
+information.
 
 Real-life examples
 ------------------
@@ -167,7 +124,7 @@ about python tools for forensics, which features olefile.
 License
 -------
 
-olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2016 Philippe
+olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2017 Philippe
 Lagadec (https://www.decalage.info)
 
 All rights reserved.
@@ -224,3 +181,10 @@ ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
 RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
 CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+.. |Build Status| image:: https://travis-ci.org/decalage2/olefile.svg?branch=master
+   :target: https://travis-ci.org/decalage2/olefile
+.. |Coverage Status| image:: https://coveralls.io/repos/github/decalage2/olefile/badge.svg?branch=master
+   :target: https://coveralls.io/github/decalage2/olefile?branch=master
+.. |Documentation Status| image:: http://readthedocs.org/projects/olefile/badge/?version=latest
+   :target: http://olefile.readthedocs.io/en/latest/?badge=latest
