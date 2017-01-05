@@ -19,6 +19,7 @@ To install this package, run:
 # 2014-09-26 v0.08 PL: - install the olefile package instead of modules
 # 2014-10-10 v0.09 PL: - fixed compilation error on Python 3
 # 2016-01-29 v0.10 PL: - fixed issue #28, removed DEBUG_MODE test
+# 2016-01-05 v0.44 PL: - removed the legacy doc subfolder
 
 
 #--- TODO ---------------------------------------------------------------------
@@ -151,12 +152,12 @@ package_data={
         'README.html',
         'LICENSE.txt',
         'CONTRIBUTORS.txt',
-        'olefile.html',
+        # 'olefile.html',
         ]
         # doc folder: md, html, png
-        + rglob('olefile/doc', 'doc', '*.html')
-        + rglob('olefile/doc', 'doc', '*.md')
-        + rglob('olefile/doc', 'doc', '*.png'),
+        # + rglob('olefile/doc', 'doc', '*.html')
+        # + rglob('olefile/doc', 'doc', '*.md')
+        # + rglob('olefile/doc', 'doc', '*.png'),
     }
 
 
