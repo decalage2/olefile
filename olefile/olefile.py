@@ -1,26 +1,26 @@
-#!/usr/bin/env python
+"""
+olefile (formerly OleFileIO_PL)
 
-# olefile (formerly OleFileIO_PL)
-#
-# Module to read/write Microsoft OLE2 files (also called Structured Storage or
-# Microsoft Compound Document File Format), such as Microsoft Office 97-2003
-# documents, Image Composer and FlashPix files, Outlook messages, ...
-# This version is compatible with Python 2.6+ and 3.x
-#
-# Project website: https://www.decalage.info/olefile
-#
-# olefile is copyright (c) 2005-2017 Philippe Lagadec
-# (https://www.decalage.info)
-#
-# olefile is based on the OleFileIO module from the PIL library v1.1.6
-# See: http://www.pythonware.com/products/pil/index.htm
-#
-# The Python Imaging Library (PIL) is
-# Copyright (c) 1997-2005 by Secret Labs AB
-# Copyright (c) 1995-2005 by Fredrik Lundh
-#
-# See source code and LICENSE.txt for information on usage and redistribution.
+Module to read/write Microsoft OLE2 files (also called Structured Storage or
+Microsoft Compound Document File Format), such as Microsoft Office 97-2003
+documents, Image Composer and FlashPix files, Outlook messages, ...
+This version is compatible with Python 2.6+ and 3.x
 
+Project website: https://www.decalage.info/olefile
+
+olefile is copyright (c) 2005-2017 Philippe Lagadec
+(https://www.decalage.info)
+
+olefile is based on the OleFileIO module from the PIL library v1.1.7
+See: http://www.pythonware.com/products/pil/index.htm
+and http://svn.effbot.org/public/tags/pil-1.1.7/PIL/OleFileIO.py
+
+The Python Imaging Library (PIL) is
+Copyright (c) 1997-2009 by Secret Labs AB
+Copyright (c) 1995-2009 by Fredrik Lundh
+
+See source code and LICENSE.txt for information on usage and redistribution.
+"""
 
 # Since OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
 # This import enables print() as a function rather than a keyword
@@ -31,7 +31,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2016 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2017 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # All rights reserved.
@@ -63,8 +63,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # Imaging Library (PIL) published by Fredrik Lundh under the following license:
 
 # The Python Imaging Library (PIL) is
-#    Copyright (c) 1997-2005 by Secret Labs AB
-#    Copyright (c) 1995-2005 by Fredrik Lundh
+#    Copyright (c) 1997-2009 by Secret Labs AB
+#    Copyright (c) 1995-2009 by Fredrik Lundh
 #
 # By obtaining, using, and/or copying this software and/or its associated
 # documentation, you agree that you have read, understood, and will comply with

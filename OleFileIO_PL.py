@@ -10,12 +10,13 @@ Project website: https://www.decalage.info/olefile
 
 olefile is copyright (c) 2005-2017 Philippe Lagadec (https://www.decalage.info)
 
-olefile is based on the OleFileIO module from the PIL library v1.1.6
+olefile is based on the OleFileIO module from the PIL library v1.1.7
 See: http://www.pythonware.com/products/pil/index.htm
+and http://svn.effbot.org/public/tags/pil-1.1.7/PIL/OleFileIO.py
 
 The Python Imaging Library (PIL) is
-    Copyright (c) 1997-2005 by Secret Labs AB
-    Copyright (c) 1995-2005 by Fredrik Lundh
+Copyright (c) 1997-2009 by Secret Labs AB
+Copyright (c) 1995-2009 by Fredrik Lundh
 
 See source code and LICENSE.txt for information on usage and redistribution.
 """
