@@ -27,9 +27,12 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2017-01-04**: moved the documentation to [ReadTheDocs](http://olefile.readthedocs.io/en/latest)
-- **2016-05-20**: moved olefile repository to [GitHub](https://github.com/decalage2/olefile)
-- **2016-02-02 v0.43**: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
+- **2017-01-06 v0.44**: several bugfixes, removed support for Python 2.5 (olefile2),
+added support for incomplete streams and incorrect directory entries (to read malformed documents),
+added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest) with API reference.
+- 2017-01-04: moved the documentation to [ReadTheDocs](http://olefile.readthedocs.io/en/latest)
+- 2016-05-20: moved olefile repository to [GitHub](https://github.com/decalage2/olefile)
+- 2016-02-02 v0.43: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
     and [#27](https://github.com/decalage2/olefile/issues/27),
     better handling of malformed files, use python logging.
 - 2015-01-25 v0.42: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8

@@ -5,9 +5,10 @@
 <h2 id="news">News</h2>
 <p>Follow all updates and news on Twitter: <a href="https://twitter.com/decalage2" class="uri">https://twitter.com/decalage2</a></p>
 <ul>
-<li><strong>2017-01-04</strong>: moved the documentation to <a href="http://olefile.readthedocs.io/en/latest">ReadTheDocs</a></li>
-<li><strong>2016-05-20</strong>: moved olefile repository to <a href="https://github.com/decalage2/olefile">GitHub</a></li>
-<li><strong>2016-02-02 v0.43</strong>: fixed issues <a href="https://github.com/decalage2/olefile/issues/26">#26</a> and <a href="https://github.com/decalage2/olefile/issues/27">#27</a>, better handling of malformed files, use python logging.</li>
+<li><strong>2017-01-06 v0.44</strong>: several bugfixes, removed support for Python 2.5 (olefile2), added support for incomplete streams and incorrect directory entries (to read malformed documents), added getclsid, improved <a href="http://olefile.readthedocs.io/en/latest">documentation</a> with API reference.</li>
+<li>2017-01-04: moved the documentation to <a href="http://olefile.readthedocs.io/en/latest">ReadTheDocs</a></li>
+<li>2016-05-20: moved olefile repository to <a href="https://github.com/decalage2/olefile">GitHub</a></li>
+<li>2016-02-02 v0.43: fixed issues <a href="https://github.com/decalage2/olefile/issues/26">#26</a> and <a href="https://github.com/decalage2/olefile/issues/27">#27</a>, better handling of malformed files, use python logging.</li>
 <li>2015-01-25 v0.42: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8 instead of Latin-1), fixed bug in listdir with empty storages.</li>
 <li>2014-11-25 v0.41: OleFileIO.open and isOleFile now support OLE files stored in byte strings, fixed installer for python 3, added support for Jython (Niko Ehrenfeuchter)</li>
 <li>2014-10-01 v0.40: renamed OleFileIO_PL to olefile, added initial write support for streams &gt;4K, updated doc and license, improved the setup script.</li>
@@ -57,8 +58,8 @@
 <p>olefile is based on source code from the OleFileIO module of the Python Imaging Library (PIL) published by Fredrik Lundh under the following license:</p>
 <p>The Python Imaging Library (PIL) is</p>
 <ul>
-<li>Copyright (c) 1997-2005 by Secret Labs AB</li>
-<li>Copyright (c) 1995-2005 by Fredrik Lundh</li>
+<li>Copyright (c) 1997-2009 by Secret Labs AB</li>
+<li>Copyright (c) 1995-2009 by Fredrik Lundh</li>
 </ul>
 <p>By obtaining, using, and/or copying this software and/or its associated documentation, you agree that you have read, understood, and will comply with the following terms and conditions:</p>
 <p>Permission to use, copy, modify, and distribute this software and its associated documentation for any purpose and without fee is hereby granted, provided that the above copyright notice appears in all copies, and that both that copyright notice and this permission notice appear in supporting documentation, and that the name of Secret Labs AB or the author not be used in advertising or publicity pertaining to distribution of the software without specific, written prior permission.</p>

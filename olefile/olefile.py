@@ -196,7 +196,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2016-11-27       DR: - added method to get the clsid of a storage/stream
 #                        (Daniel Roethlisberger)
 
-__date__    = "2016-05-04"
+__date__    = "2017-01-06"
 __version__ = '0.44'
 __author__  = "Philippe Lagadec"
 
@@ -2097,7 +2097,7 @@ class OleFileIO:
             syntax)
         :returns: Empty string if clsid is null, a printable representation of the clsid otherwise
 
-        new in version (unreleased)
+        new in version 0.44
         """
         sid = self._find(filename)
         entry = self.direntries[sid]
