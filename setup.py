@@ -27,12 +27,10 @@ To install this package, run:
 
 #--- IMPORTS ------------------------------------------------------------------
 
-##try:
-##    from setuptools import setup
-##except ImportError:
-from distutils.core import setup
-
-#from distutils.command.install import INSTALL_SCHEMES
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 import sys, os, fnmatch
 
