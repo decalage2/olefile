@@ -1,4 +1,6 @@
 from __future__ import print_function
+import os
+from shutil import copy2
 
 try:
     import unittest2 as unittest  # Python 2.6
@@ -53,6 +55,34 @@ class TestOlefile(unittest.TestCase):
         meta = ole.get_metadata()
         self.assertEqual(meta.author, b"Laurence Ipsum")
         self.assertEqual(meta.num_pages, 1)
+        
+    def test_minifat_writing(self):
+        ole_file_copy = "tests/images/test-ole-file-copy.doc"
+        minifat_stream_name = "\x01compobj"
+        if os.path.isfile(ole_file_copy):
+            os.remove(ole_file_copy)
+        copy2(self.ole_file, ole_file_copy)
+        
+        ole = OleFileIO.OleFileIO(ole_file_copy, write_mode = True)
+        stream = ole.openstream(minifat_stream_name)
+        self.assertTrue(stream.size < ole.minisectorcutoff)
+        str_read = stream.read()
+        self.assertTrue(len(str_read) == stream.size)
+        self.assertTrue(str_read != '\x00' * stream.size)
+        stream.close()
+        ole.write_stream(minifat_stream_name, '\x00' * stream.size)
+        ole.close()
+    
+        ole = OleFileIO.OleFileIO(ole_file_copy)
+        stream = ole.openstream(minifat_stream_name)
+        self.assertTrue(stream.size < ole.minisectorcutoff)
+        str_read_replaced = stream.read()
+        self.assertTrue(len(str_read_replaced) == stream.size)
+        self.assertTrue(str_read_replaced != str_read)
+        self.assertTrue(str_read_replaced == '\x00' * len(str_read))
+        stream.close()
+        ole.close()
+        os.remove(ole_file_copy)
 
 if __name__ == '__main__':
     unittest.main()

@@ -195,6 +195,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2016-05-04           - fixed slight bug in OleStream
 # 2016-11-27       DR: - added method to get the clsid of a storage/stream
 #                        (Daniel Roethlisberger)
+# 2017-03-06       KJ: - added support for writing a stream in MiniFAT.
+#                        (Kim Ki-jeong)
 
 __date__    = "2017-01-06"
 __version__ = '0.44'
@@ -991,17 +993,37 @@ class OleDirectoryEntry:
         if self.entry_type == STGTY_STORAGE and self.size != 0:
             olefile._raise_defect(DEFECT_POTENTIAL, 'OLE storage with size>0')
         # check if stream is not already referenced elsewhere:
+        self.is_minifat = False
         if self.entry_type in (STGTY_ROOT, STGTY_STREAM) and self.size>0:
             if self.size < olefile.minisectorcutoff \
             and self.entry_type==STGTY_STREAM: # only streams can be in MiniFAT
                 # ministream object
-                minifat = True
+                self.is_minifat = True
             else:
-                minifat = False
-            olefile._check_duplicate_stream(self.isectStart, minifat)
+                self.is_minifat = False
+            olefile._check_duplicate_stream(self.isectStart, self.is_minifat)
+        self.sect_chain = None
 
 
-
+    def build_sect_chain(self, olefile):
+        if self.sect_chain:
+            return
+        if self.entry_type not in (STGTY_ROOT, STGTY_STREAM) or self.size == 0:
+            return
+        
+        self.sect_chain = list()
+        
+        if self.is_minifat and not olefile.minifat:
+            olefile.loadminifat()
+            
+        next_sect = self.isectStart
+        while next_sect != ENDOFCHAIN:
+            self.sect_chain.append(next_sect)
+            if self.is_minifat:
+                next_sect = olefile.minifat[next_sect]
+            else:
+                next_sect = olefile.fat[next_sect]
+    
     def build_storage_tree(self):
         """
         Read and build the red-black tree attached to this OleDirectoryEntry
@@ -1203,6 +1225,9 @@ class OleFileIO:
         self.path_encoding = path_encoding
         self._filesize = None
         self.fp = None
+        self.minifat = None
+        self.ministream = None
+        self.minifatsect = None
         if filename:
             self.open(filename, write_mode=write_mode)
 
@@ -1473,7 +1498,6 @@ class OleFileIO:
         # Load directory.  This sets both the direntries list (ordered by sid)
         # and the root (ordered by hierarchy) members.
         self.loaddirectory(self.first_dir_sector)
-        self.ministream = None
         self.minifatsect = self.first_mini_fat_sector
 
 
@@ -1797,8 +1821,33 @@ class OleFileIO:
         elif len(data) < self.sectorsize:
             raise ValueError("Data is larger than sector size")
         self.fp.write(data)
+        
+    def _write_mini_sect(self, fp_pos, data, padding = b'\x00'):
+        """
+        Write given sector to file on disk.
 
-
+        :param fp_pos: int, file position
+        :param data: bytes, sector data
+        :param padding: single byte, padding character if data < sector size
+        """
+        if not isinstance(data, bytes):
+            raise TypeError("write_mini_sect: data must be a bytes string")
+        if not isinstance(padding, bytes) or len(padding) != 1:
+            raise TypeError("write_mini_sect: padding must be a bytes string of 1 char")
+        
+        try:
+            self.fp.seek(fp_pos)
+        except:
+            log.debug('write_mini_sect(): fp_pos=%d, filesize=%d' %
+                      (fp_pos, self._filesize))
+            self._raise_defect(DEFECT_FATAL, 'OLE sector index out of range')
+        len_data = len(data)
+        if len_data < self.mini_sector_size:
+            data += padding * (self.mini_sector_size - len_data)
+        if self.mini_sector_size < len_data:
+            raise ValueError("Data is larger than sector size")
+        self.fp.write(data)
+    
     def loaddirectory(self, sect):
         """
         Load the directory.
@@ -2006,8 +2055,25 @@ class OleFileIO:
         if entry.entry_type != STGTY_STREAM:
             raise IOError("this file is not a stream")
         return self._open(entry.isectStart, entry.size)
+   
+    def _write_mini_stream(self, entry, data_to_write):
+        if not entry.sect_chain:
+            entry.build_sect_chain(self)
+        nb_sectors = len(entry.sect_chain)
 
-
+        if not self.root.sect_chain:
+            self.root.build_sect_chain(self)
+        block_size = self.sector_size // self.mini_sector_size
+        for idx, sect in enumerate(entry.sect_chain):
+            sect_base = sect // block_size
+            sect_offset = sect % block_size
+            fp_pos = (self.root.sect_chain[sect_base] + 1)*self.sector_size + sect_offset*self.mini_sector_size
+            if idx < (nb_sectors - 1):
+                data_per_sector = data_to_write[idx * self.mini_sector_size: (idx + 1) * self.mini_sector_size]
+            else:
+                data_per_sector = data_to_write[idx * self.mini_sector_size:]
+            self._write_mini_sect(fp_pos, data_per_sector)
+    
     def write_stream(self, stream_name, data):
         """
         Write a stream to disk. For now, it is only possible to replace an
@@ -2032,8 +2098,9 @@ class OleFileIO:
         size = entry.size
         if size != len(data):
             raise ValueError("write_stream: data must be the same size as the existing stream")
-        if size < self.minisectorcutoff:
-            raise NotImplementedError("Writing a stream in MiniFAT is not implemented yet")
+        if size < self.minisectorcutoff and entry.entry_type != STGTY_ROOT:
+            return self._write_mini_stream(entry = entry, data_to_write = data)
+
         sect = entry.isectStart
         # number of sectors to write
         nb_sectors = (size + (self.sectorsize-1)) // self.sectorsize
