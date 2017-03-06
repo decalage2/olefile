@@ -63,8 +63,8 @@ class TestOlefile(unittest.TestCase):
         ole.close()
         
     def test_minifat_writing(self):
-        ole_file_copy = u"tests/images/test-ole-file-copy.doc"
-        minifat_stream_name = u"\x01compobj"
+        ole_file_copy = "tests/images/test-ole-file-copy.doc"
+        minifat_stream_name = "\x01compobj"
         if os.path.isfile(ole_file_copy):
             os.remove(ole_file_copy)
         copy2(self.ole_file, ole_file_copy)
