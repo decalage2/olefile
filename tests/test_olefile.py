@@ -29,36 +29,42 @@ class TestOlefile(unittest.TestCase):
         ole = OleFileIO.OleFileIO(self.ole_file)
         exists = ole.exists('worddocument')
         self.assertTrue(exists)
+        ole.close()
 
     def test_exists_no_vba_macros(self):
         ole = OleFileIO.OleFileIO(self.ole_file)
         exists = ole.exists('macros/vba')
         self.assertFalse(exists)
+        ole.close()
 
     def test_get_type(self):
         ole = OleFileIO.OleFileIO(self.ole_file)
         doc_type = ole.get_type('worddocument')
         self.assertEqual(doc_type, OleFileIO.STGTY_STREAM)
+        ole.close()
 
     def test_get_size(self):
         ole = OleFileIO.OleFileIO(self.ole_file)
         size = ole.get_size('worddocument')
         self.assertGreater(size, 0)
+        ole.close()
 
     def test_get_rootentry_name(self):
         ole = OleFileIO.OleFileIO(self.ole_file)
         root = ole.get_rootentry_name()
         self.assertEqual(root, "Root Entry")
+        ole.close()
 
     def test_meta(self):
         ole = OleFileIO.OleFileIO(self.ole_file)
         meta = ole.get_metadata()
         self.assertEqual(meta.author, b"Laurence Ipsum")
         self.assertEqual(meta.num_pages, 1)
+        ole.close()
         
     def test_minifat_writing(self):
-        ole_file_copy = "tests/images/test-ole-file-copy.doc"
-        minifat_stream_name = "\x01compobj"
+        ole_file_copy = u"tests/images/test-ole-file-copy.doc"
+        minifat_stream_name = u"\x01compobj"
         if os.path.isfile(ole_file_copy):
             os.remove(ole_file_copy)
         copy2(self.ole_file, ole_file_copy)
@@ -68,9 +74,9 @@ class TestOlefile(unittest.TestCase):
         self.assertTrue(stream.size < ole.minisectorcutoff)
         str_read = stream.read()
         self.assertTrue(len(str_read) == stream.size)
-        self.assertTrue(str_read != '\x00' * stream.size)
+        self.assertTrue(str_read != b'\x00' * stream.size)
         stream.close()
-        ole.write_stream(minifat_stream_name, '\x00' * stream.size)
+        ole.write_stream(minifat_stream_name, b'\x00' * stream.size)
         ole.close()
     
         ole = OleFileIO.OleFileIO(ole_file_copy)
@@ -79,7 +85,7 @@ class TestOlefile(unittest.TestCase):
         str_read_replaced = stream.read()
         self.assertTrue(len(str_read_replaced) == stream.size)
         self.assertTrue(str_read_replaced != str_read)
-        self.assertTrue(str_read_replaced == '\x00' * len(str_read))
+        self.assertTrue(str_read_replaced == b'\x00' * len(str_read))
         stream.close()
         ole.close()
         os.remove(ole_file_copy)
