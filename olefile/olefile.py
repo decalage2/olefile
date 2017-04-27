@@ -278,6 +278,7 @@ __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
 
 import io
 import sys
+import weakref
 import struct, array, os.path, datetime, logging
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
@@ -1901,14 +1902,14 @@ class OleFileIO:
             return OleStream(fp=self.ministream, sect=start, size=size,
                              offset=0, sectorsize=self.minisectorsize,
                              fat=self.minifat, filesize=self.ministream.size,
-                             olefileio=self)
+                             olefileio=weakref.ref(self))
         else:
             # standard stream
             return OleStream(fp=self.fp, sect=start, size=size,
                              offset=self.sectorsize,
                              sectorsize=self.sectorsize, fat=self.fat,
                              filesize=self._filesize,
-                             olefileio=self)
+                             olefileio=weakref.ref(self))
 
 
     def _list(self, files, prefix, node, streams=True, storages=False):
