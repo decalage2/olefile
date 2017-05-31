@@ -195,9 +195,12 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # 2016-05-04           - fixed slight bug in OleStream
 # 2016-11-27       DR: - added method to get the clsid of a storage/stream
 #                        (Daniel Roethlisberger)
+# 2017-05-31 v0.45 BS: - PR #114 from oletools to handle excessive number of
+#                        properties:
+#                        https://github.com/decalage2/oletools/pull/114
 
-__date__    = "2017-01-06"
-__version__ = '0.44'
+__date__    = "2017-05-31"
+__version__ = '0.45dev1'
 __author__  = "Philippe Lagadec"
 
 #-----------------------------------------------------------------------------
@@ -520,14 +523,12 @@ else:
         return c if c.__class__ is int else c[0]
 
 
-#TODO: replace i16 and i32 with more readable struct.unpack equivalent?
-
 def i16(c, o = 0):
     """
     Converts a 2-bytes (16 bits) string to an integer.
 
-    c: string containing bytes to convert
-    o: offset of bytes to convert in string
+    :param c: string containing bytes to convert
+    :param o: offset of bytes to convert in string
     """
     return struct.unpack("<H", c[o:o+2])[0]
 
@@ -536,8 +537,8 @@ def i32(c, o = 0):
     """
     Converts a 4-bytes (32 bits) string to an integer.
 
-    c: string containing bytes to convert
-    o: offset of bytes to convert in string
+    :param c: string containing bytes to convert
+    :param o: offset of bytes to convert in string
     """
     return struct.unpack("<I", c[o:o+4])[0]
 
@@ -2224,7 +2225,10 @@ class OleFileIO:
             self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
             return data
 
-        for i in range(num_props):
+        # clamp num_props based on the data length
+        num_props = min(num_props, len(s) / 8)
+
+        for i in xrange(num_props):
             property_id = 0 # just in case of an exception
             try:
                 property_id = i32(s, 8+i*8)
