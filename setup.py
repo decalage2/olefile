@@ -7,23 +7,6 @@ To install this package, run:
 (setup script partly borrowed from cherrypy)
 """
 
-#--- CHANGELOG ----------------------------------------------------------------
-
-# 2007-09-13 v0.01 PL: - first version
-# 2007-11-10 v0.02 PL: - updated website URL
-# 2007-12-04 v0.03 PL: - updated description, added debug_mode test
-# 2009-09-11 v0.04 PL: - updated URL, e-mail, licence, disabled e-mail
-# 2012-02-16 v0.05 PL: - added download URL on bitbucket
-# 2012-09-11 v0.06 PL: - read long description from disk in rst format
-# 2014-02-04 v0.07 PL: - added PyPI classifier for Python 3.x, added PL2 version
-# 2014-09-26 v0.08 PL: - install the olefile package instead of modules
-# 2014-10-10 v0.09 PL: - fixed compilation error on Python 3
-# 2016-01-29 v0.10 PL: - fixed issue #28, removed DEBUG_MODE test
-# 2016-01-05 v0.44 PL: - removed the legacy doc subfolder
-
-
-#--- TODO ---------------------------------------------------------------------
-
 
 #--- IMPORTS ------------------------------------------------------------------
 
