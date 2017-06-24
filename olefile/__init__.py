@@ -18,7 +18,7 @@ The Python Imaging Library (PIL) is
     Copyright (c) 1997-2009 by Secret Labs AB
     Copyright (c) 1995-2009 by Fredrik Lundh
 
-See source code and LICENSE.txt for information on usage and redistribution.
+See source code and LICENSE for information on usage and redistribution.
 """
 
 from .olefile import *
