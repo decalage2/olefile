@@ -8,6 +8,10 @@ rem This file install.bat can freely used, modified and redistributed, as
 rem long as credit to the author is kept intact. Please send any feedback,
 rem issues or improvements to decalage at laposte.net.
 
+rem CHANGELOG:
+rem 2007-09-04 v0.01 PL: - first version, for Python 2.3 to 2.5
+rem 2009-02-27 v0.02 PL: - added support for Python 2.6
+rem 2013-05-07 v0.03 PL: - added support for Python 2.7
 
 rem 1) test if python.exe is in the path:
 
