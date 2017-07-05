@@ -1,5 +1,5 @@
-olefile (formerly OleFileIO_PL)
-===============================
+olefile
+=======
 
 [![Build Status](https://travis-ci.org/decalage2/olefile.svg?branch=master)](https://travis-ci.org/decalage2/olefile)
 [![Coverage Status](https://coveralls.io/repos/github/decalage2/olefile/badge.svg?branch=master)](https://coveralls.io/github/decalage2/olefile?branch=master)
