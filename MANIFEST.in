@@ -1,6 +1,9 @@
+include CONTRIBUTORS.txt
 include install.bat
 include LICENSE.txt
+include README.html
 include README.md
+include README.rst
 include setup.py
 
 graft doc
