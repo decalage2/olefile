@@ -1,0 +1,27 @@
+build: off
+environment:
+  matrix:
+    - PYTHON: "C:/Python27-x64"
+    - PYTHON: "C:/Python27"
+    - PYTHON: "C:/Python36-x64"
+    - PYTHON: "C:/Python36"
+    - PYTHON: "C:/Python35-x64"
+    - PYTHON: "C:/Python35"
+    - PYTHON: "C:/Python34-x64"
+    - PYTHON: "C:/Python34"
+    - PYTHON: "C:/Python33-x64"
+    - PYTHON: "C:/Python33"
+init:
+  - "ECHO %PYTHON%"
+  - ps: "ls C:/Python*"
+install:
+  - "%PYTHON%/python.exe -m pip install -U pip setuptools"
+  - "%PYTHON%/Scripts/pip.exe install coverage"
+  - "%PYTHON%/Scripts/pip.exe install nose"
+
+test_script:
+  - "%PYTHON%/Scripts/coverage.exe run --source=olefile -m nose tests"
+
+on_success:
+  - echo Build succesful!
+  - "%PYTHON%/Scripts/coverage.exe report"
