@@ -5,7 +5,7 @@ How to Download and Install olefile
 Pre-requisites
 --------------
 
-olefile requires Python 2.6, 2.7 or 3.x.
+olefile requires Python 2.7 or 3.3+.
 
 
 Download and Install

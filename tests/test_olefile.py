@@ -1,10 +1,5 @@
 from __future__ import print_function
-
-try:
-    import unittest2 as unittest  # Python 2.6
-except ImportError:
-    import unittest
-
+import unittest
 
 import OleFileIO_PL as OleFileIO
 
