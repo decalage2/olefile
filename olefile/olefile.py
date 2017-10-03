@@ -4,7 +4,7 @@ olefile (formerly OleFileIO_PL)
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office 97-2003
 documents, Image Composer and FlashPix files, Outlook messages, ...
-This version is compatible with Python 2.6+ and 3.x
+This version is compatible with Python 2.7 and 3.3+
 
 Project website: https://www.decalage.info/olefile
 
@@ -22,11 +22,11 @@ Copyright (c) 1995-2009 by Fredrik Lundh
 See source code and LICENSE.txt for information on usage and redistribution.
 """
 
-# Since OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
+# Since OleFileIO_PL v0.45, only Python 2.7 and 3.3+ is supported
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
-from __future__ import print_function   # This version of olefile requires Python 2.6+ or 3.x.
+from __future__ import print_function   # This version of olefile requires Python 2.7 or 3.3+.
 
 
 #--- LICENSE ------------------------------------------------------------------
@@ -158,16 +158,6 @@ else:
 
 # === LOGGING =================================================================
 
-class NullHandler(logging.Handler):
-    """
-    Log Handler without output, to avoid printing messages if logging is not
-    configured by the main application.
-    Python 2.7 has logging.NullHandler, but this is necessary for 2.6:
-    see https://docs.python.org/2.6/library/logging.html#configuring-logging-for-a-library
-    """
-    def emit(self, record):
-        pass
-
 def get_logger(name, level=logging.CRITICAL+1):
     """
     Create a suitable logger object for this module.
@@ -190,7 +180,7 @@ def get_logger(name, level=logging.CRITICAL+1):
     logger = logging.getLogger(name)
     # only add a NullHandler for this logger, it is up to the application
     # to configure its own logging:
-    logger.addHandler(NullHandler())
+    logger.addHandler(logging.NullHandler())
     logger.setLevel(level)
     return logger
 
