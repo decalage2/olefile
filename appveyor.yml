@@ -1,6 +1,12 @@
 build: off
 environment:
+  EXECUTABLE: python.exe
+  PIP_DIR: Scripts
   matrix:
+    - PYTHON: "C:/vp/pypy2"
+      EXECUTABLE: bin/pypy.exe
+      PIP_DIR: bin
+      VENV: YES
     - PYTHON: "C:/Python27-x64"
     - PYTHON: "C:/Python27"
     - PYTHON: "C:/Python36-x64"
@@ -15,13 +21,18 @@ init:
   - "ECHO %PYTHON%"
   - ps: "ls C:/Python*"
 install:
-  - "%PYTHON%/python.exe -m pip install -U pip setuptools"
-  - "%PYTHON%/Scripts/pip.exe install coverage"
-  - "%PYTHON%/Scripts/pip.exe install nose"
+  - ps: |
+      if ($env:PYTHON -eq "c:/vp/pypy2")
+      {
+        winbuild/appveyor_install_pypy.cmd
+      }
+  - "%PYTHON%/%EXECUTABLE% -m pip install -U pip setuptools"
+  - "%PYTHON%/%PIP_DIR%/pip.exe install coverage"
+  - "%PYTHON%/%PIP_DIR%/pip.exe install nose"
 
 test_script:
-  - "%PYTHON%/Scripts/coverage.exe run --source=olefile -m nose tests"
+  - "%PYTHON%/%PIP_DIR%/coverage.exe run --source=olefile -m nose tests"
 
 on_success:
   - echo Build succesful!
-  - "%PYTHON%/Scripts/coverage.exe report"
+  - "%PYTHON%/%PIP_DIR%/coverage.exe report"
