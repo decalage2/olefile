@@ -2,6 +2,7 @@ from __future__ import print_function
 import unittest
 
 import os
+from shutil import copy2
 import OleFileIO_PL as OleFileIO
 
 
