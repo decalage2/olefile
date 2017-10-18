@@ -4,7 +4,7 @@ olefile (formerly OleFileIO_PL)
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office 97-2003
 documents, Image Composer and FlashPix files, Outlook messages, ...
-This version is compatible with Python 2.6+ and 3.x
+This version is compatible with Python 2.7 and 3.3+
 
 Project website: https://www.decalage.info/olefile
 
@@ -22,11 +22,11 @@ Copyright (c) 1995-2009 by Fredrik Lundh
 See source code and LICENSE.txt for information on usage and redistribution.
 """
 
-# Since OleFileIO_PL v0.30, only Python 2.6+ and 3.x is supported
+# Since OleFileIO_PL v0.45, only Python 2.7 and 3.3+ is supported
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
-from __future__ import print_function   # This version of olefile requires Python 2.6+ or 3.x.
+from __future__ import print_function   # This version of olefile requires Python 2.7 or 3.3+.
 
 
 #--- LICENSE ------------------------------------------------------------------
@@ -86,192 +86,10 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-#-----------------------------------------------------------------------------
-# CHANGELOG: (only olefile/OleFileIO_PL changes compared to PIL 1.1.6)
-# 2005-05-11 v0.10 PL: - a few fixes for Python 2.4 compatibility
-#                        (all changes flagged with [PL])
-# 2006-02-22 v0.11 PL: - a few fixes for some Office 2003 documents which raise
-#                        exceptions in OleStream.__init__()
-# 2006-06-09 v0.12 PL: - fixes for files above 6.8MB (DIFAT in loadfat)
-#                      - added some constants
-#                      - added header values checks
-#                      - added some docstrings
-#                      - getsect: bugfix in case sectors >512 bytes
-#                      - getsect: added conformity checks
-#                      - DEBUG_MODE constant to activate debug display
-# 2007-09-04 v0.13 PL: - improved/translated (lots of) comments
-#                      - updated license
-#                      - converted tabs to 4 spaces
-# 2007-11-19 v0.14 PL: - added OleFileIO._raise_defect() to adapt sensitivity
-#                      - improved _unicode() to use Python 2.x unicode support
-#                      - fixed bug in OleDirectoryEntry
-# 2007-11-25 v0.15 PL: - added safety checks to detect FAT loops
-#                      - fixed OleStream which didn't check stream size
-#                      - added/improved many docstrings and comments
-#                      - moved helper functions _unicode and _clsid out of
-#                        OleFileIO class
-#                      - improved OleFileIO._find() to add Unix path syntax
-#                      - OleFileIO._find() is now case-insensitive
-#                      - added get_type() and get_rootentry_name()
-#                      - rewritten loaddirectory and OleDirectoryEntry
-# 2007-11-27 v0.16 PL: - added OleDirectoryEntry.kids_dict
-#                      - added detection of duplicate filenames in storages
-#                      - added detection of duplicate references to streams
-#                      - added get_size() and exists() to OleDirectoryEntry
-#                      - added isOleFile to check header before parsing
-#                      - added __all__ list to control public keywords in pydoc
-# 2007-12-04 v0.17 PL: - added _load_direntry to fix a bug in loaddirectory
-#                      - improved _unicode(), added workarounds for Python <2.3
-#                      - added set_debug_mode and -d option to set debug mode
-#                      - fixed bugs in OleFileIO.open and OleDirectoryEntry
-#                      - added safety check in main for large or binary
-#                        properties
-#                      - allow size>0 for storages for some implementations
-# 2007-12-05 v0.18 PL: - fixed several bugs in handling of FAT, MiniFAT and
-#                        streams
-#                      - added option '-c' in main to check all streams
-# 2009-12-10 v0.19 PL: - bugfix for 32 bit arrays on 64 bits platforms
-#                        (thanks to Ben G. and Martijn for reporting the bug)
-# 2009-12-11 v0.20 PL: - bugfix in OleFileIO.open when filename is not plain str
-# 2010-01-22 v0.21 PL: - added support for big-endian CPUs such as PowerPC Macs
-# 2012-02-16 v0.22 PL: - fixed bug in getproperties, patch by chuckleberryfinn
-#                        (https://github.com/decalage2/olefile/issues/7)
-#                      - added close method to OleFileIO (fixed issue #2)
-# 2012-07-25 v0.23 PL: - added support for file-like objects (patch by mete0r_kr)
-# 2013-05-05 v0.24 PL: - getproperties: added conversion from filetime to python
-#                        datetime
-#                      - main: displays properties with date format
-#                      - new class OleMetadata to parse standard properties
-#                      - added get_metadata method
-# 2013-05-07 v0.24 PL: - a few improvements in OleMetadata
-# 2013-05-24 v0.25 PL: - getproperties: option to not convert some timestamps
-#                      - OleMetaData: total_edit_time is now a number of seconds,
-#                        not a timestamp
-#                      - getproperties: added support for VT_BOOL, VT_INT, V_UINT
-#                      - getproperties: filter out null chars from strings
-#                      - getproperties: raise non-fatal defects instead of
-#                        exceptions when properties cannot be parsed properly
-# 2013-05-27       PL: - getproperties: improved exception handling
-#                      - _raise_defect: added option to set exception type
-#                      - all non-fatal issues are now recorded, and displayed
-#                        when run as a script
-# 2013-07-11 v0.26 PL: - added methods to get modification and creation times
-#                        of a directory entry or a storage/stream
-#                      - fixed parsing of direntry timestamps
-# 2013-07-24       PL: - new options in listdir to list storages and/or streams
-# 2014-02-04 v0.30 PL: - upgraded code to support Python 3.x by Martin Panter
-#                      - several fixes for Python 2.6 (xrange, MAGIC)
-#                      - reused i32 from Pillow's _binary
-# 2014-07-18 v0.31     - preliminary support for 4K sectors
-# 2014-07-27 v0.31 PL: - a few improvements in OleFileIO.open (header parsing)
-#                      - Fixed loadfat for large files with 4K sectors (issue #3)
-# 2014-07-30 v0.32 PL: - added write_sect to write sectors to disk
-#                      - added write_mode option to OleFileIO.__init__ and open
-# 2014-07-31       PL: - fixed padding in write_sect for Python 3, added checks
-#                      - added write_stream to write a stream to disk
-# 2014-09-26 v0.40 PL: - renamed OleFileIO_PL to olefile
-# 2014-11-09       NE: - added support for Jython (Niko Ehrenfeuchter)
-# 2014-11-13 v0.41 PL: - improved isOleFile and OleFileIO.open to support OLE
-#                        data in a string buffer and file-like objects.
-# 2014-11-21       PL: - updated comments according to Pillow's commits
-# 2015-01-24 v0.42 PL: - changed the default path name encoding from Latin-1
-#                        to UTF-8 on Python 2.x (Unicode on Python 3.x)
-#                      - added path_encoding option to override the default
-#                      - fixed a bug in _list when a storage is empty
-# 2015-04-17 v0.43 PL: - slight changes in OleDirectoryEntry
-# 2015-10-19           - fixed issue #26 in OleFileIO.getproperties
-#                        (using id and type as local variable names)
-# 2015-10-29           - replaced debug() with proper logging
-#                      - use optparse to handle command line options
-#                      - improved attribute names in OleFileIO class
-# 2015-11-05           - fixed issue #27 by correcting the MiniFAT sector
-#                        cutoff size if invalid.
-# 2016-02-02           - logging is disabled by default
-# 2016-04-26 v0.44 PL: - added enable_logging
-#                      - renamed _OleDirectoryEntry and _OleStream without '_'
-#                      - in OleStream use _raise_defect instead of exceptions
-# 2016-04-27           - added support for incomplete streams and incorrect
-#                        directory entries (to read malformed documents)
-# 2016-05-04           - fixed slight bug in OleStream
-# 2016-11-27       DR: - added method to get the clsid of a storage/stream
-#                        (Daniel Roethlisberger)
-# 2017-03-06       KJ: - added support for writing a stream in MiniFAT.
-#                        (Kim Ki-jeong)
+__date__    = "2017-05-31"
+__version__ = '0.45dev1'
 
-__date__    = "2017-01-06"
-__version__ = '0.44'
 __author__  = "Philippe Lagadec"
-
-#-----------------------------------------------------------------------------
-# TODO (for version 1.0):
-# + get rid of print statements, to simplify Python 2.x and 3.x support
-# + add is_stream and is_storage
-# + remove leading and trailing slashes where a path is used
-# + add functions path_list2str and path_str2list
-# + fix how all the methods handle unicode str and/or bytes as arguments
-# + add path attrib to _OleDirEntry, set it once and for all in init or
-#   append_kids (then listdir/_list can be simplified)
-# - TESTS with Linux, MacOSX, Python 1.5.2, various files, PIL, ...
-# - add underscore to each private method, to avoid their display in
-#   pydoc/epydoc documentation - Remove it for classes to be documented
-# - replace all raised exceptions with _raise_defect (at least in OleFileIO)
-# - merge code from OleStream and OleFileIO.getsect to read sectors
-#   (maybe add a class for FAT and MiniFAT ?)
-# - add method to check all streams (follow sectors chains without storing all
-#   stream in memory, and report anomalies)
-# - use OleDirectoryEntry.kids_dict to improve _find and _list ?
-# - fix Unicode names handling (find some way to stay compatible with Py1.5.2)
-#   => if possible avoid converting names to Latin-1
-# - review DIFAT code: fix handling of DIFSECT blocks in FAT (not stop)
-# - rewrite OleFileIO.getproperties
-# - improve docstrings to show more sample uses
-# - see also original notes and FIXME below
-# - remove all obsolete FIXMEs
-# - OleMetadata: fix version attrib according to
-#   https://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
-
-# IDEAS:
-# - in OleFileIO._open and OleStream, use size=None instead of 0x7FFFFFFF for
-#   streams with unknown size
-# - use arrays of int instead of long integers for FAT/MiniFAT, to improve
-#   performance and reduce memory usage ? (possible issue with values >2^31)
-# - provide tests with unittest (may need write support to create samples)
-# - move all debug code (and maybe dump methods) to a separate module, with
-#   a class which inherits OleFileIO ?
-# - fix docstrings to follow epydoc format
-# - add support for big endian byte order ?
-# - create a simple OLE explorer with wxPython
-
-# FUTURE EVOLUTIONS to add write support:
-# see issue #6 on GitHub:
-# https://github.com/decalage2/olefile/issues/6
-
-#-----------------------------------------------------------------------------
-# NOTES from PIL 1.1.6:
-
-# History:
-# 1997-01-20 fl   Created
-# 1997-01-22 fl   Fixed 64-bit portability quirk
-# 2003-09-09 fl   Fixed typo in OleFileIO.loadfat (noted by Daniel Haertle)
-# 2004-02-29 fl   Changed long hex constants to signed integers
-#
-# Notes:
-# FIXME: sort out sign problem (eliminate long hex constants)
-# FIXME: change filename to use "a/b/c" instead of ["a", "b", "c"]
-# FIXME: provide a glob mechanism function (using fnmatchcase)
-#
-# Literature:
-#
-# "FlashPix Format Specification, Appendix A", Kodak and Microsoft,
-#  September 1996.
-#
-# Quotes:
-#
-# "If this document and functionality of the Software conflict,
-#  the actual functionality of the Software represents the correct
-#  functionality" -- Microsoft, in the OLE format specification
-
-#------------------------------------------------------------------------------
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
            'MAGIC', 'STGTY_EMPTY',
@@ -283,10 +101,6 @@ import sys
 import struct, array, os.path, datetime, logging
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
-
-#[PL] Define explicitly the public API to avoid private objects in pydoc:
-#TODO: add more
-# __all__ = ['OleFileIO', 'isOleFile', 'MAGIC']
 
 # For Python 3.x, need to redefine long as int:
 if str is not bytes:
@@ -345,16 +159,6 @@ else:
 
 # === LOGGING =================================================================
 
-class NullHandler(logging.Handler):
-    """
-    Log Handler without output, to avoid printing messages if logging is not
-    configured by the main application.
-    Python 2.7 has logging.NullHandler, but this is necessary for 2.6:
-    see https://docs.python.org/2.6/library/logging.html#configuring-logging-for-a-library
-    """
-    def emit(self, record):
-        pass
-
 def get_logger(name, level=logging.CRITICAL+1):
     """
     Create a suitable logger object for this module.
@@ -377,7 +181,7 @@ def get_logger(name, level=logging.CRITICAL+1):
     logger = logging.getLogger(name)
     # only add a NullHandler for this logger, it is up to the application
     # to configure its own logging:
-    logger.addHandler(NullHandler())
+    logger.addHandler(logging.NullHandler())
     logger.setLevel(level)
     return logger
 
@@ -462,11 +266,6 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
 # (this is used in isOleFile and OleFile.open)
 MINIMAL_OLEFILE_SIZE = 1536
 
-#[PL] add useful constants to __all__:
-# for key in list(vars().keys()):
-#     if key.startswith('STGTY_') or key.startswith('DEFECT_'):
-#         __all__.append(key)
-
 
 #=== FUNCTIONS ===============================================================
 
@@ -522,14 +321,12 @@ else:
         return c if c.__class__ is int else c[0]
 
 
-#TODO: replace i16 and i32 with more readable struct.unpack equivalent?
-
 def i16(c, o = 0):
     """
     Converts a 2-bytes (16 bits) string to an integer.
 
-    c: string containing bytes to convert
-    o: offset of bytes to convert in string
+    :param c: string containing bytes to convert
+    :param o: offset of bytes to convert in string
     """
     return struct.unpack("<H", c[o:o+2])[0]
 
@@ -538,8 +335,8 @@ def i32(c, o = 0):
     """
     Converts a 4-bytes (32 bits) string to an integer.
 
-    c: string containing bytes to convert
-    o: offset of bytes to convert in string
+    :param c: string containing bytes to convert
+    :param o: offset of bytes to convert in string
     """
     return struct.unpack("<I", c[o:o+4])[0]
 
@@ -2291,7 +2088,10 @@ class OleFileIO:
             self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
             return data
 
-        for i in range(num_props):
+        # clamp num_props based on the data length
+        num_props = min(num_props, len(s) / 8)
+
+        for i in iterrange(num_props):
             property_id = 0 # just in case of an exception
             try:
                 property_id = i32(s, 8+i*8)

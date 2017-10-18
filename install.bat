@@ -34,39 +34,6 @@ if errorlevel 1 goto error
 goto end
 :NOTPY27
 
-REM Python 2.6:
-c:\python26\python.exe --version >NUL 2>&1
-if errorlevel 1 goto notpy26
-echo Python.exe found in C:\Python26
-c:\python26\python.exe setup.py install
-if errorlevel 1 goto error
-goto end
-:NOTPY26
-
-c:\python25\python.exe --version >NUL 2>&1
-if errorlevel 1 goto notpy25
-echo Python.exe found in C:\Python25
-c:\python25\python.exe setup.py install
-if errorlevel 1 goto error
-goto end
-:NOTPY25
-
-c:\python24\python.exe --version >NUL 2>&1
-if errorlevel 1 goto notpy24
-echo Python.exe found in C:\Python24
-c:\python24\python.exe setup.py install
-if errorlevel 1 goto error
-goto end
-:NOTPY24
-
-c:\python23\python.exe --version >NUL 2>&1
-if errorlevel 1 goto notpy23
-echo Python.exe found in C:\Python23
-c:\python23\python.exe setup.py install
-if errorlevel 1 goto error
-goto end
-:NOTPY23
-
 "c:\program files\python\python.exe" --version >NUL 2>&1
 if errorlevel 1 goto notpf
 echo Python.exe found in C:\Program Files\Python

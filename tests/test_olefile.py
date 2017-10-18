@@ -1,12 +1,5 @@
 from __future__ import print_function
-import os
-from shutil import copy2
-
-try:
-    import unittest2 as unittest  # Python 2.6
-except ImportError:
-    import unittest
-
+import unittest
 
 import OleFileIO_PL as OleFileIO
 

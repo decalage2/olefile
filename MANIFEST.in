@@ -1,0 +1,6 @@
+include install.bat
+include LICENSE.txt
+include README.md
+include setup.py
+
+include doc/*
