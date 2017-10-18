@@ -1,6 +1,7 @@
 from __future__ import print_function
 import unittest
 
+import os
 import OleFileIO_PL as OleFileIO
 
 
