@@ -1645,7 +1645,7 @@ class OleFileIO:
 
         # open directory stream as a read-only file:
         # (stream size is not known in advance)
-        self.directory_fp = self._open(sect)
+        self.directory_fp = self._open(sect, force_FAT=True)
 
         #[PL] to detect malformed documents and avoid DoS attacks, the maximum
         # number of directory entries can be calculated:
