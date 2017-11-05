@@ -3,4 +3,7 @@ include LICENSE.txt
 include README.md
 include setup.py
 
-include doc/*
+graft doc
+prune doc/_build
+
+graft tests
