@@ -87,7 +87,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # PERFORMANCE OF THIS SOFTWARE.
 
 __date__    = "2017-05-31"
-__version__ = '0.45dev1'
+__version__ = '0.45dev2'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -1009,8 +1009,44 @@ class OleFileIO:
         self.parsing_issues = []
         self.write_mode = write_mode
         self.path_encoding = path_encoding
+        # initialize all attributes to default values:
         self._filesize = None
+        self.ministream = None
+        self._used_streams_fat = []
+        self._used_streams_minifat = []
+        self.byte_order = None
+        self.directory_fp = None
+        self.direntries = None
+        self.dll_version = None
+        self.fat = None
+        self.first_difat_sector = None
+        self.first_dir_sector = None
+        self.first_mini_fat_sector = None
         self.fp = None
+        self.header_clsid = None
+        self.header_signature = None
+        self.metadata = None
+        self.mini_sector_shift = None
+        self.mini_sector_size = None
+        self.mini_stream_cutoff_size = None
+        self.minifat = None
+        self.minifatsect = None
+        # TODO: duplicates?
+        self.minisectorcutoff = None
+        self.minisectorsize = None
+        self.ministream = None
+        self.minor_version = None
+        self.nb_sect = None
+        self.num_difat_sectors = None
+        self.num_dir_sectors = None
+        self.num_fat_sectors = None
+        self.num_mini_fat_sectors = None
+        self.reserved1 = None
+        self.reserved2 = None
+        self.root = None
+        self.sector_shift = None
+        self.sector_size = None
+        self.transaction_signature_number = None
         if filename:
             self.open(filename, write_mode=write_mode)
 
