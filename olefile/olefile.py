@@ -22,7 +22,7 @@ Copyright (c) 1995-2009 by Fredrik Lundh
 See source code and LICENSE.txt for information on usage and redistribution.
 """
 
-# Since OleFileIO_PL v0.45, only Python 2.7 and 3.3+ is supported
+# Since OleFileIO_PL v0.45, only Python 2.7 and 3.3+ are supported
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
@@ -86,7 +86,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2017-05-31"
+__date__    = "2017-11-05"
 __version__ = '0.45dev2'
 __author__  = "Philippe Lagadec"
 
@@ -1228,7 +1228,7 @@ class OleFileIO:
         log.debug( "Byte Order    = %X (expected: FFFE)" % self.byte_order )
         if self.byte_order != 0xFFFE:
             # For now only common little-endian documents are handled correctly
-            self._raise_defect(DEFECT_FATAL, "incorrect ByteOrder in OLE header")
+            self._raise_defect(DEFECT_INCORRECT, "incorrect ByteOrder in OLE header")
             # TODO: add big-endian support for documents created on Mac ?
             # But according to [MS-CFB] ? v20140502, ByteOrder MUST be 0xFFFE.
         self.sector_size = 2**self.sector_shift
