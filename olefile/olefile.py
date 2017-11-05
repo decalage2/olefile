@@ -93,7 +93,7 @@ __author__  = "Philippe Lagadec"
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
            'MAGIC', 'STGTY_EMPTY',
            'STGTY_STREAM', 'STGTY_STORAGE', 'STGTY_ROOT', 'STGTY_PROPERTY',
-           'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',]
+           'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE', 'NOSTREAM']
 
 import io
 import sys
