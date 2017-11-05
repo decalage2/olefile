@@ -4,7 +4,8 @@ Detailed CHANGELOG
 olefile.py
 ----------
 * 2017-11-05 v0.45dev2 PL:
-    - fixed issue #31, set all attributes in OleFileIO.\_\_init__
+    - fixed issue #31, set all attributes in OleFileIO.\_\_init__, use force_FAT=True in loaddirectory
+    - fixed issue #56, tests folder now included in the distribution package
     - fixed issues #70 and #73, an incorrect byte order is now ignored
 
 (TODO: reverse order to have latest changes on top, use MD formatting)
