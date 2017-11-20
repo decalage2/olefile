@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2017-11-05"
-__version__ = '0.45dev2'
+__date__    = "2017-11-20"
+__version__ = '0.45dev3'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -565,6 +565,11 @@ class OleStream(io.BytesIO):
         log.debug('  sect=%d (%X), size=%d, offset=%d, sectorsize=%d, len(fat)=%d, fp=%s'
             %(sect,sect,size,offset,sectorsize,len(fat), repr(fp)))
         self.ole = olefileio
+        # this check is necessary, otherwise when attempting to open a stream
+        # from a closed OleFile, a stream of size zero is returned without
+        # raising an exception. (see issue #81)
+        if self.ole.fp.closed:
+            raise OSError('Attempting to open a stream from a closed OLE File')
         #[PL] To detect malformed documents with FAT loops, we compute the
         # expected number of sectors in the stream:
         unknown_size = False

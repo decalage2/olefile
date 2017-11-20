@@ -3,6 +3,9 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2017-11-20 v0.45dev3 PL:
+    - fixed issue #81, raise an exception when attempting to open a stream after
+      the file was closed.
 * 2017-11-05 v0.45dev2 PL:
     - fixed issue #31, set all attributes in OleFileIO.\_\_init__, use force_FAT=True in loaddirectory
     - fixed issue #56, tests folder now included in the distribution package
