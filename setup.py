@@ -60,8 +60,6 @@ packages=[
     "olefile",
 ]
 
-modules = ['OleFileIO_PL']
-
 ##setupdir = '.'
 ##package_dir={'': setupdir}
 
@@ -240,7 +238,6 @@ def main():
 ##        package_dir=package_dir,
         packages=packages,
         package_data = package_data,
-        py_modules = modules,
         download_url=download_url,
 #        data_files=data_files,
 #        scripts=scripts,
