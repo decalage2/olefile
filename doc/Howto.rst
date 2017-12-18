@@ -23,15 +23,6 @@ Python applications with this statement:
 
     import olefile
 
-Before v0.40, olefile was named ``OleFileIO_PL``. To maintain backward
-compatibility with older applications and samples, a simple script is
-also installed so that the following statement imports olefile as
-OleFileIO\_PL:
-
-::
-
-    import OleFileIO_PL
-
 As of version 0.30, the code has been changed to be compatible with
 Python 3.x. As a consequence, compatibility with Python 2.5 or older is
 not provided anymore.
