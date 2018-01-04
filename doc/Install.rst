@@ -5,7 +5,7 @@ How to Download and Install olefile
 Pre-requisites
 --------------
 
-olefile requires Python 2.7 or 3.3+.
+olefile requires Python 2.7 or 3.4+.
 
 
 Download and Install
@@ -24,4 +24,3 @@ archive <https://github.com/decalage2/olefile/archive/master.zip>`__ in a
 temporary directory and run ``python setup.py install``.
 
 On Windows you may simply double-click on ``install.bat``.
-

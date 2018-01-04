@@ -4,7 +4,7 @@ olefile (formerly OleFileIO_PL)
 Module to read/write Microsoft OLE2 files (also called Structured Storage or
 Microsoft Compound Document File Format), such as Microsoft Office 97-2003
 documents, Image Composer and FlashPix files, Outlook messages, ...
-This version is compatible with Python 2.7 and 3.3+
+This version is compatible with Python 2.7 and 3.4+
 
 Project website: https://www.decalage.info/olefile
 
@@ -22,11 +22,11 @@ Copyright (c) 1995-2009 by Fredrik Lundh
 See source code and LICENSE.txt for information on usage and redistribution.
 """
 
-# Since OleFileIO_PL v0.45, only Python 2.7 and 3.3+ are supported
+# Since OleFileIO_PL v0.45, only Python 2.7 and 3.4+ are supported
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
-from __future__ import print_function   # This version of olefile requires Python 2.7 or 3.3+.
+from __future__ import print_function   # This version of olefile requires Python 2.7 or 3.4+.
 
 
 #--- LICENSE ------------------------------------------------------------------
