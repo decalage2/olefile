@@ -64,7 +64,7 @@ class TestOlefile(unittest.TestCase):
             os.remove(ole_file_copy)
         copy2(self.ole_file, ole_file_copy)
 
-        ole = OleFileIO.OleFileIO(ole_file_copy, write_mode = True)
+        ole = olefile.OleFileIO(ole_file_copy, write_mode = True)
         stream = ole.openstream(minifat_stream_name)
         self.assertTrue(stream.size < ole.minisectorcutoff)
         str_read = stream.read()
@@ -74,7 +74,7 @@ class TestOlefile(unittest.TestCase):
         ole.write_stream(minifat_stream_name, b'\x00' * stream.size)
         ole.close()
 
-        ole = OleFileIO.OleFileIO(ole_file_copy)
+        ole = olefile.OleFileIO(ole_file_copy)
         stream = ole.openstream(minifat_stream_name)
         self.assertTrue(stream.size < ole.minisectorcutoff)
         str_read_replaced = stream.read()
