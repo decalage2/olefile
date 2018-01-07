@@ -30,6 +30,7 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
+- **2018-01-07 v0.45 (in development)**: see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md)
 - **2017-01-06 v0.44**: several bugfixes, removed support for Python 2.5 (olefile2),
 added support for incomplete streams and incorrect directory entries (to read malformed documents),
 added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest) with API reference.
@@ -107,7 +108,7 @@ See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/
 License
 -------
 
-olefile (formerly OleFileIO_PL) is copyright (c) 2005-2017 Philippe Lagadec
+olefile (formerly OleFileIO_PL) is copyright (c) 2005-2018 Philippe Lagadec
 ([https://www.decalage.info](https://www.decalage.info))
 
 All rights reserved.

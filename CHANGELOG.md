@@ -3,6 +3,8 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2018-01-07 v0.45dev4 PL:
+    - merged PR #59 by @kijeong, olefile can now write mini streams
 * 2017-11-20 v0.45dev3 PL:
     - fixed issue #81, raise an exception when attempting to open a stream after
       the file was closed.
