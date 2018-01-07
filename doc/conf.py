@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'olefile'
-copyright = u'2005-2017, Philippe Lagadec'
+copyright = u'2005-2018, Philippe Lagadec'
 author = u'Philippe Lagadec'
 
 # The version info for the project you're documenting, acts as replacement for
