@@ -23,9 +23,9 @@ after_success:
 
 after_script:
  - coverage report
- - pip install pep8 pyflakes
+ - pip install pycodestyle pyflakes
  - pyflakes .
- - pep8 --statistics --count .
+ - pycodestyle --statistics --count .
 
 matrix:
   fast_finish: true
