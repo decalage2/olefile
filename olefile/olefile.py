@@ -86,14 +86,19 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2018-01-07"
-__version__ = '0.45dev4'
+__date__    = "2018-01-15"
+__version__ = '0.45dev5'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
-           'MAGIC', 'STGTY_EMPTY',
+           'MAGIC', 'STGTY_EMPTY', 'KEEP_UNICODE_NAMES',
            'STGTY_STREAM', 'STGTY_STORAGE', 'STGTY_ROOT', 'STGTY_PROPERTY',
-           'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',]
+           'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',
+           'DEFECT_UNSURE', 'DEFECT_POTENTIAL', 'DEFECT_INCORRECT',
+           'DEFECT_FATAL', 'DEFAULT_PATH_ENCODING',
+           'MAXREGSECT', 'DIFSECT', 'FATSECT', 'ENDOFCHAIN', 'FREESECT',
+           'MAXREGSID', 'NOSTREAM', 'UNKNOWN_SIZE', 'WORD_CLSID'
+]
 
 import io
 import sys

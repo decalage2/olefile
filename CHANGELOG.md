@@ -3,6 +3,8 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2018-01-15 v0.45dev5 PL:
+    - fixed issue #79, added missing constants to \_\_all__ 
 * 2018-01-07 v0.45dev4 PL:
     - merged PR #59 by @kijeong, olefile can now write mini streams
 * 2017-11-20 v0.45dev3 PL:
