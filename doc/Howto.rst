@@ -64,7 +64,7 @@ string.
 ::
 
     ole = olefile.OleFileIO(s)
-        
+
 
 Note: olefile checks the size of the string provided as argument to
 determine if it is a file path or the content of an OLE file. An OLE
@@ -301,9 +301,8 @@ Overwriting a stream
 --------------------
 
 The :py:meth:`olefile.OleFileIO.write_stream` method can overwrite an existing stream in the file.
-The new stream data must be the exact same size as the existing one. For
-now, write\_stream can only write streams of 4KB or larger (stored in
-the main FAT).
+The new stream data must be the exact same size as the existing one. Since v0.45,
+this method can write streams of any size (stored in the main FAT or the MiniFAT).
 
 For example, you may change text in a MS Word document:
 
@@ -383,7 +382,7 @@ after parsing to close the file on disk. (new in v0.22)
 ::
 
     ole.close()
-        
+
 
 Enable logging
 --------------
