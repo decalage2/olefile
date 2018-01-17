@@ -26,7 +26,7 @@ name         = "olefile"
 version      = __version__
 desc         = "Python package to parse, read and write Microsoft OLE2 files (Structured Storage or Compound Document, Microsoft Office) - Improved version of the OleFileIO module from PIL, the Python Image Library."
 # read long description from disk in restructuredtext format:
-long_desc    = open('olefile/README.rst').read()
+long_desc    = open('README.rst').read()
 author       = __author__
 author_email = "https://www.decalage.info/contact"
 url          = "https://www.decalage.info/python/olefileio"
@@ -118,23 +118,6 @@ def rglob(top, prefix='', pattern='*'):
     Same as riglob, but returns a list.
     """
     return list(riglob(top, prefix, pattern))
-
-
-
-
-package_data={
-    'olefile': [
-        'README.rst',
-        'README.html',
-        'LICENSE.txt',
-        'CONTRIBUTORS.txt',
-        # 'olefile.html',
-        ]
-        # doc folder: md, html, png
-        # + rglob('olefile/doc', 'doc', '*.html')
-        # + rglob('olefile/doc', 'doc', '*.md')
-        # + rglob('olefile/doc', 'doc', '*.png'),
-    }
 
 
 #--- data files ---------------------------------------------------------------
@@ -236,7 +219,6 @@ def main():
         license=license,
 ##        package_dir=package_dir,
         packages=packages,
-        package_data = package_data,
         download_url=download_url,
 #        data_files=data_files,
 #        scripts=scripts,
