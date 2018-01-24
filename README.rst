@@ -1,7 +1,8 @@
-olefile (formerly OleFileIO\_PL)
-================================
+olefile
+=======
 
-|Build Status| |Coverage Status| |Documentation Status|
+|Build Status| |Build Status| |Coverage Status| |Documentation Status|
+|PyPI| |Can I Use Python 3?|
 
 `olefile <https://www.decalage.info/olefile>`__ is a Python package to
 parse, read and write `Microsoft OLE2
@@ -25,6 +26,8 @@ News
 
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
+-  **2018-01-07 v0.45 (in development)**: see
+   `changelog <https://github.com/decalage2/olefile/blob/master/CHANGELOG.md>`__
 -  **2017-01-06 v0.44**: several bugfixes, removed support for Python
    2.5 (olefile2), added support for incomplete streams and incorrect
    directory entries (to read malformed documents), added getclsid,
@@ -44,7 +47,7 @@ Follow all updates and news on Twitter: https://twitter.com/decalage2
 -  2014-11-25 v0.41: OleFileIO.open and isOleFile now support OLE files
    stored in byte strings, fixed installer for python 3, added support
    for Jython (Niko Ehrenfeuchter)
--  2014-10-01 v0.40: renamed OleFileIO\_PL to olefile, added initial
+-  2014-10-01 v0.40: renamed OleFileIO_PL to olefile, added initial
    write support for streams >4K, updated doc and license, improved the
    setup script.
 -  2014-07-27 v0.31: fixed support for large files with 4K sectors,
@@ -59,12 +62,12 @@ Follow all updates and news on Twitter: https://twitter.com/decalage2
 -  2013-05-27 v0.25: improved metadata extraction, properties parsing
    and exception handling, fixed `issue
    #12 <https://github.com/decalage2/olefile/issues/12>`__
--  2013-05-07 v0.24: new features to extract metadata (get\_metadata
+-  2013-05-07 v0.24: new features to extract metadata (get_metadata
    method and OleMetadata class), improved getproperties to convert
    timestamps to Python datetime
 -  2012-10-09: published
    `python-oletools <https://www.decalage.info/python/oletools>`__, a
-   package of analysis tools based on OleFileIO\_PL
+   package of analysis tools based on OleFileIO_PL
 -  2012-09-11 v0.23: added support for file-like objects, fixed `issue
    #8 <https://github.com/decalage2/olefile/issues/8>`__
 -  2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2
@@ -83,7 +86,7 @@ Download/Install
 ----------------
 
 If you have pip or setuptools installed (pip is included in Python
-2.7.9+), you may simply run **pip install olefile** or **easy\_install
+2.7.9+), you may simply run **pip install olefile** or **easy_install
 olefile** for the first installation.
 
 To update olefile, run **pip install -U olefile**.
@@ -121,7 +124,7 @@ information.
 Real-life examples
 ------------------
 
-A real-life example: `using OleFileIO\_PL for malware analysis and
+A real-life example: `using OleFileIO_PL for malware analysis and
 forensics <http://blog.gregback.net/2011/03/using-remnux-for-forensic-puzzle-6/>`__.
 
 See also `this
@@ -131,7 +134,7 @@ about python tools for forensics, which features olefile.
 License
 -------
 
-olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2017 Philippe
+olefile (formerly OleFileIO_PL) is copyright (c) 2005-2018 Philippe
 Lagadec (https://www.decalage.info)
 
 All rights reserved.
@@ -146,8 +149,8 @@ met:
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS
+IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -191,7 +194,13 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 .. |Build Status| image:: https://travis-ci.org/decalage2/olefile.svg?branch=master
    :target: https://travis-ci.org/decalage2/olefile
+.. |Build Status| image:: https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true
+   :target: https://ci.appveyor.com/project/decalage2/olefile
 .. |Coverage Status| image:: https://coveralls.io/repos/github/decalage2/olefile/badge.svg?branch=master
    :target: https://coveralls.io/github/decalage2/olefile?branch=master
 .. |Documentation Status| image:: http://readthedocs.org/projects/olefile/badge/?version=latest
    :target: http://olefile.readthedocs.io/en/latest/?badge=latest
+.. |PyPI| image:: https://img.shields.io/pypi/v/olefile.svg
+   :target: https://pypi.python.org/pypi/olefile
+.. |Can I Use Python 3?| image:: https://caniusepython3.com/project/olefile.svg
+   :target: https://caniusepython3.com/project/olefile
