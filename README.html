@@ -23,27 +23,12 @@
 <h2 id="news">News</h2>
 <p>Follow all updates and news on Twitter: <a href="https://twitter.com/decalage2" class="uri">https://twitter.com/decalage2</a></p>
 <ul>
-<li><strong>2018-01-07 v0.45 (in development)</strong>: see <a href="https://github.com/decalage2/olefile/blob/master/CHANGELOG.md">changelog</a></li>
-<li><strong>2017-01-06 v0.44</strong>: several bugfixes, removed support for Python 2.5 (olefile2), added support for incomplete streams and incorrect directory entries (to read malformed documents), added getclsid, improved <a href="http://olefile.readthedocs.io/en/latest">documentation</a> with API reference.</li>
+<li><strong>2018-01-24 v0.45</strong>: olefile can now overwrite streams of any size, improved handling of malformed files, fixed several <a href="https://github.com/decalage2/olefile/milestone/4?closed=1">bugs</a>, end of support for Python 2.6 and 3.3.</li>
+<li>2017-01-06 v0.44: several bugfixes, removed support for Python 2.5 (olefile2), added support for incomplete streams and incorrect directory entries (to read malformed documents), added getclsid, improved <a href="http://olefile.readthedocs.io/en/latest">documentation</a> with API reference.</li>
 <li>2017-01-04: moved the documentation to <a href="http://olefile.readthedocs.io/en/latest">ReadTheDocs</a></li>
 <li>2016-05-20: moved olefile repository to <a href="https://github.com/decalage2/olefile">GitHub</a></li>
 <li>2016-02-02 v0.43: fixed issues <a href="https://github.com/decalage2/olefile/issues/26">#26</a> and <a href="https://github.com/decalage2/olefile/issues/27">#27</a>, better handling of malformed files, use python logging.</li>
-<li>2015-01-25 v0.42: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8 instead of Latin-1), fixed bug in listdir with empty storages.</li>
-<li>2014-11-25 v0.41: OleFileIO.open and isOleFile now support OLE files stored in byte strings, fixed installer for python 3, added support for Jython (Niko Ehrenfeuchter)</li>
-<li>2014-10-01 v0.40: renamed OleFileIO_PL to olefile, added initial write support for streams &gt;4K, updated doc and license, improved the setup script.</li>
-<li>2014-07-27 v0.31: fixed support for large files with 4K sectors, thanks to Niko Ehrenfeuchter, Martijn Berger and Dave Jones. Added test scripts from Pillow (by hugovk). Fixed setup for Python 3 (Martin Panter)</li>
-<li>2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.</li>
-<li>2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed parsing of direntry timestamps</li>
-<li>2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed <a href="https://github.com/decalage2/olefile/issues/12">issue #12</a></li>
-<li>2013-05-07 v0.24: new features to extract metadata (get_metadata method and OleMetadata class), improved getproperties to convert timestamps to Python datetime</li>
-<li>2012-10-09: published <a href="https://www.decalage.info/python/oletools">python-oletools</a>, a package of analysis tools based on OleFileIO_PL</li>
-<li>2012-09-11 v0.23: added support for file-like objects, fixed <a href="https://github.com/decalage2/olefile/issues/8">issue #8</a></li>
-<li>2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2 (added close method)</li>
-<li>2011-10-20: code hosted on bitbucket to ease contributions and bug tracking</li>
-<li>2010-01-24 v0.21: fixed support for big-endian CPUs, such as PowerPC Macs.</li>
-<li>2009-12-11 v0.20: small bugfix in OleFileIO.open when filename is not plain str.</li>
-<li>2009-12-10 v0.19: fixed support for 64 bits platforms (thanks to Ben G. and Martijn for reporting the bug)</li>
-<li>see changelog in source code for more info.</li>
+<li>see <a href="https://github.com/decalage2/olefile/blob/master/CHANGELOG.md">changelog</a> for more detailed information and the latest changes.</li>
 </ul>
 <h2 id="downloadinstall">Download/Install</h2>
 <p>If you have pip or setuptools installed (pip is included in Python 2.7.9+), you may simply run <strong>pip install olefile</strong> or <strong>easy_install olefile</strong> for the first installation.</p>

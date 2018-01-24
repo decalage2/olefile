@@ -30,8 +30,9 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2018-01-07 v0.45 (in development)**: see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md)
-- **2017-01-06 v0.44**: several bugfixes, removed support for Python 2.5 (olefile2),
+- **2018-01-24 v0.45**: olefile can now overwrite streams of any size, improved handling of malformed files,
+fixed several [bugs](https://github.com/decalage2/olefile/milestone/4?closed=1), end of support for Python 2.6 and 3.3.
+- 2017-01-06 v0.44: several bugfixes, removed support for Python 2.5 (olefile2),
 added support for incomplete streams and incorrect directory entries (to read malformed documents),
 added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest) with API reference.
 - 2017-01-04: moved the documentation to [ReadTheDocs](http://olefile.readthedocs.io/en/latest)
@@ -39,30 +40,8 @@ added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest
 - 2016-02-02 v0.43: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
     and [#27](https://github.com/decalage2/olefile/issues/27),
     better handling of malformed files, use python logging.
-- 2015-01-25 v0.42: improved handling of special characters in stream/storage names on Python 2.x (using UTF-8
-    instead of Latin-1), fixed bug in listdir with empty storages.
-- 2014-11-25 v0.41: OleFileIO.open and isOleFile now support OLE files stored in byte strings, fixed installer for
-    python 3, added support for Jython (Niko Ehrenfeuchter)
-- 2014-10-01 v0.40: renamed OleFileIO_PL to olefile, added initial write support for streams >4K, updated doc and
-    license, improved the setup script.
-- 2014-07-27 v0.31: fixed support for large files with 4K sectors, thanks to Niko Ehrenfeuchter, Martijn Berger and
-    Dave Jones. Added test scripts from Pillow (by hugovk). Fixed setup for Python 3 (Martin Panter)
-- 2014-02-04 v0.30: now compatible with Python 3.x, thanks to Martin Panter who did most of the hard work.
-- 2013-07-24 v0.26: added methods to parse stream/storage timestamps, improved listdir to include storages, fixed
-    parsing of direntry timestamps
-- 2013-05-27 v0.25: improved metadata extraction, properties parsing and exception handling, fixed
-    [issue #12](https://github.com/decalage2/olefile/issues/12)
-- 2013-05-07 v0.24: new features to extract metadata (get\_metadata method and OleMetadata class), improved
-    getproperties to convert timestamps to Python datetime
-- 2012-10-09: published [python-oletools](https://www.decalage.info/python/oletools), a package of analysis tools based
-    on OleFileIO_PL
-- 2012-09-11 v0.23: added support for file-like objects, fixed [issue #8](https://github.com/decalage2/olefile/issues/8)
-- 2012-02-17 v0.22: fixed issues #7 (bug in getproperties) and #2 (added close method)
-- 2011-10-20: code hosted on bitbucket to ease contributions and bug tracking
-- 2010-01-24 v0.21: fixed support for big-endian CPUs, such as PowerPC Macs.
-- 2009-12-11 v0.20: small bugfix in OleFileIO.open when filename is not plain str.
-- 2009-12-10 v0.19: fixed support for 64 bits platforms (thanks to Ben G. and Martijn for reporting the bug)
-- see changelog in source code for more info.
+- see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md) for more detailed information and 
+the latest changes.
 
 Download/Install
 ----------------
