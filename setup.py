@@ -26,7 +26,9 @@ name         = "olefile"
 version      = __version__
 desc         = "Python package to parse, read and write Microsoft OLE2 files (Structured Storage or Compound Document, Microsoft Office) - Improved version of the OleFileIO module from PIL, the Python Image Library."
 # read long description from disk in restructuredtext format:
-long_desc    = open('README.rst', encoding='utf-8').read()
+# TODO: make sure it's only ASCII
+long_desc    = open('README.rst').read()
+# long_desc    = open('README.rst', encoding='utf-8').read()  # This one only works with Python 3
 author       = __author__
 author_email = "https://www.decalage.info/contact"
 url          = "https://www.decalage.info/python/olefileio"
