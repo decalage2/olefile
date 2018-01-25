@@ -1,8 +1,8 @@
 olefile
 =======
 
-|Build Status| |Build Status| |Coverage Status| |Documentation Status|
-|PyPI| |Can I Use Python 3?|
+|Build Status TravisCI| |Build Status AppVeyor| |Coverage Status|
+|Documentation Status| |PyPI| |Can I Use Python 3?|
 
 `olefile <https://www.decalage.info/olefile>`__ is a Python package to
 parse, read and write `Microsoft OLE2
@@ -114,8 +114,8 @@ met:
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS
-IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
 PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
@@ -157,9 +157,9 @@ RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
 CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
 CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-.. |Build Status| image:: https://travis-ci.org/decalage2/olefile.svg?branch=master
+.. |Build Status TravisCI| image:: https://travis-ci.org/decalage2/olefile.svg?branch=master
    :target: https://travis-ci.org/decalage2/olefile
-.. |Build Status| image:: https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true
+.. |Build Status AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true
    :target: https://ci.appveyor.com/project/decalage2/olefile
 .. |Coverage Status| image:: https://coveralls.io/repos/github/decalage2/olefile/badge.svg?branch=master
    :target: https://coveralls.io/github/decalage2/olefile?branch=master

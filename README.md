@@ -1,8 +1,8 @@
 olefile
 =======
 
-[![Build Status](https://travis-ci.org/decalage2/olefile.svg?branch=master)](https://travis-ci.org/decalage2/olefile)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true)](https://ci.appveyor.com/project/decalage2/olefile)
+[![Build Status TravisCI](https://travis-ci.org/decalage2/olefile.svg?branch=master)](https://travis-ci.org/decalage2/olefile)
+[![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true)](https://ci.appveyor.com/project/decalage2/olefile)
 [![Coverage Status](https://coveralls.io/repos/github/decalage2/olefile/badge.svg?branch=master)](https://coveralls.io/github/decalage2/olefile?branch=master)
 [![Documentation Status](http://readthedocs.org/projects/olefile/badge/?version=latest)](http://olefile.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/olefile.svg)](https://pypi.python.org/pypi/olefile)
@@ -40,7 +40,7 @@ added getclsid, improved [documentation](http://olefile.readthedocs.io/en/latest
 - 2016-02-02 v0.43: fixed issues [#26](https://github.com/decalage2/olefile/issues/26)
     and [#27](https://github.com/decalage2/olefile/issues/27),
     better handling of malformed files, use python logging.
-- see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md) for more detailed information and 
+- see [changelog](https://github.com/decalage2/olefile/blob/master/CHANGELOG.md) for more detailed information and
 the latest changes.
 
 Download/Install

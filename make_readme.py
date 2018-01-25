@@ -17,7 +17,7 @@ def convert_md(src, dest, fmt):
         if not(":::python" in line) and not (":::text" in line):
             lines.append(line)
     md = '\n'.join(lines)
-    out = pypandoc.convert(md, format='markdown', to=fmt, outputfile=dest,
+    out = pypandoc.convert(md, format='markdown-smart', to=fmt, outputfile=dest,
         extra_args=EXTRA_ARGS)
     assert out==''
     # print out
@@ -28,7 +28,7 @@ def convert_md(src, dest, fmt):
 # README md => rst, html
 src = 'README.md'
 dest = 'README.rst' # os.path.join(PKG_ROOT, 'README.rst')
-convert_md(src, dest, 'rst')
+convert_md(src, dest, 'rst-smart')
 
 dest = 'README.html' # os.path.join(PKG_ROOT, 'README.html')
 convert_md(src, dest, HTML)
