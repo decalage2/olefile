@@ -30,7 +30,7 @@ desc         = "Python package to parse, read and write Microsoft OLE2 files (St
 long_desc    = open('README.rst').read()
 # long_desc    = open('README.rst', encoding='utf-8').read()  # This one only works with Python 3
 author       = __author__
-author_email = "https://www.decalage.info/contact"
+author_email = "nospam@decalage.info"
 url          = "https://www.decalage.info/python/olefileio"
 license      = "BSD"
 download_url = "https://github.com/decalage2/olefile/tarball/master"
