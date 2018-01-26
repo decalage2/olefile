@@ -35,6 +35,7 @@ Microscopy file formats, McAfee antivirus quarantine files, etc.
     Howto
     OLE_Overview
     olefile
+    FAQ
 
 
 
