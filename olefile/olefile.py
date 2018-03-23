@@ -876,6 +876,12 @@ class OleDirectoryEntry:
             child = self.olefile._load_direntry(child_sid) #direntries[child_sid]
             log.debug('append_kids: child_sid=%d - %s - sid_left=%d, sid_right=%d, sid_child=%d'
                 % (child.sid, repr(child.name), child.sid_left, child.sid_right, child.sid_child))
+            # Check if kid was not already referenced in a storage:
+            if child.used:
+                self.olefile._raise_defect(DEFECT_INCORRECT,
+                    'OLE Entry referenced more than once')
+                return
+            child.used = True
             # the directory entries are organized as a red-black tree.
             # (cf. Wikipedia for details)
             # First walk through left side of the tree:
@@ -889,11 +895,6 @@ class OleDirectoryEntry:
             # kids list and dictionary:
             self.kids.append(child)
             self.kids_dict[name_lower] = child
-            # Check if kid was not already referenced in a storage:
-            if child.used:
-                self.olefile._raise_defect(DEFECT_INCORRECT,
-                    'OLE Entry referenced more than once')
-            child.used = True
             # Finally walk through right side of the tree:
             self.append_kids(child.sid_right)
             # Afterwards build kid's own tree if it's also a storage:
