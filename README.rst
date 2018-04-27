@@ -166,6 +166,6 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 .. |Documentation Status| image:: http://readthedocs.org/projects/olefile/badge/?version=latest
    :target: http://olefile.readthedocs.io/en/latest/?badge=latest
 .. |PyPI| image:: https://img.shields.io/pypi/v/olefile.svg
-   :target: https://pypi.python.org/pypi/olefile
+   :target: https://pypi.org/project/olefile/
 .. |Can I Use Python 3?| image:: https://caniusepython3.com/project/olefile.svg
    :target: https://caniusepython3.com/project/olefile
