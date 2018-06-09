@@ -1022,6 +1022,7 @@ class OleFileIO:
             Unicode by default on Python 3+, UTF-8 on Python 2.x.
             (new in olefile 0.42, was hardcoded to Latin-1 until olefile v0.41)
         """
+        self.filename = filename
         # minimal level for defects to be raised as exceptions:
         self._raise_defects_level = raise_defects
         #: list of defects/issues not raised as exceptions:
@@ -1069,6 +1070,14 @@ class OleFileIO:
         self.transaction_signature_number = None
         if filename:
             self.open(filename, write_mode=write_mode)
+
+
+    def __enter__(self):
+        return self.open(self.filename, write_mode=self.write_mode)
+
+
+    def __exit__(self, *args):
+        self.close()
 
 
     def _raise_defect(self, defect_level, message, exception_type=IOError):
