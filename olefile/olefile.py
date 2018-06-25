@@ -1073,7 +1073,6 @@ class OleFileIO:
 
 
     def __enter__(self):
-        self.open(self.filename, write_mode=self.write_mode)
         return self
 
 
