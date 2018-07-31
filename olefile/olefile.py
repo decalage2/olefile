@@ -1022,7 +1022,6 @@ class OleFileIO:
             Unicode by default on Python 3+, UTF-8 on Python 2.x.
             (new in olefile 0.42, was hardcoded to Latin-1 until olefile v0.41)
         """
-        self.filename = filename
         # minimal level for defects to be raised as exceptions:
         self._raise_defects_level = raise_defects
         #: list of defects/issues not raised as exceptions:
