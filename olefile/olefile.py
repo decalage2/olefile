@@ -1071,6 +1071,14 @@ class OleFileIO:
             self.open(filename, write_mode=write_mode)
 
 
+    def __enter__(self):
+        return self
+
+
+    def __exit__(self, *args):
+        self.close()
+
+
     def _raise_defect(self, defect_level, message, exception_type=IOError):
         """
         This method should be called for any defect found during file parsing.

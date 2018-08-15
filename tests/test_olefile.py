@@ -20,6 +20,11 @@ class TestOlefile(unittest.TestCase):
         is_ole = olefile.isOleFile(self.ole_file)
         self.assertTrue(is_ole)
 
+    def test_context_manager(self):
+        with olefile.OleFileIO(self.ole_file) as ole:
+            exists = ole.exists('worddocument')
+            self.assertTrue(exists)
+
     def test_exists_worddocument(self):
         ole = olefile.OleFileIO(self.ole_file)
         exists = ole.exists('worddocument')
