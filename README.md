@@ -7,6 +7,7 @@ olefile
 [![Documentation Status](http://readthedocs.org/projects/olefile/badge/?version=latest)](http://olefile.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/olefile.svg)](https://pypi.org/project/olefile/)
 [![Can I Use Python 3?](https://caniusepython3.com/project/olefile.svg)](https://caniusepython3.com/project/olefile)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/decalage2)
 
 [olefile](https://www.decalage.info/olefile) is a Python package to parse, read and write
 [Microsoft OLE2 files](http://en.wikipedia.org/wiki/Compound_File_Binary_Format)
