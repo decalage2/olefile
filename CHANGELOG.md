@@ -5,6 +5,8 @@ olefile.py
 ----------
 * 2018-08-23 v0.46dev1 PL:
     - merged PR #93 by @enkelli, fixing issues #61, #103 and https://github.com/decalage2/oletools/issues/311
+    - merged PR #94 by @enkelli, 'float' object cannot be interpreted as an integer
+    - merged PR #101 by @OskarPersson, added context manager to OleFileIO
 * 2018-01-15 v0.45dev5 PL:
     - fixed issue #79, added missing constants to \_\_all__ 
 * 2018-01-07 v0.45dev4 PL:
