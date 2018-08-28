@@ -925,7 +925,11 @@ class OleDirectoryEntry:
         "Dump this entry, and all its subentries (for debug purposes only)"
         TYPES = ["(invalid)", "(storage)", "(stream)", "(lockbytes)",
                  "(property)", "(root)"]
-        print(" "*tab + repr(self.name), TYPES[self.entry_type], end=' ')
+        try:
+            type_name = TYPES[self.entry_type]
+        except IndexError:
+            type_name = '(UNKNOWN)'
+        print(" "*tab + repr(self.name), type_name, end=' ')
         if self.entry_type in (STGTY_STREAM, STGTY_ROOT):
             print(self.size, "bytes", end=' ')
         print()
