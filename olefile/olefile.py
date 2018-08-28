@@ -2265,8 +2265,12 @@ class OleFileIO:
 # This script can be used to dump the directory of any OLE2 structured
 # storage file.
 
-if __name__ == "__main__":
-
+def main():
+    """
+    Main function when olefile is runs as a script from the command line.
+    This will open an OLE2 file and display its structure and properties
+    :return: nothing
+    """
     import sys, optparse
 
     DEFAULT_LOG_LEVEL = "warning" # Default log level
@@ -2389,5 +2393,9 @@ if __name__ == "__main__":
                 print('None')
         except:
             log.exception('Error while parsing file %r' % filename)
+
+
+if __name__ == "__main__":
+    main()
 
 # this code was developed while listening to The Wedding Present "Sea Monsters"

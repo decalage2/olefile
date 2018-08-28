@@ -4,6 +4,7 @@ Detailed CHANGELOG
 olefile.py
 ----------
 * 2018-08-23 v0.46dev1 PL:
+    - fixed bug in OleDirectoryEntry.dump
     - merged PR #93 by @enkelli, fixing issues #61, #103 and https://github.com/decalage2/oletools/issues/311
     - merged PR #94 by @enkelli, 'float' object cannot be interpreted as an integer
     - merged PR #101 by @OskarPersson, added context manager to OleFileIO
