@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2018-08-23"
-__version__ = '0.46dev1'
+__date__    = "2018-09-05"
+__version__ = '0.46dev2'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -245,11 +245,10 @@ VT_STORED_OBJECT=69; VT_BLOB_OBJECT=70; VT_CF=71; VT_CLSID=72;
 VT_VECTOR=0x1000;
 
 # map property id to name (for debugging purposes)
-
-VT = {}
-for keyword, var in list(vars().items()):
-    if keyword[:3] == "VT_":
-        VT[var] = keyword
+# VT = {}
+# for keyword, var in list(vars().items()):
+#     if keyword[:3] == "VT_":
+#         VT[var] = keyword
 
 #
 # --------------------------------------------------------------------

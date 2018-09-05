@@ -3,6 +3,8 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2018-09-05 v0.46dev2 PL:
+    - fixed issue #96, disabled the VT dictionary which was not used anymore
 * 2018-08-23 v0.46dev1 PL:
     - added main function (for pip entry points)
     - fixed bug in OleDirectoryEntry.dump
