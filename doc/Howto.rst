@@ -55,6 +55,21 @@ Create an :py:class:`olefile.OleFileIO` object with the file path as parameter:
 
     ole = olefile.OleFileIO('myfile.doc')
 
+Since olefile v0.46, the recommended way to open an OLE file is to use
+OleFileIO as a context manager, using the "with" clause:
+
+::
+
+    with olefile.OleFileIO('myfile.doc') as ole
+        # perform all operations on the ole object
+
+This guarantees that the OleFileIO object is closed when exiting
+the with block, even if an exception is triggered.
+It will call :py:meth:`olefile.OleFileIO.close` automatically.
+
+(new in v0.46)
+
+
 Open an OLE file from a bytes string
 ------------------------------------
 
