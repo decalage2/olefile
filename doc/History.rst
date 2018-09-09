@@ -47,7 +47,7 @@ Detailed History
 
 -  **2018-09-09 v0.46**: OleFileIO can now be used as a context manager
    (with...as), to close the file automatically (see
-   `doc <https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk>`__.
+   `doc <https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk>`__).
    Improved handling of malformed files, fixed several bugs.
 -  2018-01-24 v0.45: olefile can now overwrite streams of any size,
    improved handling of malformed files, fixed several

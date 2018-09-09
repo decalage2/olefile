@@ -33,7 +33,7 @@ Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
 - **2018-09-09 v0.46**: OleFileIO can now be used as a context manager
 (with...as), to close the file automatically
-(see [doc](https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk).
+(see [doc](https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk)).
 Improved handling of malformed files, fixed several bugs.
 - 2018-01-24 v0.45: olefile can now overwrite streams of any size, improved handling of malformed files,
 fixed several [bugs](https://github.com/decalage2/olefile/milestone/4?closed=1), end of support for Python 2.6 and 3.3.
