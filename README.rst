@@ -2,7 +2,7 @@ olefile
 =======
 
 |Build Status TravisCI| |Build Status AppVeyor| |Coverage Status|
-|Documentation Status| |PyPI| |Can I Use Python 3?|
+|Documentation Status| |PyPI| |Can I Use Python 3?| |Say Thanks!|
 
 `olefile <https://www.decalage.info/olefile>`__ is a Python package to
 parse, read and write `Microsoft OLE2
@@ -26,7 +26,11 @@ News
 
 Follow all updates and news on Twitter: https://twitter.com/decalage2
 
--  **2018-01-24 v0.45**: olefile can now overwrite streams of any size,
+-  **2018-09-09 v0.46**: OleFileIO can now be used as a context manager
+   (with...as), to close the file automatically (see
+   `doc <https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk>`__.
+   Improved handling of malformed files, fixed several bugs.
+-  2018-01-24 v0.45: olefile can now overwrite streams of any size,
    improved handling of malformed files, fixed several
    `bugs <https://github.com/decalage2/olefile/milestone/4?closed=1>`__,
    end of support for Python 2.6 and 3.3.
@@ -169,3 +173,5 @@ CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
    :target: https://pypi.org/project/olefile/
 .. |Can I Use Python 3?| image:: https://caniusepython3.com/project/olefile.svg
    :target: https://caniusepython3.com/project/olefile
+.. |Say Thanks!| image:: https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg
+   :target: https://saythanks.io/to/decalage2
