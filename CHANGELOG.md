@@ -3,6 +3,8 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2018-09-09 v0.46 PL:
+    - official v0.46 release
 * 2018-09-05 v0.46dev2 PL:
     - fixed issue #96, disabled the VT dictionary which was not used anymore
 * 2018-08-23 v0.46dev1 PL:
