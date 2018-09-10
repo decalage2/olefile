@@ -7,14 +7,25 @@ Please contact me if I forgot to mention your name.
 
 A big thank you to all of them:
 
-- Niko Ehrenfeuchter: added support for Jython
+- Niko Ehrenfeuchter (@ehrenfeu): added support for Jython
 - Niko Ehrenfeuchter, Martijn Berger and Dave Jones: helped fix 4K sector support
 - Martin Panter: conversion to Python 3.x/2.6+
-- mete0r_kr: added support for file-like objects
+- mete0r_kr (@mete0r): added support for file-like objects
 - chuckleberryfinn: fixed bug in getproperties
 - Martijn, Ben G.: bug report for 64 bits platforms
-- hugovk: added support for Travis CI
-- Jon Dufresne: improved isOleFile
+- Hugo (@hugovk): added support for Travis CI
+- Jon Dufresne (@jdufresne): improved isOleFile
+- Alex Clark (@aclark4life)
+- Brian Crowell (@fluggo)
+- Daniel Roethlisberger (@droe)
+- 2*yo (@2xyo)
+- Raphael Gaschignard (@rtpg)
+- Anthony Sottile (@asottile)
+- Andrew Murray (@radarhere)
+- Sandro Mani (@manisandro)
+- Pavol Plaskoň (@enkelli)
+- Kijeong Kim (@kijeong)
+- Oskar Persson (@OskarPersson)
 - Philippe Lagadec: main author and maintainer since 2005
 - and of course Fredrik Lundh: original author of OleFileIO from 1995 to 2005
 
