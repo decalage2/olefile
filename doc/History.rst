@@ -27,7 +27,7 @@ due to the maintenance of the olefile code in two repositories.
 Main improvements over the original version of OleFileIO in PIL:
 ----------------------------------------------------------------
 
--  Compatible with Python 3.x and 2.6+
+-  Compatible with Python 3.4+ and 2.7+
 -  Many bug fixes
 -  Support for files larger than 6.8MB
 -  Support for 64 bits platforms and big-endian CPUs
