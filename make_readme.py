@@ -8,6 +8,7 @@ PKG_ROOT = 'olefile'
 EXTRA_ARGS = ['--standalone']
 HTML = 'html'
 
+
 def convert_md(src, dest, fmt):
     print('CONVERTING %s to %s' % (src, dest))
     md = open(src).read()
@@ -18,18 +19,15 @@ def convert_md(src, dest, fmt):
             lines.append(line)
     md = '\n'.join(lines)
     out = pypandoc.convert(md, format='markdown-smart', to=fmt, outputfile=dest,
-        extra_args=EXTRA_ARGS)
-    assert out==''
+                           extra_args=EXTRA_ARGS)
+    assert out == ''
     # print out
     # f = open(dest, 'w')
     # f.write(out)
     # f.close()
 
-# README md => rst, html
+
+# README md => html
 src = 'README.md'
-dest = 'README.rst' # os.path.join(PKG_ROOT, 'README.rst')
-convert_md(src, dest, 'rst-smart')
-
-dest = 'README.html' # os.path.join(PKG_ROOT, 'README.html')
+dest = 'README.html'  # os.path.join(PKG_ROOT, 'README.html')
 convert_md(src, dest, HTML)
-
