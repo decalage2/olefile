@@ -7,7 +7,7 @@ To install this package, run:
 """
 
 
-#--- IMPORTS ------------------------------------------------------------------
+# --- IMPORTS -----------------------------------------------------------------
 
 try:
     from setuptools import setup
@@ -17,7 +17,7 @@ except ImportError:
 from olefile import __version__, __author__
 
 
-#--- METADATA -----------------------------------------------------------------
+# --- METADATA ----------------------------------------------------------------
 
 name         = "olefile"
 version      = __version__
@@ -31,7 +31,7 @@ download_url = "https://github.com/decalage2/olefile/tarball/master"
 with open('README.md') as f:
     long_desc = f.read()
 
-classifiers=[
+classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
@@ -52,17 +52,17 @@ classifiers=[
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-#--- PACKAGES -----------------------------------------------------------------
+# --- PACKAGES ----------------------------------------------------------------
 
-packages=[
+packages = [
     "olefile",
 ]
 
 
-#=== MAIN =====================================================================
+# === MAIN ====================================================================
 
 def main():
-    dist = setup(
+    setup(
         name=name,
         version=version,
         description=desc,
@@ -73,7 +73,7 @@ def main():
         author_email=author_email,
         url=url,
         license=license,
-##        package_dir=package_dir,
+#        package_dir=package_dir,
         packages=packages,
         download_url=download_url,
 #        data_files=data_files,
