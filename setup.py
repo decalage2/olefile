@@ -7,29 +7,28 @@ To install this package, run:
 """
 
 
-#--- IMPORTS ------------------------------------------------------------------
+# --- IMPORTS -----------------------------------------------------------------
 
 from setuptools import setup
 
 from olefile import __version__, __author__
 
 
-#--- METADATA -----------------------------------------------------------------
+# --- METADATA ----------------------------------------------------------------
 
 name         = "olefile"
 version      = __version__
 desc         = "Python package to parse, read and write Microsoft OLE2 files (Structured Storage or Compound Document, Microsoft Office)"
-# read long description from disk in restructuredtext format:
-# TODO: make sure it's only ASCII
-long_desc    = open('README.rst').read()
-# long_desc    = open('README.rst', encoding='utf-8').read()  # This one only works with Python 3
 author       = __author__
 author_email = "nospam@decalage.info"
 url          = "https://www.decalage.info/python/olefileio"
 license      = "BSD"
 download_url = "https://github.com/decalage2/olefile/tarball/master"
 
-classifiers=[
+with open('README.md') as f:
+    long_desc = f.read()
+
+classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
@@ -50,27 +49,28 @@ classifiers=[
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
 
-#--- PACKAGES -----------------------------------------------------------------
+# --- PACKAGES ----------------------------------------------------------------
 
-packages=[
+packages = [
     "olefile",
 ]
 
 
-#=== MAIN =====================================================================
+# === MAIN ====================================================================
 
 def main():
-    dist = setup(
+    setup(
         name=name,
         version=version,
         description=desc,
         long_description=long_desc,
+        long_description_content_type='text/markdown',
         classifiers=classifiers,
         author=author,
         author_email=author_email,
         url=url,
         license=license,
-##        package_dir=package_dir,
+#        package_dir=package_dir,
         packages=packages,
         download_url=download_url,
 #        data_files=data_files,
