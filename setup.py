@@ -1,5 +1,5 @@
 """
-Installation script for olefile using distutils
+Installation script for olefile using setuptools
 
 To install this package, run:
     python setup.py install
@@ -9,10 +9,7 @@ To install this package, run:
 
 #--- IMPORTS ------------------------------------------------------------------
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 
 from olefile import __version__, __author__
 
