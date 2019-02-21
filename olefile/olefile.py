@@ -2281,39 +2281,41 @@ class OleFileIO:
             cbRgFcLcb = i16(word_fp.read(2))
             fibRgFcLcbBlob = word_fp.read(cbRgFcLcb * 4)
             fcStwUser = i32(fibRgFcLcbBlob[120*4:121*4])
+            lcbStwUser = i32(fibRgFcLcbBlob[121 * 4:122 * 4])
 
-            # Read StwUser from 1Table stream (WordDocument.fcStwUser points to this structure)
-            # this structure contains variable names and assigned values
-            table_fp = self.openstream(['1Table'])
-            table_fp.seek(fcStwUser)
+            if lcbStwUser > 0:
+                # Read StwUser from 1Table stream (WordDocument.fcStwUser points to this structure)
+                # this structure contains variable names and assigned values
+                table_fp = self.openstream(['1Table'])
+                table_fp.seek(fcStwUser)
 
-            # SttbNames (array, contain variable names)
-            ss = table_fp.read(6)
+                # SttbNames (array, contain variable names)
+                ss = table_fp.read(6)
 
-            char_size = 1
-            if ss[:2] == b'\xff\xff':
-                char_size = 2
+                char_size = 1
+                if ss[:2] == b'\xff\xff':
+                    char_size = 2
 
-            cdata = i16(ss[2:])
+                cdata = i16(ss[2:])
 
-            cbExtra = i16(ss[4:])
+                cbExtra = i16(ss[4:])
 
-            # SttbNames (array, contains variable names)
-            for i in range(cdata):
-                cchData = i16(table_fp.read(2))
-                data_str = table_fp.read(cchData *char_size )
-                if char_size == 2:
-                    data_str = self._decode_utf16_str(data_str)
-                data.append({'var_name':data_str, 'value':''})
-                extra = table_fp.read(cbExtra)
+                # SttbNames (array, contains variable names)
+                for i in range(cdata):
+                    cchData = i16(table_fp.read(2))
+                    data_str = table_fp.read(cchData *char_size )
+                    if char_size == 2:
+                        data_str = self._decode_utf16_str(data_str)
+                    data.append({'var_name':data_str, 'value':''})
+                    extra = table_fp.read(cbExtra)
 
-            # rgxchNames (array, contains values corresponding to variable names in SttbNames)
-            for i in range(cdata):
-                cchData = i16(table_fp.read(2))
-                data_str = table_fp.read(cchData *char_size)
-                if char_size == 2:
-                    data_str = self._decode_utf16_str(data_str)
-                data[i]['value'] = data_str
+                # rgxchNames (array, contains values corresponding to variable names in SttbNames)
+                for i in range(cdata):
+                    cchData = i16(table_fp.read(2))
+                    data_str = table_fp.read(cchData *char_size)
+                    if char_size == 2:
+                        data_str = self._decode_utf16_str(data_str)
+                    data[i]['value'] = data_str
 
         return data
 
