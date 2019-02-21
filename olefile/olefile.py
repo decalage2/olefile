@@ -2259,6 +2259,63 @@ class OleFileIO:
         self.metadata.parse_properties(self)
         return self.metadata
 
+
+    def get_userdefined_variables(self):
+        """
+        Extract the custom variables from Microsft Word docs
+        :return:  it returns a list of dictionaries, each dict contains var_name and its value
+        """
+        data = []
+        # Read fcStwUser from the WordDocument stream
+        # fcStwUser (4 bytes): An unsigned integer which is an offset in 1Table Stream that StwUser locates.
+        # It is the 121th field in  fibRgFcLcb97 (index 120)
+
+        word_fp = self.openstream(['WordDocument'])
+        # Read(32 bytes) + Read(int32(Read(2 byte)) * 28 bytes) + Read(int32(Read(2 bytes)) * 88 bytes)
+        fib_base = word_fp.read(32)
+        nfib = i16(fib_base[2:4])
+        if nfib == 0x00C1: #    fibRgFcLcb97
+            csw = i16(word_fp.read(2))
+            fibRgW = word_fp.read(csw * 2)
+            cslw =  i16(word_fp.read(2))
+            fibRgLw = word_fp.read(cslw * 4)
+            cbRgFcLcb = i16(word_fp.read(2))
+            fibRgFcLcbBlob = word_fp.read(cbRgFcLcb * 4)
+            location = i32(fibRgFcLcbBlob[120*4:121*4])
+
+            table_fp = self.openstream(['1Table'])
+            table_fp.seek(location)
+
+            # SttbNames (array, contain variable names)
+            ss = table_fp.read(6)
+
+            char_size = 1
+            if ss[:2] == b'\xff\xff':
+                char_size = 2
+
+            cdata = i16(ss[2:])
+
+            cbExtra = i16(ss[4:])
+
+            for i in range(cdata):
+                cchData = i16(table_fp.read(2))
+                data_str = table_fp.read(cchData *char_size )
+                if char_size == 2:
+                    data_str = self._decode_utf16_str(data_str)
+                data.append({'var_name':data_str, 'value':''})
+                extra = table_fp.read(cbExtra)
+
+            # rgxchNames (array, contains values corresponding to names in SttbNames)
+            for i in range(cdata):
+                cchData = i16(table_fp.read(2))
+                data_str = table_fp.read(cchData *char_size)
+                if char_size == 2:
+                    data_str = self._decode_utf16_str(data_str)
+                data[i]['value'] = data_str
+
+        return data
+
+
 #
 # --------------------------------------------------------------------
 # This script can be used to dump the directory of any OLE2 structured
@@ -2283,8 +2340,11 @@ def main():
 
     usage = 'usage: %prog [options] <filename> [filename2 ...]'
     parser = optparse.OptionParser(usage=usage)
+
     parser.add_option("-c", action="store_true", dest="check_streams",
         help='check all streams (for debugging purposes)')
+    parser.add_option("-v", action="store_true", dest="extract_customvar",
+        help='extract all custom defined variables')
     parser.add_option("-d", action="store_true", dest="debug_mode",
         help='debug mode, shortcut for -l debug (displays a lot of debug information, for developers only)')
     parser.add_option('-l', '--loglevel', dest="loglevel", action="store", default=DEFAULT_LOG_LEVEL,
@@ -2337,6 +2397,12 @@ def main():
                             print("   ", k, v)
                     except:
                         log.exception('Error while parsing property stream %r' % streamname)
+                elif options.extract_customvar and streamname[-1]=="WordDocument":
+                    variables = ole.get_userdefined_variables()
+                    print('User-defined Variable Names:')
+                    for var in variables:
+                        print('{}: {}'.format(var['var_name'], var['value'][:50]))
+
 
             if options.check_streams:
                 # Read all streams to check if there are errors:
