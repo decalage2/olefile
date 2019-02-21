@@ -2266,12 +2266,11 @@ class OleFileIO:
         :return:  it returns a list of dictionaries, each dict contains var_name and its value
         """
         data = []
+        word_fp = self.openstream(['WordDocument'])
+
         # Read fcStwUser from the WordDocument stream
         # fcStwUser (4 bytes): An unsigned integer which is an offset in 1Table Stream that StwUser locates.
-        # It is the 121th field in  fibRgFcLcb97 (index 120)
-
-        word_fp = self.openstream(['WordDocument'])
-        # Read(32 bytes) + Read(int32(Read(2 byte)) * 28 bytes) + Read(int32(Read(2 bytes)) * 88 bytes)
+        # fcStwUser is the 121th field in  fibRgFcLcb97 (index 120)
         fib_base = word_fp.read(32)
         nfib = i16(fib_base[2:4])
         if nfib == 0x00C1: #    fibRgFcLcb97
@@ -2281,10 +2280,12 @@ class OleFileIO:
             fibRgLw = word_fp.read(cslw * 4)
             cbRgFcLcb = i16(word_fp.read(2))
             fibRgFcLcbBlob = word_fp.read(cbRgFcLcb * 4)
-            location = i32(fibRgFcLcbBlob[120*4:121*4])
+            fcStwUser = i32(fibRgFcLcbBlob[120*4:121*4])
 
+            # Read StwUser from 1Table stream (WordDocument.fcStwUser points to this structure)
+            # this structure contains variable names and assigned values
             table_fp = self.openstream(['1Table'])
-            table_fp.seek(location)
+            table_fp.seek(fcStwUser)
 
             # SttbNames (array, contain variable names)
             ss = table_fp.read(6)
@@ -2297,6 +2298,7 @@ class OleFileIO:
 
             cbExtra = i16(ss[4:])
 
+            # SttbNames (array, contains variable names)
             for i in range(cdata):
                 cchData = i16(table_fp.read(2))
                 data_str = table_fp.read(cchData *char_size )
@@ -2305,7 +2307,7 @@ class OleFileIO:
                 data.append({'var_name':data_str, 'value':''})
                 extra = table_fp.read(cbExtra)
 
-            # rgxchNames (array, contains values corresponding to names in SttbNames)
+            # rgxchNames (array, contains values corresponding to variable names in SttbNames)
             for i in range(cdata):
                 cchData = i16(table_fp.read(2))
                 data_str = table_fp.read(cchData *char_size)
