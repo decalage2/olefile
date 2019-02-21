@@ -2260,10 +2260,10 @@ class OleFileIO:
         return self.metadata
 
 
-    def get_userdefined_variables(self):
+    def get_document_variables(self):
         """
-        Extract the custom variables from Microsft Word docs
-        :return:  it returns a list of dictionaries, each dict contains var_name and its value
+        Extract the document variables from Microsft Word docs
+        :return:  it returns a list of dictionaries, each of them contains var_name and value keys
         """
         data = []
         word_fp = self.openstream(['WordDocument'])
@@ -2400,7 +2400,7 @@ def main():
                     except:
                         log.exception('Error while parsing property stream %r' % streamname)
                 elif options.extract_customvar and streamname[-1]=="WordDocument":
-                    variables = ole.get_userdefined_variables()
+                    variables = ole.get_document_variables()
                     print('User-defined Variable Names:')
                     for var in variables:
                         print('{}: {}'.format(var['var_name'], var['value'][:50]))
