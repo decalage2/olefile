@@ -2348,7 +2348,7 @@ def main():
     parser.add_option("-c", action="store_true", dest="check_streams",
         help='check all streams (for debugging purposes)')
     parser.add_option("-v", action="store_true", dest="extract_customvar",
-        help='extract all custom defined variables')
+        help='extract all document variables')
     parser.add_option("-d", action="store_true", dest="debug_mode",
         help='debug mode, shortcut for -l debug (displays a lot of debug information, for developers only)')
     parser.add_option('-l', '--loglevel', dest="loglevel", action="store", default=DEFAULT_LOG_LEVEL,
@@ -2402,10 +2402,12 @@ def main():
                     except:
                         log.exception('Error while parsing property stream %r' % streamname)
                 elif options.extract_customvar and streamname[-1]=="WordDocument":
+                    print("%r: document variables" % streamname)
                     variables = ole.get_document_variables()
-                    print('User-defined Variable Names:')
-                    for var in variables:
-                        print('{}: {}'.format(var['var_name'], var['value'][:50]))
+
+                    for index, var in enumerate(variables):
+                        print('\t{} {}: {}'.format(index, var['var_name'], var['value'][:50]))
+                    print("")
 
 
             if options.check_streams:
