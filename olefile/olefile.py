@@ -2265,6 +2265,8 @@ class OleFileIO:
         Extract the document variables from Microsft Word docs
         :return:  it returns a list of dictionaries, each of them contains var_name and value keys
         """
+		# TODO: testing the code
+		# TODO: adding exception handeling
         data = []
         word_fp = self.openstream(['WordDocument'])
 
