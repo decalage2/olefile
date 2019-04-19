@@ -522,11 +522,11 @@ class OleMetadata:
         print('Properties from SummaryInformation stream:')
         for prop in self.SUMMARY_ATTRIBS:
             value = getattr(self, prop)
-            print('- %s: %s' % (prop, repr(value)))
+            print('- {}: {}'.format(prop, repr(value)))
         print('Properties from DocumentSummaryInformation stream:')
         for prop in self.DOCSUM_ATTRIBS:
             value = getattr(self, prop)
-            print('- %s: %s' % (prop, repr(value)))
+            print('- {}: {}'.format(prop, repr(value)))
 
 
 #--- OleStream ---------------------------------------------------------------
@@ -1188,7 +1188,7 @@ class OleFileIO:
         header = self.fp.read(512)
 
         if len(header) != 512 or header[:8] != MAGIC:
-            log.debug('Magic = %r instead of %r' % (header[:8], MAGIC))
+            log.debug('Magic = {!r} instead of {!r}'.format(header[:8], MAGIC))
             self._raise_defect(DEFECT_FATAL, "not an OLE2 structured storage file")
 
         # [PL] header structure according to AAF specifications:
@@ -2137,7 +2137,7 @@ class OleFileIO:
             # catch exception while parsing property header, and only raise
             # a DEFECT_INCORRECT then return an empty dict, because this is not
             # a fatal error when parsing the whole file
-            msg = 'Error while parsing properties header in stream %s: %s' % (
+            msg = 'Error while parsing properties header in stream {}: {}'.format(
                 repr(streampath), exc)
             self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
             return data
@@ -2292,7 +2292,7 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    print('olefile version %s %s - https://www.decalage.info/en/olefile\n' % (__version__, __date__))
+    print('olefile version {} {} - https://www.decalage.info/en/olefile\n'.format(__version__, __date__))
 
     # Print help if no arguments are passed
     if len(args) == 0:
@@ -2362,7 +2362,7 @@ def main():
             print('Modification/Creation times of all directory entries:')
             for entry in ole.direntries:
                 if entry is not None:
-                    print('- %s: mtime=%s ctime=%s' % (entry.name,
+                    print('- {}: mtime={} ctime={}'.format(entry.name,
                         entry.getmtime(), entry.getctime()))
             print()
 
@@ -2387,7 +2387,7 @@ def main():
             print('\nNon-fatal issues raised during parsing:')
             if ole.parsing_issues:
                 for exctype, msg in ole.parsing_issues:
-                    print('- %s: %s' % (exctype.__name__, msg))
+                    print('- {}: {}'.format(exctype.__name__, msg))
             else:
                 print('None')
         except:
