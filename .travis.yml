@@ -1,6 +1,5 @@
 language: python
 cache: pip
-sudo: false
 
 matrix:
   include:
@@ -10,7 +9,6 @@ matrix:
     - python: 3.6
     - python: 3.7
       dist: xenial
-      sudo: true
     - python: pypy
     - python: pypy3
 
