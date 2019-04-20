@@ -92,7 +92,7 @@ See also [this paper](https://computer-forensics.sans.org/community/papers/gcfa/
 License
 -------
 
-olefile (formerly OleFileIO_PL) is copyright (c) 2005-2018 Philippe Lagadec
+olefile (formerly OleFileIO_PL) is copyright (c) 2005-2019 Philippe Lagadec
 ([https://www.decalage.info](https://www.decalage.info))
 
 All rights reserved.

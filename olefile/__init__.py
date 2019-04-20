@@ -8,7 +8,7 @@ This version is compatible with Python 2.7 and 3.5+
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2018 Philippe Lagadec (https://www.decalage.info)
+olefile is copyright (c) 2005-2019 Philippe Lagadec (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.7
 See: http://www.pythonware.com/products/pil/index.htm

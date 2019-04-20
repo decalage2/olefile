@@ -8,7 +8,7 @@ This version is compatible with Python 2.7 and 3.5+
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2018 Philippe Lagadec
+olefile is copyright (c) 2005-2019 Philippe Lagadec
 (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.7
@@ -22,7 +22,7 @@ Copyright (c) 1995-2009 by Fredrik Lundh
 See source code and LICENSE.txt for information on usage and redistribution.
 """
 
-# Since OleFileIO_PL v0.47, only Python 2.7 and 3.5+ are supported
+# Since olefile v0.47, only Python 2.7 and 3.5+ are supported
 # This import enables print() as a function rather than a keyword
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
@@ -31,7 +31,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2018 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2019 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # All rights reserved.
@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2018-09-09"
-__version__ = '0.46'
+__date__    = "2019-04-20"
+__version__ = '0.47dev1'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
