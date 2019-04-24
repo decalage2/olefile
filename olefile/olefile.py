@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2019-04-20"
-__version__ = '0.47dev1'
+__date__    = "2019-04-24"
+__version__ = '0.47dev2'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -266,7 +266,7 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
                          # impossible
 
 # Minimal size of an empty OLE file, with 512-bytes sectors = 1536 bytes
-# (this is used in isOleFile and OleFile.open)
+# (this is used in isOleFile and OleFileIO.open)
 MINIMAL_OLEFILE_SIZE = 1536
 
 
@@ -483,32 +483,34 @@ class OleMetadata:
         self.doc_version = None
 
 
-    def parse_properties(self, olefile):
+    def parse_properties(self, ole_file):
         """
         Parse standard properties of an OLE file, from the streams
         ``\\x05SummaryInformation`` and ``\\x05DocumentSummaryInformation``,
         if present.
         Properties are converted to strings, integers or python datetime objects.
         If a property is not present, its value is set to None.
+
+        :param ole_file: OleFileIO object from which to parse properties
         """
         # first set all attributes to None:
         for attrib in (self.SUMMARY_ATTRIBS + self.DOCSUM_ATTRIBS):
             setattr(self, attrib, None)
-        if olefile.exists("\x05SummaryInformation"):
+        if ole_file.exists("\x05SummaryInformation"):
             # get properties from the stream:
             # (converting timestamps to python datetime, except total_edit_time,
             # which is property #10)
-            props = olefile.getproperties("\x05SummaryInformation",
-                convert_time=True, no_conversion=[10])
+            props = ole_file.getproperties("\x05SummaryInformation",
+                                           convert_time=True, no_conversion=[10])
             # store them into this object's attributes:
             for i in range(len(self.SUMMARY_ATTRIBS)):
                 # ids for standards properties start at 0x01, until 0x13
                 value = props.get(i+1, None)
                 setattr(self, self.SUMMARY_ATTRIBS[i], value)
-        if olefile.exists("\x05DocumentSummaryInformation"):
+        if ole_file.exists("\x05DocumentSummaryInformation"):
             # get properties from the stream:
-            props = olefile.getproperties("\x05DocumentSummaryInformation",
-                convert_time=True)
+            props = ole_file.getproperties("\x05DocumentSummaryInformation",
+                                           convert_time=True)
             # store them into this object's attributes:
             for i in range(len(self.DOCSUM_ATTRIBS)):
                 # ids for standards properties start at 0x01, until 0x13
@@ -537,7 +539,7 @@ class OleStream(io.BytesIO):
 
     Returns a read-only file object which can be used to read
     the contents of a OLE stream (instance of the BytesIO class).
-    To open a stream, use the openstream method in the OleFile class.
+    To open a stream, use the openstream method in the OleFileIO class.
 
     This function can be used with either ordinary streams,
     or ministreams, depending on the offset, sectorsize, and
@@ -570,7 +572,7 @@ class OleStream(io.BytesIO):
             %(sect,sect,size,offset,sectorsize,len(fat), repr(fp)))
         self.ole = olefileio
         # this check is necessary, otherwise when attempting to open a stream
-        # from a closed OleFile, a stream of size zero is returned without
+        # from a closed OleFileIO, a stream of size zero is returned without
         # raising an exception. (see issue #81)
         if self.ole.fp.closed:
             raise OSError('Attempting to open a stream from a closed OLE File')
@@ -712,18 +714,18 @@ class OleDirectoryEntry:
     assert struct.calcsize(STRUCT_DIRENTRY) == DIRENTRY_SIZE
 
 
-    def __init__(self, entry, sid, olefile):
+    def __init__(self, entry, sid, ole_file):
         """
         Constructor for an OleDirectoryEntry object.
         Parses a 128-bytes entry from the OLE Directory stream.
 
         :param entry  : string (must be 128 bytes long)
         :param sid    : index of this directory entry in the OLE file directory
-        :param olefile: OleFileIO containing this directory entry
+        :param ole_file: OleFileIO object containing this directory entry
         """
         self.sid = sid
-        # ref to olefile is stored for future use
-        self.olefile = olefile
+        # ref to ole_file is stored for future use
+        self.olefile = ole_file
         # kids is a list of children entries, if this entry is a storage:
         # (list of OleDirectoryEntry objects)
         self.kids = []
@@ -752,17 +754,17 @@ class OleDirectoryEntry:
             self.sizeHigh
         ) = struct.unpack(OleDirectoryEntry.STRUCT_DIRENTRY, entry)
         if self.entry_type not in [STGTY_ROOT, STGTY_STORAGE, STGTY_STREAM, STGTY_EMPTY]:
-            olefile._raise_defect(DEFECT_INCORRECT, 'unhandled OLE storage type')
+            ole_file._raise_defect(DEFECT_INCORRECT, 'unhandled OLE storage type')
         # only first directory entry can (and should) be root:
         if self.entry_type == STGTY_ROOT and sid != 0:
-            olefile._raise_defect(DEFECT_INCORRECT, 'duplicate OLE root entry')
+            ole_file._raise_defect(DEFECT_INCORRECT, 'duplicate OLE root entry')
         if sid == 0 and self.entry_type != STGTY_ROOT:
-            olefile._raise_defect(DEFECT_INCORRECT, 'incorrect OLE root entry')
+            ole_file._raise_defect(DEFECT_INCORRECT, 'incorrect OLE root entry')
         #log.debug(struct.unpack(fmt_entry, entry[:len_entry]))
         # name should be at most 31 unicode characters + null character,
         # so 64 bytes in total (31*2 + 2):
         if self.namelength>64:
-            olefile._raise_defect(DEFECT_INCORRECT, 'incorrect DirEntry name length >64 bytes')
+            ole_file._raise_defect(DEFECT_INCORRECT, 'incorrect DirEntry name length >64 bytes')
             # if exception not raised, namelength is set to the maximum value:
             self.namelength = 64
         # only characters without ending null char are kept:
@@ -771,7 +773,7 @@ class OleDirectoryEntry:
         #TODO: check if the name does not contain forbidden characters:
         # [MS-CFB] 2.6.1: "The following characters are illegal and MUST NOT be part of the name: '/', '\', ':', '!'."
         # name is converted from UTF-16LE to the path encoding specified in the OleFileIO:
-        self.name = olefile._decode_utf16_str(self.name_utf16)
+        self.name = ole_file._decode_utf16_str(self.name_utf16)
 
         log.debug('DirEntry SID=%d: %s' % (self.sid, repr(self.name)))
         log.debug(' - type: %d' % self.entry_type)
@@ -782,11 +784,11 @@ class OleDirectoryEntry:
         # sizeHigh is only used for 4K sectors, it should be zero for 512 bytes
         # sectors, BUT apparently some implementations set it as 0xFFFFFFFF, 1
         # or some other value so it cannot be raised as a defect in general:
-        if olefile.sectorsize == 512:
+        if ole_file.sectorsize == 512:
             if self.sizeHigh != 0 and self.sizeHigh != 0xFFFFFFFF:
                 log.debug('sectorsize=%d, sizeLow=%d, sizeHigh=%d (%X)' %
-                    (olefile.sectorsize, self.sizeLow, self.sizeHigh, self.sizeHigh))
-                olefile._raise_defect(DEFECT_UNSURE, 'incorrect OLE stream size')
+                          (ole_file.sectorsize, self.sizeLow, self.sizeHigh, self.sizeHigh))
+                ole_file._raise_defect(DEFECT_UNSURE, 'incorrect OLE stream size')
             self.size = self.sizeLow
         else:
             self.size = self.sizeLow + (long(self.sizeHigh)<<32)
@@ -796,21 +798,27 @@ class OleDirectoryEntry:
         # a storage should have a null size, BUT some implementations such as
         # Word 8 for Mac seem to allow non-null values => Potential defect:
         if self.entry_type == STGTY_STORAGE and self.size != 0:
-            olefile._raise_defect(DEFECT_POTENTIAL, 'OLE storage with size>0')
+            ole_file._raise_defect(DEFECT_POTENTIAL, 'OLE storage with size>0')
         # check if stream is not already referenced elsewhere:
         self.is_minifat = False
         if self.entry_type in (STGTY_ROOT, STGTY_STREAM) and self.size>0:
-            if self.size < olefile.minisectorcutoff \
+            if self.size < ole_file.minisectorcutoff \
             and self.entry_type==STGTY_STREAM: # only streams can be in MiniFAT
                 # ministream object
                 self.is_minifat = True
             else:
                 self.is_minifat = False
-            olefile._check_duplicate_stream(self.isectStart, self.is_minifat)
+            ole_file._check_duplicate_stream(self.isectStart, self.is_minifat)
         self.sect_chain = None
 
 
-    def build_sect_chain(self, olefile):
+    def build_sect_chain(self, ole_file):
+        """
+
+        :param ole_file: OleFileIO object containing this directory entry
+        :return: nothing
+        """
+        # TODO: use self.olefile instead of ole_file
         if self.sect_chain:
             return
         if self.entry_type not in (STGTY_ROOT, STGTY_STREAM) or self.size == 0:
@@ -818,16 +826,16 @@ class OleDirectoryEntry:
 
         self.sect_chain = list()
 
-        if self.is_minifat and not olefile.minifat:
-            olefile.loadminifat()
+        if self.is_minifat and not ole_file.minifat:
+            ole_file.loadminifat()
 
         next_sect = self.isectStart
         while next_sect != ENDOFCHAIN:
             self.sect_chain.append(next_sect)
             if self.is_minifat:
-                next_sect = olefile.minifat[next_sect]
+                next_sect = ole_file.minifat[next_sect]
             else:
-                next_sect = olefile.fat[next_sect]
+                next_sect = ole_file.fat[next_sect]
 
     def build_storage_tree(self):
         """
