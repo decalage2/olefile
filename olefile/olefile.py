@@ -680,9 +680,8 @@ class OleStream(io.BytesIO):
 # --- OleDirectoryEntry -------------------------------------------------------
 
 class OleDirectoryEntry:
-
     """
-    OLE2 Directory Entry
+    OLE2 Directory Entry pointing to a stream or a storage
     """
     # [PL] parsing code moved from OleFileIO.loaddirectory
 
@@ -714,9 +713,9 @@ class OleDirectoryEntry:
         Constructor for an OleDirectoryEntry object.
         Parses a 128-bytes entry from the OLE Directory stream.
 
-        :param entry  : string (must be 128 bytes long)
-        :param sid    : index of this directory entry in the OLE file directory
-        :param ole_file: OleFileIO object containing this directory entry
+        :param bytes entry: bytes string (must be 128 bytes long)
+        :param int sid: index of this directory entry in the OLE file directory
+        :param OleFileIO ole_file: OleFileIO object containing this directory entry
         """
         self.sid = sid
         # ref to ole_file is stored for future use
@@ -806,13 +805,14 @@ class OleDirectoryEntry:
             ole_file._check_duplicate_stream(self.isectStart, self.is_minifat)
         self.sect_chain = None
 
-
     def build_sect_chain(self, ole_file):
         """
+        Build the sector chain for a stream (from the FAT or the MiniFAT)
 
-        :param ole_file: OleFileIO object containing this directory entry
+        :param OleFileIO ole_file: OleFileIO object containing this directory entry
         :return: nothing
         """
+        # TODO: seems to be used only from _write_mini_stream, is it useful?
         # TODO: use self.olefile instead of ole_file
         if self.sect_chain:
             return
