@@ -91,7 +91,7 @@ __version__ = '0.47dev2'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
-           'MAGIC', 'STGTY_EMPTY', 'KEEP_UNICODE_NAMES',
+           'MAGIC', 'STGTY_EMPTY',
            'STGTY_STREAM', 'STGTY_STORAGE', 'STGTY_ROOT', 'STGTY_PROPERTY',
            'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',
            'DEFECT_UNSURE', 'DEFECT_POTENTIAL', 'DEFECT_INCORRECT',
@@ -149,10 +149,6 @@ try:
     basestring
 except NameError:
     basestring = str
-
-# [PL] Experimental setting: if True, OLE filenames will be kept in Unicode
-# if False (default PIL behaviour), all filenames are converted to Latin-1.
-KEEP_UNICODE_NAMES = True
 
 if sys.version_info[0] < 3:
     # On Python 2.x, the default encoding for path names is UTF-8:
