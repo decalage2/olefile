@@ -3,7 +3,12 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
-* 2018-09-09 v0.46 PL:
+* 2019-04-28 v0.47.dev2:
+    - merged PR #110 by Ken Peterson @TheElementalOfCreation: added exceptions OleFileError and NotOleFileError
+      to replace IOError
+* 2019-04-20 v0.47.dev1:
+    - merged PR #118 by @hugovk: removed support for Python 3.4
+* **2018-09-09 v0.46 PL**:
     - official v0.46 release
 * 2018-09-05 v0.46dev2 PL:
     - fixed issue #96, disabled the VT dictionary which was not used anymore
