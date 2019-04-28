@@ -372,9 +372,21 @@ def filetime2datetime(filetime):
 
 #=== CLASSES ==================================================================
 
+class OleFileError(IOError):
+    """
+    Generic base error for this module.
+    """
+    pass
+
+class NotOleFileError(OleFileError):
+    """
+    Error raised when the opened file is not an OLE file.
+    """
+    pass
+
 class OleMetadata:
     """
-    class to parse and store metadata from standard properties of OLE files.
+    Class to parse and store metadata from standard properties of OLE files.
 
     Available attributes:
     codepage, title, subject, author, keywords, comments, template,
@@ -404,7 +416,7 @@ class OleMetadata:
     - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380374%28v=vs.85%29.aspx
     - https://poi.apache.org/apidocs/org/apache/poi/hpsf/DocumentSummaryInformation.html
 
-    new in version 0.25
+    New in version 0.25
     """
 
     # attribute names for SummaryInformation stream properties:
@@ -1082,10 +1094,10 @@ class OleFileIO:
         self.close()
 
 
-    def _raise_defect(self, defect_level, message, exception_type=IOError):
+    def _raise_defect(self, defect_level, message, exception_type=OleFileError):
         """
         This method should be called for any defect found during file parsing.
-        It may raise an IOError exception according to the minimal level chosen
+        It may raise an OleFileError exception according to the minimal level chosen
         for the OleFileIO object.
 
         :param defect_level: defect level, possible values are:
@@ -1096,7 +1108,7 @@ class OleFileIO:
             - DEFECT_FATAL     : an error which cannot be ignored, parsing is impossible
 
         :param message: string describing the defect, used with raised exception.
-        :param exception_type: exception class to be raised, IOError by default
+        :param exception_type: exception class to be raised, OleFileError by default
         """
         # added by [PL]
         if defect_level >= self._raise_defects_level:
@@ -1188,7 +1200,7 @@ class OleFileIO:
 
         if len(header) != 512 or header[:8] != MAGIC:
             log.debug('Magic = {!r} instead of {!r}'.format(header[:8], MAGIC))
-            self._raise_defect(DEFECT_FATAL, "not an OLE2 structured storage file")
+            self._raise_defect(DEFECT_FATAL, "not an OLE2 structured storage file", NotOleFileError)
 
         # [PL] header structure according to AAF specifications:
         ##Header
@@ -1740,7 +1752,7 @@ class OleFileIO:
         :param sid: index of storage/stream in the directory.
         :returns: a OleDirectoryEntry object
 
-        :exception IOError: if the entry has always been referenced.
+        :exception OleFileError: if the entry has always been referenced.
         """
         # check if SID is OK:
         if sid<0 or sid>=len(self.direntries):
