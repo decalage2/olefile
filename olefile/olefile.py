@@ -114,7 +114,7 @@ if str is not bytes:
 try:
     # on Python 2 we need xrange:
     iterrange = xrange
-except:
+except Exception:
     # no xrange, for Python 3 it was renamed as range:
     iterrange = range
 
@@ -638,7 +638,7 @@ class OleStream(io.BytesIO):
             # TODO: check if this works with 4K sectors:
             try:
                 fp.seek(offset + sectorsize * sect)
-            except:
+            except Exception:
                 log.debug('sect=%d, seek=%d, filesize=%d' %
                     (sect, offset+sectorsize*sect, filesize))
                 self.ole._raise_defect(DEFECT_INCORRECT, 'OLE sector index out of range')
@@ -695,8 +695,6 @@ class OleDirectoryEntry:
     """
     OLE2 Directory Entry pointing to a stream or a storage
     """
-    # [PL] parsing code moved from OleFileIO.loaddirectory
-
     # struct to parse directory entries:
     # <: little-endian byte order, standard sizes
     #    (note: this should guarantee that Q returns a 64 bits int)
@@ -769,7 +767,7 @@ class OleDirectoryEntry:
         # log.debug(struct.unpack(fmt_entry, entry[:len_entry]))
         # name should be at most 31 unicode characters + null character,
         # so 64 bytes in total (31*2 + 2):
-        if self.namelength>64:
+        if self.namelength > 64:
             ole_file._raise_defect(DEFECT_INCORRECT, 'incorrect DirEntry name length >64 bytes')
             # if exception not raised, namelength is set to the maximum value:
             self.namelength = 64
@@ -1126,9 +1124,10 @@ class OleFileIO:
         directory or in property streams. Return a string encoded
         according to the path_encoding specified for the OleFileIO object.
 
-        :param utf16_str: bytes string encoded in UTF-16 LE format
-        :param errors: str, see python documentation for str.decode()
+        :param bytes utf16_str: bytes string encoded in UTF-16 LE format
+        :param str errors: str, see python documentation for str.decode()
         :return: str, encoded according to path_encoding
+        :rtype: str
         """
         unicode_str = utf16_str.decode('UTF-16LE', errors)
         if self.path_encoding:
@@ -1182,7 +1181,7 @@ class OleFileIO:
         # file-like objects:
         # TODO: do it above, using getsize with filename when possible?
         # TODO: fix code to fail with clear exception when filesize cannot be obtained
-        filesize=0
+        filesize = 0
         self.fp.seek(0, os.SEEK_END)
         try:
             filesize = self.fp.tell()
@@ -1640,7 +1639,7 @@ class OleFileIO:
         #print("getsect(%X)" % sect)
         try:
             self.fp.seek(self.sectorsize * (sect+1))
-        except:
+        except Exception:
             log.debug('getsect(): sect=%X, seek=%d, filesize=%d' %
                 (sect, self.sectorsize*(sect+1), self._filesize))
             self._raise_defect(DEFECT_FATAL, 'OLE sector index out of range')
@@ -1666,7 +1665,7 @@ class OleFileIO:
         # TODO: we could allow padding=None for no padding at all
         try:
             self.fp.seek(self.sectorsize * (sect+1))
-        except:
+        except Exception:
             log.debug('write_sect(): sect=%X, seek=%d, filesize=%d' %
                 (sect, self.sectorsize*(sect+1), self._filesize))
             self._raise_defect(DEFECT_FATAL, 'OLE sector index out of range')
@@ -1692,7 +1691,7 @@ class OleFileIO:
 
         try:
             self.fp.seek(fp_pos)
-        except:
+        except Exception:
             log.debug('write_mini_sect(): fp_pos=%d, filesize=%d' %
                       (fp_pos, self._filesize))
             self._raise_defect(DEFECT_FATAL, 'OLE sector index out of range')
@@ -1956,7 +1955,7 @@ class OleFileIO:
         for i in range(nb_sectors):
             # try:
             #     self.fp.seek(offset + self.sectorsize * sect)
-            # except:
+            # except Exception:
             #     log.debug('sect=%d, seek=%d' %
             #         (sect, offset+self.sectorsize*sect))
             #     raise IOError('OLE sector index out of range')
@@ -1999,7 +1998,7 @@ class OleFileIO:
             sid = self._find(filename)
             entry = self.direntries[sid]
             return entry.entry_type
-        except:
+        except Exception:
             return False
 
     def getclsid(self, filename):
@@ -2058,7 +2057,7 @@ class OleFileIO:
         try:
             sid = self._find(filename)
             return True
-        except:
+        except Exception:
             return False
 
     def get_size(self, filename):
@@ -2317,7 +2316,7 @@ def main():
                                         v = '(binary data)'
                                         break
                             print("   ", k, v)
-                    except:
+                    except Exception:
                         log.exception('Error while parsing property stream %r' % streamname)
 
             if options.check_streams:
@@ -2352,7 +2351,7 @@ def main():
             try:
                 meta = ole.get_metadata()
                 meta.dump()
-            except:
+            except Exception:
                 log.exception('Error while parsing metadata')
             print()
             # [PL] Test a few new methods:
@@ -2372,7 +2371,7 @@ def main():
                     print('- {}: {}'.format(exctype.__name__, msg))
             else:
                 print('None')
-        except:
+        except Exception:
             log.exception('Error while parsing file %r' % filename)
 
 
