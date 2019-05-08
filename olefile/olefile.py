@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2019-04-28"
-__version__ = '0.47.dev2'
+__date__    = "2019-05-08"
+__version__ = '0.47.dev3'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -2251,12 +2251,11 @@ class OleFileIO:
 
         :returns: a dictionary of values indexed by id (integer)
         """
-        #REFERENCE: [MS-OLEPS] https://msdn.microsoft.com/en-us/library/dd942421.aspx
-
-        #REFERENCE: https://docs.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/2ea8be67-a4a0-4e2e-b42f-49a182645562
+        # REFERENCE: [MS-OLEPS] https://msdn.microsoft.com/en-us/library/dd942421.aspx
+        # REFERENCE: https://docs.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/2ea8be67-a4a0-4e2e-b42f-49a182645562
         #'D5CDD502-2E9C-101B-9397-08002B2CF9AE'
-		    # TODO: testing the code more rigorously 
-		    # TODO: adding exception handeling
+        # TODO: testing the code more rigorously
+        # TODO: adding exception handeling
         FMTID_USERDEFINED_PROPERTIES = _clsid(b'\x05\xD5\xCD\xD5\x9C\x2E\x1B\x10\x93\x97\x08\x00\x2B\x2C\xF9\xAE')
 
         # make sure no_conversion is a list, just to simplify code below:
@@ -2279,7 +2278,6 @@ class OleFileIO:
         sections_count = i32(s, 24)
 
         section_file_pointers = []
-
 
         try:
             for i in range(sections_count):
@@ -2436,8 +2434,8 @@ class OleFileIO:
         Extract the document variables from Microsft Word docs
         :return:  it returns a list of dictionaries, each of them contains var_name and value keys
         """
-		# TODO: testing the code more rigorously 
-		# TODO: adding exception handeling
+        # TODO: testing the code more rigorously
+        # TODO: adding exception handeling
         data = []
         word_fp = self.openstream(['WordDocument'])
 

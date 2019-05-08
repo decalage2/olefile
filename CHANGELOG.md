@@ -3,6 +3,9 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2019-05-08 v0.47.dev3:
+    - merged PR #114 by Malwrologist @DissectMalware: added methods get_userdefined_properties and 
+    get_document_variables
 * 2019-04-28 v0.47.dev2:
     - merged PR #110 by Ken Peterson @TheElementalOfCreation: added exceptions OleFileError and NotOleFileError
       to replace IOError
