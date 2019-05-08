@@ -2241,6 +2241,257 @@ class OleFileIO:
         self.metadata.parse_properties(self)
         return self.metadata
 
+    def get_userdefined_properties(self, filename, convert_time=False, no_conversion=None):
+        """
+        Return properties described in substream.
+
+        :param filename: path of stream in storage tree (see openstream for syntax)
+        :param convert_time: bool, if True timestamps will be converted to Python datetime
+        :param no_conversion: None or list of int, timestamps not to be converted
+            (for example total editing time is not a real timestamp)
+
+        :returns: a dictionary of values indexed by id (integer)
+        """
+        #REFERENCE: [MS-OLEPS] https://msdn.microsoft.com/en-us/library/dd942421.aspx
+
+        #REFERENCE: https://docs.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/2ea8be67-a4a0-4e2e-b42f-49a182645562
+        #'D5CDD502-2E9C-101B-9397-08002B2CF9AE'
+		    # TODO: testing the code more rigorously 
+		    # TODO: adding exception handeling
+        FMTID_USERDEFINED_PROPERTIES = _clsid(b'\x05\xD5\xCD\xD5\x9C\x2E\x1B\x10\x93\x97\x08\x00\x2B\x2C\xF9\xAE')
+
+        # make sure no_conversion is a list, just to simplify code below:
+        if no_conversion == None:
+            no_conversion = []
+        # stream path as a string to report exceptions:
+        streampath = filename
+        if not isinstance(streampath, str):
+            streampath = '/'.join(streampath)
+
+        fp = self.openstream(filename)
+
+        data = []
+
+        # header
+        s = fp.read(28)
+        clsid = _clsid(s[8:24])
+
+        # PropertySetStream.cSections (4 bytes starts at 1c): number of property sets in this stream
+        sections_count = i32(s, 24)
+
+        section_file_pointers = []
+
+
+        try:
+            for i in range(sections_count):
+                # format id
+                s = fp.read(20)
+                fmtid = _clsid(s[:16])
+
+                if fmtid == FMTID_USERDEFINED_PROPERTIES:
+                    file_pointer = i32(s, 16)
+                    fp.seek(file_pointer)
+                    # read saved sections
+                    s = b"****" + fp.read(i32(fp.read(4)) - 4)
+                    # number of properties:
+                    num_props = i32(s, 4)
+
+                    PropertyIdentifierAndOffset = s[8: 8+8*num_props]
+
+                    # property names (dictionary)
+                    # ref: https://docs.microsoft.com/en-us/openspecs/windows_protocols/MS-OLEPS/99127b7f-c440-4697-91a4-c853086d6b33
+                    index = 8+8*num_props
+                    entry_count = i32(s[index: index+4])
+                    index += 4
+                    for i in range(entry_count):
+                        identifier = s[index: index +4]
+                        str_size = i32(s[index+4: index + 8])
+                        string = s[index+8: index+8+str_size].decode('utf_8').strip('\0')
+                        data.append({'property_name':string, 'value':None})
+                        index = index+8+str_size
+                    # clamp num_props based on the data length
+                    num_props = min(num_props, int(len(s) / 8))
+
+                    # property values
+                    # ref: https://docs.microsoft.com/en-us/openspecs/windows_protocols/MS-OLEPS/f122b9d7-e5cf-4484-8466-83f6fd94b3cc
+                    for i in iterrange(2, num_props):
+                        property_id = 0  # just in case of an exception
+                        try:
+                            property_id = i32(s, 8 + i * 8)
+                            offset = i32(s, 12 + i * 8)
+                            property_type = i32(s, offset)
+
+                            log.debug('property id=%d: type=%d offset=%X' % (property_id, property_type, offset))
+
+                            # test for common types first (should perhaps use
+                            # a dictionary instead?)
+
+                            if property_type == VT_I2:  # 16-bit signed integer
+                                value = i16(s, offset + 4)
+                                if value >= 32768:
+                                    value = value - 65536
+                            elif property_type == 1:
+                                # supposed to be VT_NULL but seems it is not NULL
+                                str_size = i32(s, offset + 8)
+                                value = s[offset + 12:offset + 12 + str_size - 1]
+
+                            elif property_type == VT_UI2:  # 2-byte unsigned integer
+                                value = i16(s, offset + 4)
+                            elif property_type in (VT_I4, VT_INT, VT_ERROR):
+                                # VT_I4: 32-bit signed integer
+                                # VT_ERROR: HRESULT, similar to 32-bit signed integer,
+                                # see https://msdn.microsoft.com/en-us/library/cc230330.aspx
+                                value = i32(s, offset + 4)
+                            elif property_type in (VT_UI4, VT_UINT):  # 4-byte unsigned integer
+                                value = i32(s, offset + 4)  # FIXME
+                            elif property_type in (VT_BSTR, VT_LPSTR):
+                                # CodePageString, see https://msdn.microsoft.com/en-us/library/dd942354.aspx
+                                # size is a 32 bits integer, including the null terminator, and
+                                # possibly trailing or embedded null chars
+                                # TODO: if codepage is unicode, the string should be converted as such
+                                count = i32(s, offset + 4)
+                                value = s[offset + 8:offset + 8 + count - 1]
+                                # remove all null chars:
+                                value = value.replace(b'\x00', b'')
+                            elif property_type == VT_BLOB:
+                                # binary large object (BLOB)
+                                # see https://msdn.microsoft.com/en-us/library/dd942282.aspx
+                                count = i32(s, offset + 4)
+                                value = s[offset + 8:offset + 8 + count]
+                            elif property_type == VT_LPWSTR:
+                                # UnicodeString
+                                # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
+                                # "the string should NOT contain embedded or additional trailing
+                                # null characters."
+                                count = i32(s, offset + 4)
+                                value = self._decode_utf16_str(s[offset + 8:offset + 8 + count * 2])
+                            elif property_type == VT_FILETIME:
+                                value = long(i32(s, offset + 4)) + (long(i32(s, offset + 8)) << 32)
+                                # FILETIME is a 64-bit int: "number of 100ns periods
+                                # since Jan 1,1601".
+                                if convert_time and property_id not in no_conversion:
+                                    log.debug('Converting property #%d to python datetime, value=%d=%fs'
+                                              % (property_id, value, float(value) / 10000000))
+                                    # convert FILETIME to Python datetime.datetime
+                                    # inspired from https://code.activestate.com/recipes/511425-filetime-to-datetime/
+                                    _FILETIME_null_date = datetime.datetime(1601, 1, 1, 0, 0, 0)
+                                    log.debug('timedelta days=%d' % (value // (10 * 1000000 * 3600 * 24)))
+                                    value = _FILETIME_null_date + datetime.timedelta(microseconds=value // 10)
+                                else:
+                                    # legacy code kept for backward compatibility: returns a
+                                    # number of seconds since Jan 1,1601
+                                    value = value // 10000000  # seconds
+                            elif property_type == VT_UI1:  # 1-byte unsigned integer
+                                value = i8(s[offset + 4])
+                            elif property_type == VT_CLSID:
+                                value = _clsid(s[offset + 4:offset + 20])
+                            elif property_type == VT_CF:
+                                # PropertyIdentifier or ClipboardData??
+                                # see https://msdn.microsoft.com/en-us/library/dd941945.aspx
+                                count = i32(s, offset + 4)
+                                value = s[offset + 8:offset + 8 + count]
+                            elif property_type == VT_BOOL:
+                                # VARIANT_BOOL, 16 bits bool, 0x0000=Fals, 0xFFFF=True
+                                # see https://msdn.microsoft.com/en-us/library/cc237864.aspx
+                                value = bool(i16(s, offset + 4))
+                            else:
+                                value = None  # everything else yields "None"
+                                log.debug(
+                                    'property id=%d: type=%d not implemented in parser yet' % (property_id, property_type))
+
+                            # missing: VT_EMPTY, VT_NULL, VT_R4, VT_R8, VT_CY, VT_DATE,
+                            # VT_DECIMAL, VT_I1, VT_I8, VT_UI8,
+                            # see https://msdn.microsoft.com/en-us/library/dd942033.aspx
+
+                            # FIXME: add support for VT_VECTOR
+                            # VT_VECTOR is a 32 uint giving the number of items, followed by
+                            # the items in sequence. The VT_VECTOR value is combined with the
+                            # type of items, e.g. VT_VECTOR|VT_BSTR
+                            # see https://msdn.microsoft.com/en-us/library/dd942011.aspx
+
+                            # print("%08x" % property_id, repr(value), end=" ")
+                            # print("(%s)" % VT[i32(s, offset) & 0xFFF])
+
+                            data[i-2]['value']=value
+                        except BaseException as exc:
+                            # catch exception while parsing each property, and only raise
+                            # a DEFECT_INCORRECT, because parsing can go on
+                            msg = 'Error while parsing property id %d in stream %s: %s' % (
+                                property_id, repr(streampath), exc)
+                            self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
+
+        except BaseException as exc:
+            # catch exception while parsing property header, and only raise
+            # a DEFECT_INCORRECT then return an empty dict, because this is not
+            # a fatal error when parsing the whole file
+            msg = 'Error while parsing properties header in stream %s: %s' % (
+                repr(streampath), exc)
+            self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
+            return data
+
+        return data
+
+
+    def get_document_variables(self):
+        """
+        Extract the document variables from Microsft Word docs
+        :return:  it returns a list of dictionaries, each of them contains var_name and value keys
+        """
+		# TODO: testing the code more rigorously 
+		# TODO: adding exception handeling
+        data = []
+        word_fp = self.openstream(['WordDocument'])
+
+        # Read fcStwUser from the WordDocument stream
+        # fcStwUser (4 bytes): An unsigned integer which is an offset in 1Table Stream that StwUser locates.
+        # fcStwUser is the 121th field in  fibRgFcLcb97 (index 120)
+        fib_base = word_fp.read(32)
+        nfib = i16(fib_base[2:4])
+        if nfib == 0x00C1: #    fibRgFcLcb97
+            csw = i16(word_fp.read(2))
+            fibRgW = word_fp.read(csw * 2)
+            cslw =  i16(word_fp.read(2))
+            fibRgLw = word_fp.read(cslw * 4)
+            cbRgFcLcb = i16(word_fp.read(2))
+            fibRgFcLcbBlob = word_fp.read(cbRgFcLcb * 4)
+            fcStwUser = i32(fibRgFcLcbBlob[120*4:121*4])
+            lcbStwUser = i32(fibRgFcLcbBlob[121 * 4:122 * 4])
+
+            if lcbStwUser > 0:
+                # Read StwUser from 1Table stream (WordDocument.fcStwUser points to this structure)
+                # this structure contains variable names and assigned values
+                table_fp = self.openstream(['1Table'])
+                table_fp.seek(fcStwUser)
+
+                # SttbNames (array, contain variable names)
+                ss = table_fp.read(6)
+
+                char_size = 1
+                if ss[:2] == b'\xff\xff':
+                    char_size = 2
+
+                cdata = i16(ss[2:])
+
+                cbExtra = i16(ss[4:])
+
+                # SttbNames (array, contains variable names)
+                for i in range(cdata):
+                    cchData = i16(table_fp.read(2))
+                    data_str = table_fp.read(cchData *char_size )
+                    if char_size == 2:
+                        data_str = self._decode_utf16_str(data_str)
+                    data.append({'var_name':data_str, 'value':''})
+                    extra = table_fp.read(cbExtra)
+
+                # rgxchNames (array, contains values corresponding to variable names in SttbNames)
+                for i in range(cdata):
+                    cchData = i16(table_fp.read(2))
+                    data_str = table_fp.read(cchData *char_size)
+                    if char_size == 2:
+                        data_str = self._decode_utf16_str(data_str)
+                    data[i]['value'] = data_str
+
+        return data
 
 # --------------------------------------------------------------------
 # This script can be used to dump the directory of any OLE2 structured
@@ -2265,8 +2516,13 @@ def main():
 
     usage = 'usage: %prog [options] <filename> [filename2 ...]'
     parser = optparse.OptionParser(usage=usage)
+
     parser.add_option("-c", action="store_true", dest="check_streams",
         help='check all streams (for debugging purposes)')
+    parser.add_option("-v", action="store_true", dest="extract_customvar",
+        help='extract all document variables')
+    parser.add_option("-p", action="store_true", dest="extract_customprop",
+                      help='extract all user-defined propertires')
     parser.add_option("-d", action="store_true", dest="debug_mode",
         help='debug mode, shortcut for -l debug (displays a lot of debug information, for developers only)')
     parser.add_option('-l', '--loglevel', dest="loglevel", action="store", default=DEFAULT_LOG_LEVEL,
@@ -2319,6 +2575,25 @@ def main():
                             print("   ", k, v)
                     except:
                         log.exception('Error while parsing property stream %r' % streamname)
+
+                    try:
+                        if options.extract_customprop:
+                            variables = ole.get_userdefined_properties(streamname, convert_time=True)
+                            if len(variables):
+                                print("%r: user-defined properties" % streamname)
+                                for index, variable in enumerate(variables):
+                                    print('\t{} {}: {}'.format(index, variable['property_name'],variable['value']))
+
+                    except:
+                        log.exception('Error while parsing user-defined property stream %r' % streamname)
+                elif options.extract_customvar and streamname[-1]=="WordDocument":
+                    print("%r: document variables" % streamname)
+                    variables = ole.get_document_variables()
+
+                    for index, var in enumerate(variables):
+                        print('\t{} {}: {}'.format(index, var['var_name'], var['value'][:50]))
+                    print("")
+
 
             if options.check_streams:
                 # Read all streams to check if there are errors:
