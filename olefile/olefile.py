@@ -1003,17 +1003,17 @@ class OleFileIO:
     level.  The root entry should be omitted.  For example, the following
     code extracts all image streams from a Microsoft Image Composer file::
 
-        ole = OleFileIO("fan.mic")
+        with OleFileIO("fan.mic") as ole:
 
-        for entry in ole.listdir():
-            if entry[1:2] == "Image":
-                fin = ole.openstream(entry)
-                fout = open(entry[0:1], "wb")
-                while True:
-                    s = fin.read(8192)
-                    if not s:
-                        break
-                    fout.write(s)
+            for entry in ole.listdir():
+                if entry[1:2] == "Image":
+                    fin = ole.openstream(entry)
+                    fout = open(entry[0:1], "wb")
+                    while True:
+                        s = fin.read(8192)
+                        if not s:
+                            break
+                        fout.write(s)
 
     You can use the viewer application provided with the Python Imaging
     Library to view the resulting files (which happens to be standard
@@ -1032,7 +1032,7 @@ class OleFileIO:
             - if filename is a string longer than 1535 bytes, it is parsed
               as the content of an OLE file in memory. (bytes type only)
             - if filename is a file-like object (with read, seek and tell methods),
-              it is parsed as-is.
+              it is parsed as-is. The caller is responsible for closing it when done.
 
         :param raise_defects: minimal level for defects to be raised as exceptions.
             (use DEFECT_FATAL for a typical application, DEFECT_INCORRECT for a
@@ -1174,7 +1174,7 @@ class OleFileIO:
             - if filename is a string longer than 1535 bytes, it is parsed
               as the content of an OLE file in memory. (bytes type only)
             - if filename is a file-like object (with read, seek and tell methods),
-              it is parsed as-is.
+              it is parsed as-is. The caller is responsible for closing it when done
 
         :param write_mode: bool, if True the file is opened in read/write mode instead
             of read-only by default. (ignored if filename is not a path)
