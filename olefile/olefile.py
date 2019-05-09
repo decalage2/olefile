@@ -97,12 +97,13 @@ __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
            'DEFECT_UNSURE', 'DEFECT_POTENTIAL', 'DEFECT_INCORRECT',
            'DEFECT_FATAL', 'DEFAULT_PATH_ENCODING',
            'MAXREGSECT', 'DIFSECT', 'FATSECT', 'ENDOFCHAIN', 'FREESECT',
-           'MAXREGSID', 'NOSTREAM', 'UNKNOWN_SIZE', 'WORD_CLSID'
+           'MAXREGSID', 'NOSTREAM', 'UNKNOWN_SIZE', 'WORD_CLSID',
+           'OleFileIONotClosed'
 ]
 
 import io
 import sys
-import struct, array, os.path, datetime, logging
+import struct, array, os.path, datetime, logging, warnings
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
 
@@ -537,6 +538,16 @@ class OleMetadata:
         for prop in self.DOCSUM_ATTRIBS:
             value = getattr(self, prop)
             print('- {}: {}'.format(prop, repr(value)))
+
+class OleFileIONotClosed(RuntimeWarning):
+    """
+    Warning type used when OleFileIO is destructed but has open file handle.
+    """
+    def __str__(self):
+        return 'Deleting OleFileIO instance with open file handle. ' \
+            'You should ensure that OleFileIO is never deleted ' \
+            'without calling close() first. Consider using '\
+            '"with OleFileIO(...) as ole: ...".'
 
 
 # --- OleStream ---------------------------------------------------------------
@@ -1089,12 +1100,12 @@ class OleFileIO:
                 self.open(filename, write_mode=write_mode)
             except Exception:
                 # caller has no chance of calling close() now
-                self._conditional_close()
+                self._conditional_close(warn=False)
                 raise
 
     def __del__(self):
         """Destructor, ensures all file handles are closed that we opened."""
-        self._conditional_close()
+        self._conditional_close(warn=True)
         # super(OleFileIO, self).__del__()  # there's no super-class destructor
 
 
@@ -1382,9 +1393,11 @@ class OleFileIO:
         self.fp.close()
         self._we_opened_fp = False
 
-    def _conditional_close(self):
+    def _conditional_close(self, warn=False):
         """Like close() but only closes fp if we opened it ourselves."""
         if self._we_opened_fp:
+            if not self.fp.closed and warn:
+                warnings.warn(OleFileIONotClosed())
             self.fp.close()
             self._we_opened_fp = False
 
