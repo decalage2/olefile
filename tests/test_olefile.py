@@ -90,5 +90,72 @@ class TestOlefile(unittest.TestCase):
         ole.close()
         os.remove(ole_file_copy)
 
+
+class FileHandleCloseTest(unittest.TestCase):
+    """Test file handles are closed correctly."""
+
+    def setUp(self):
+        self.non_ole_file = "tests/images/flower.jpg"
+        self.ole_file = "tests/images/test-ole-file.doc"
+
+    def leaking_test_function(self):
+        """Function that leaks an open OleFileIO."""
+        ole = olefile.OleFileIO(self.ole_file)
+
+    @unittest.skip('Cannot predict when __del__ is run, so cannot test that '
+                   'it issues a warning')
+    # requires python version 3.2 or higher
+    def test_warning(self):
+        """Test that warning is issued when ole file leaks open fp."""
+        with self.assertWarns(olefile.OleFileIONotClosed):
+            self.leaking_test_function()
+
+    @unittest.skip('Cannot test attribute fp of OleFileIO instance that '
+                   'failed to construct')
+    def test_init_fail(self):
+        """Test that file handle is closed if open() from __init__ fails."""
+        ole = None
+        try:
+            ole = olefile.OleFileIO(self.non_ole_file)
+            self.fail('Should have raised an exception')
+        except Exception as exc:
+            self.assertEqual(str(exc), 'not an OLE2 structured storage file')
+            self.assertTrue(ole.fp.closed)   # ole is still None
+
+    def test_context_manager(self):
+        """Test that file handle is closed by context manager."""
+        file_handle = None
+        with olefile.OleFileIO(self.ole_file) as ole:
+            file_handle = ole.fp
+            self.assertFalse(file_handle.closed)
+        self.assertTrue(file_handle.closed)
+
+    def test_manual(self):
+        """Test that simple manual close always closes self-created handle."""
+        ole = olefile.OleFileIO(self.ole_file)
+        self.assertFalse(ole.fp.closed)
+        _ = ole.listdir()
+        self.assertFalse(ole.fp.closed)
+        ole.close()
+        self.assertTrue(ole.fp.closed)
+
+    def test_fp_stays_open(self):
+        """Test that fp is not automatically closed if provided by caller."""
+        with open(self.ole_file, 'rb') as file_handle:
+            self.assertFalse(file_handle.closed)
+            with olefile.OleFileIO(file_handle) as ole:
+                self.assertFalse(file_handle.closed)
+                self.assertEqual(file_handle, ole.fp)
+            # check that handle is still open, although ole is now closed
+            self.assertFalse(file_handle.closed)
+
+            # do something with it
+            file_handle.seek(0)
+            self.assertTrue(olefile.isOleFile(file_handle))
+
+        # now should be closed
+        self.assertTrue(file_handle.closed)
+
+
 if __name__ == '__main__':
     unittest.main()
