@@ -103,7 +103,7 @@ __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
 
 import io
 import sys
-import struct, array, os.path, datetime, logging, warnings
+import struct, array, os.path, datetime, logging, warnings, traceback
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
 
@@ -266,7 +266,6 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
 # Minimal size of an empty OLE file, with 512-bytes sectors = 1536 bytes
 # (this is used in isOleFile and OleFileIO.open)
 MINIMAL_OLEFILE_SIZE = 1536
-
 
 #=== FUNCTIONS ===============================================================
 
@@ -543,11 +542,20 @@ class OleFileIONotClosed(RuntimeWarning):
     """
     Warning type used when OleFileIO is destructed but has open file handle.
     """
+    def __init__(self, stack_of_open=None):
+        super(OleFileIONotClosed, self).__init__()
+        self.stack_of_open = stack_of_open
+
     def __str__(self):
-        return 'Deleting OleFileIO instance with open file handle. ' \
-            'You should ensure that OleFileIO is never deleted ' \
-            'without calling close() first. Consider using '\
-            '"with OleFileIO(...) as ole: ...".'
+        msg = 'Deleting OleFileIO instance with open file handle. ' \
+              'You should ensure that OleFileIO is never deleted ' \
+              'without calling close() first. Consider using '\
+              '"with OleFileIO(...) as ole: ...".'
+        if self.stack_of_open:
+            return ''.join([msg, '\n', 'Stacktrace of open() call:\n'] +
+                           self.stack_of_open.format())
+        else:
+            return msg
 
 
 # --- OleStream ---------------------------------------------------------------
@@ -1094,6 +1102,7 @@ class OleFileIO:
         self.sector_size = None
         self.transaction_signature_number = None
         self._we_opened_fp = False
+        self._open_stack = None
         if filename:
             # try opening, ensure fp is closed if that fails
             try:
@@ -1202,6 +1211,7 @@ class OleFileIO:
                 mode = 'rb'
             self.fp = open(filename, mode)
             self._we_opened_fp = True
+            self._open_stack = traceback.extract_stack()   # remember for warning
         # obtain the filesize by using seek and tell, which should work on most
         # file-like objects:
         # TODO: do it above, using getsize with filename when possible?
@@ -1398,7 +1408,7 @@ class OleFileIO:
         """Implementation of close() with internal arg `warn`."""
         if self._we_opened_fp:
             if warn:
-                warnings.warn(OleFileIONotClosed())
+                warnings.warn(OleFileIONotClosed(self._open_stack))
             self.fp.close()
             self._we_opened_fp = False
 
