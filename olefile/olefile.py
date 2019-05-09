@@ -1100,12 +1100,12 @@ class OleFileIO:
                 self.open(filename, write_mode=write_mode)
             except Exception:
                 # caller has no chance of calling close() now
-                self._conditional_close(warn=False)
+                self._close(warn=False)
                 raise
 
     def __del__(self):
         """Destructor, ensures all file handles are closed that we opened."""
-        self._conditional_close(warn=True)
+        self._close(warn=True)
         # super(OleFileIO, self).__del__()  # there's no super-class destructor
 
 
@@ -1114,7 +1114,7 @@ class OleFileIO:
 
 
     def __exit__(self, *args):
-        self.close()
+        self._close(warn=False)
 
 
     def _raise_defect(self, defect_level, message, exception_type=OleFileError):
@@ -1388,15 +1388,16 @@ class OleFileIO:
 
     def close(self):
         """
-        close the OLE file, to release the file object
-        """
-        self.fp.close()
-        self._we_opened_fp = False
+        close the OLE file, release the file object if we created it ourselves.
 
-    def _conditional_close(self, warn=False):
-        """Like close() but only closes fp if we opened it ourselves."""
+        Leaves the file handle open if it was provided by the caller.
+        """
+        self._close(warn=False)
+
+    def _close(self, warn=False):
+        """Implementation of close() with internal arg `warn`."""
         if self._we_opened_fp:
-            if not self.fp.closed and warn:
+            if warn:
                 warnings.warn(OleFileIONotClosed())
             self.fp.close()
             self._we_opened_fp = False
