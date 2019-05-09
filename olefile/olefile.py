@@ -1082,8 +1082,20 @@ class OleFileIO:
         self.sector_shift = None
         self.sector_size = None
         self.transaction_signature_number = None
+        self._we_opened_fp = False
         if filename:
-            self.open(filename, write_mode=write_mode)
+            # try opening, ensure fp is closed if that fails
+            try:
+                self.open(filename, write_mode=write_mode)
+            except Exception:
+                # caller has no chance of calling close() now
+                self._conditional_close()
+                raise
+
+    def __del__(self):
+        """Destructor, ensures all file handles are closed that we opened."""
+        self._conditional_close()
+        # super(OleFileIO, self).__del__()  # there's no super-class destructor
 
 
     def __enter__(self):
@@ -1178,6 +1190,7 @@ class OleFileIO:
                 # read-only mode by default
                 mode = 'rb'
             self.fp = open(filename, mode)
+            self._we_opened_fp = True
         # obtain the filesize by using seek and tell, which should work on most
         # file-like objects:
         # TODO: do it above, using getsize with filename when possible?
@@ -1367,6 +1380,13 @@ class OleFileIO:
         close the OLE file, to release the file object
         """
         self.fp.close()
+        self._we_opened_fp = False
+
+    def _conditional_close(self):
+        """Like close() but only closes fp if we opened it ourselves."""
+        if self._we_opened_fp:
+            self.fp.close()
+            self._we_opened_fp = False
 
     def _check_duplicate_stream(self, first_sect, minifat=False):
         """
