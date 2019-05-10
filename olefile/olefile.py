@@ -97,12 +97,13 @@ __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
            'DEFECT_UNSURE', 'DEFECT_POTENTIAL', 'DEFECT_INCORRECT',
            'DEFECT_FATAL', 'DEFAULT_PATH_ENCODING',
            'MAXREGSECT', 'DIFSECT', 'FATSECT', 'ENDOFCHAIN', 'FREESECT',
-           'MAXREGSID', 'NOSTREAM', 'UNKNOWN_SIZE', 'WORD_CLSID'
+           'MAXREGSID', 'NOSTREAM', 'UNKNOWN_SIZE', 'WORD_CLSID',
+           'OleFileIONotClosed'
 ]
 
 import io
 import sys
-import struct, array, os.path, datetime, logging
+import struct, array, os.path, datetime, logging, warnings, traceback
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
 
@@ -265,7 +266,6 @@ DEFECT_FATAL =     40    # an error which cannot be ignored, parsing is
 # Minimal size of an empty OLE file, with 512-bytes sectors = 1536 bytes
 # (this is used in isOleFile and OleFileIO.open)
 MINIMAL_OLEFILE_SIZE = 1536
-
 
 #=== FUNCTIONS ===============================================================
 
@@ -537,6 +537,25 @@ class OleMetadata:
         for prop in self.DOCSUM_ATTRIBS:
             value = getattr(self, prop)
             print('- {}: {}'.format(prop, repr(value)))
+
+class OleFileIONotClosed(RuntimeWarning):
+    """
+    Warning type used when OleFileIO is destructed but has open file handle.
+    """
+    def __init__(self, stack_of_open=None):
+        super(OleFileIONotClosed, self).__init__()
+        self.stack_of_open = stack_of_open
+
+    def __str__(self):
+        msg = 'Deleting OleFileIO instance with open file handle. ' \
+              'You should ensure that OleFileIO is never deleted ' \
+              'without calling close() first. Consider using '\
+              '"with OleFileIO(...) as ole: ...".'
+        if self.stack_of_open:
+            return ''.join([msg, '\n', 'Stacktrace of open() call:\n'] +
+                           self.stack_of_open.format())
+        else:
+            return msg
 
 
 # --- OleStream ---------------------------------------------------------------
@@ -990,17 +1009,17 @@ class OleFileIO:
     level.  The root entry should be omitted.  For example, the following
     code extracts all image streams from a Microsoft Image Composer file::
 
-        ole = OleFileIO("fan.mic")
+        with OleFileIO("fan.mic") as ole:
 
-        for entry in ole.listdir():
-            if entry[1:2] == "Image":
-                fin = ole.openstream(entry)
-                fout = open(entry[0:1], "wb")
-                while True:
-                    s = fin.read(8192)
-                    if not s:
-                        break
-                    fout.write(s)
+            for entry in ole.listdir():
+                if entry[1:2] == "Image":
+                    fin = ole.openstream(entry)
+                    fout = open(entry[0:1], "wb")
+                    while True:
+                        s = fin.read(8192)
+                        if not s:
+                            break
+                        fout.write(s)
 
     You can use the viewer application provided with the Python Imaging
     Library to view the resulting files (which happens to be standard
@@ -1019,7 +1038,7 @@ class OleFileIO:
             - if filename is a string longer than 1535 bytes, it is parsed
               as the content of an OLE file in memory. (bytes type only)
             - if filename is a file-like object (with read, seek and tell methods),
-              it is parsed as-is.
+              it is parsed as-is. The caller is responsible for closing it when done.
 
         :param raise_defects: minimal level for defects to be raised as exceptions.
             (use DEFECT_FATAL for a typical application, DEFECT_INCORRECT for a
@@ -1080,8 +1099,21 @@ class OleFileIO:
         self.sector_shift = None
         self.sector_size = None
         self.transaction_signature_number = None
+        self._we_opened_fp = False
+        self._open_stack = None
         if filename:
-            self.open(filename, write_mode=write_mode)
+            # try opening, ensure fp is closed if that fails
+            try:
+                self.open(filename, write_mode=write_mode)
+            except Exception:
+                # caller has no chance of calling close() now
+                self._close(warn=False)
+                raise
+
+    def __del__(self):
+        """Destructor, ensures all file handles are closed that we opened."""
+        self._close(warn=True)
+        # super(OleFileIO, self).__del__()  # there's no super-class destructor
 
 
     def __enter__(self):
@@ -1089,7 +1121,7 @@ class OleFileIO:
 
 
     def __exit__(self, *args):
-        self.close()
+        self._close(warn=False)
 
 
     def _raise_defect(self, defect_level, message, exception_type=OleFileError):
@@ -1150,7 +1182,7 @@ class OleFileIO:
             - if filename is a string longer than 1535 bytes, it is parsed
               as the content of an OLE file in memory. (bytes type only)
             - if filename is a file-like object (with read, seek and tell methods),
-              it is parsed as-is.
+              it is parsed as-is. The caller is responsible for closing it when done
 
         :param write_mode: bool, if True the file is opened in read/write mode instead
             of read-only by default. (ignored if filename is not a path)
@@ -1177,6 +1209,8 @@ class OleFileIO:
                 # read-only mode by default
                 mode = 'rb'
             self.fp = open(filename, mode)
+            self._we_opened_fp = True
+            self._open_stack = traceback.extract_stack()   # remember for warning
         # obtain the filesize by using seek and tell, which should work on most
         # file-like objects:
         # TODO: do it above, using getsize with filename when possible?
@@ -1363,9 +1397,19 @@ class OleFileIO:
 
     def close(self):
         """
-        close the OLE file, to release the file object
+        close the OLE file, release the file object if we created it ourselves.
+
+        Leaves the file handle open if it was provided by the caller.
         """
-        self.fp.close()
+        self._close(warn=False)
+
+    def _close(self, warn=False):
+        """Implementation of close() with internal arg `warn`."""
+        if self._we_opened_fp:
+            if warn:
+                warnings.warn(OleFileIONotClosed(self._open_stack))
+            self.fp.close()
+            self._we_opened_fp = False
 
     def _check_duplicate_stream(self, first_sect, minifat=False):
         """
