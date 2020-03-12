@@ -13,5 +13,4 @@
 
 import subprocess
 
-subprocess.check_call(['python', 'setup.py', 'sdist', '--formats=gztar,zip'])
-
+subprocess.check_call(['python', 'setup.py', 'sdist', '--formats=zip', 'bdist_wheel'])
