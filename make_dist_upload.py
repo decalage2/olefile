@@ -12,5 +12,5 @@
 
 import subprocess
 
-subprocess.check_call(['python', 'setup.py', 'sdist', '--formats=gztar,zip', 'upload'])
-
+subprocess.check_call(['python', 'setup.py', 'sdist', '--formats=gztar,zip'])
+subprocess.check_call(['twine', 'upload', 'dist/*'])
