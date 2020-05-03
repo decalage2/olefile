@@ -1202,7 +1202,7 @@ class OleFileIO:
             # string-like object: filename of file on disk
             if self.write_mode:
                 # open file in mode 'read with update, binary'
-                # According to https://docs.python.org/2/library/functions.html#open
+                # According to https://docs.python.org/library/functions.html#open
                 # 'w' would truncate the file, 'a' may only append on some Unixes
                 mode = 'r+b'
             else:
