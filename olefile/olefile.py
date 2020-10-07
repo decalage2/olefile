@@ -8,7 +8,7 @@ This version is compatible with Python 2.7 and 3.5+
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2019 Philippe Lagadec
+olefile is copyright (c) 2005-2020 Philippe Lagadec
 (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.7
@@ -31,7 +31,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2019 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2020 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # All rights reserved.
@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2019-05-08"
-__version__ = '0.47.dev3'
+__date__    = "2020-10-07"
+__version__ = '0.47.dev4'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -243,10 +243,10 @@ VT_STORED_OBJECT=69; VT_BLOB_OBJECT=70; VT_CF=71; VT_CLSID=72;
 VT_VECTOR=0x1000;
 
 # map property id to name (for debugging purposes)
-# VT = {}
-# for keyword, var in list(vars().items()):
-#     if keyword[:3] == "VT_":
-#         VT[var] = keyword
+VT = {}
+for keyword, var in list(vars().items()):
+    if keyword[:3] == "VT_":
+        VT[var] = keyword
 
 #
 # --------------------------------------------------------------------
@@ -2177,7 +2177,8 @@ class OleFileIO:
                 offset = i32(s, 12+i*8)
                 property_type = i32(s, offset)
 
-                log.debug('property id=%d: type=%d offset=%X' % (property_id, property_type, offset))
+                vt_name = VT.get(property_type, 'UNKNOWN')
+                log.debug('property id=%d: type=%d/%s offset=%X' % (property_id, property_type, vt_name, offset))
 
                 value = self._parse_property(s, offset+4, property_id, property_type, convert_time, no_conversion)
                 data[property_id] = value
@@ -2195,6 +2196,7 @@ class OleFileIO:
         if property_type <= VT_BLOB or property_type in (VT_CLSID, VT_CF):
             v, _ = self._parse_property_basic(s, offset, property_id, property_type, convert_time, no_conversion)
         elif property_type == VT_VECTOR | VT_VARIANT:
+            log.debug('property_type == VT_VECTOR | VT_VARIANT')
             off = 4
             count = i32(s, offset)
             values = []
@@ -2206,6 +2208,8 @@ class OleFileIO:
             v = values
 
         elif property_type & VT_VECTOR:
+            property_type_base = property_type & ~VT_VECTOR
+            log.debug('property_type == VT_VECTOR | %s' % VT.get(property_type_base, 'UNKNOWN'))
             off = 4
             count = i32(s, offset)
             values = []
@@ -2402,7 +2406,8 @@ class OleFileIO:
                             offset = i32(s, 12 + i * 8)
                             property_type = i32(s, offset)
 
-                            log.debug('property id=%d: type=%d offset=%X' % (property_id, property_type, offset))
+                            vt_name = VT.get(property_type, 'UNKNOWN')
+                            log.debug('property id=%d: type=%d/%s offset=%X' % (property_id, property_type, vt_name, offset))
 
                             # test for common types first (should perhaps use
                             # a dictionary instead?)
