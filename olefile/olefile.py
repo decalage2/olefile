@@ -8,7 +8,7 @@ This version is compatible with Python 2.7 and 3.5+
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2019 Philippe Lagadec
+olefile is copyright (c) 2005-2020 Philippe Lagadec
 (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.7
@@ -31,7 +31,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2019 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2020 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # All rights reserved.
@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2019-05-08"
-__version__ = '0.47.dev3'
+__date__    = "2020-10-07"
+__version__ = '0.47.dev4'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -243,10 +243,10 @@ VT_STORED_OBJECT=69; VT_BLOB_OBJECT=70; VT_CF=71; VT_CLSID=72;
 VT_VECTOR=0x1000;
 
 # map property id to name (for debugging purposes)
-# VT = {}
-# for keyword, var in list(vars().items()):
-#     if keyword[:3] == "VT_":
-#         VT[var] = keyword
+VT = {}
+for keyword, var in list(vars().items()):
+    if keyword[:3] == "VT_":
+        VT[var] = keyword
 
 #
 # --------------------------------------------------------------------
@@ -2177,91 +2177,10 @@ class OleFileIO:
                 offset = i32(s, 12+i*8)
                 property_type = i32(s, offset)
 
-                log.debug('property id=%d: type=%d offset=%X' % (property_id, property_type, offset))
+                vt_name = VT.get(property_type, 'UNKNOWN')
+                log.debug('property id=%d: type=%d/%s offset=%X' % (property_id, property_type, vt_name, offset))
 
-                # test for common types first (should perhaps use
-                # a dictionary instead?)
-
-                if property_type == VT_I2: # 16-bit signed integer
-                    value = i16(s, offset+4)
-                    if value >= 32768:
-                        value = value - 65536
-                elif property_type == VT_UI2: # 2-byte unsigned integer
-                    value = i16(s, offset+4)
-                elif property_type in (VT_I4, VT_INT, VT_ERROR):
-                    # VT_I4: 32-bit signed integer
-                    # VT_ERROR: HRESULT, similar to 32-bit signed integer,
-                    # see https://msdn.microsoft.com/en-us/library/cc230330.aspx
-                    value = i32(s, offset+4)
-                elif property_type in (VT_UI4, VT_UINT): # 4-byte unsigned integer
-                    value = i32(s, offset+4) # FIXME
-                elif property_type in (VT_BSTR, VT_LPSTR):
-                    # CodePageString, see https://msdn.microsoft.com/en-us/library/dd942354.aspx
-                    # size is a 32 bits integer, including the null terminator, and
-                    # possibly trailing or embedded null chars
-                    # TODO: if codepage is unicode, the string should be converted as such
-                    count = i32(s, offset+4)
-                    value = s[offset+8:offset+8+count-1]
-                    # remove all null chars:
-                    value = value.replace(b'\x00', b'')
-                elif property_type == VT_BLOB:
-                    # binary large object (BLOB)
-                    # see https://msdn.microsoft.com/en-us/library/dd942282.aspx
-                    count = i32(s, offset+4)
-                    value = s[offset+8:offset+8+count]
-                elif property_type == VT_LPWSTR:
-                    # UnicodeString
-                    # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
-                    # "the string should NOT contain embedded or additional trailing
-                    # null characters."
-                    count = i32(s, offset+4)
-                    value = self._decode_utf16_str(s[offset+8:offset+8+count*2])
-                elif property_type == VT_FILETIME:
-                    value = long(i32(s, offset+4)) + (long(i32(s, offset+8))<<32)
-                    # FILETIME is a 64-bit int: "number of 100ns periods
-                    # since Jan 1,1601".
-                    if convert_time and property_id not in no_conversion:
-                        log.debug('Converting property #%d to python datetime, value=%d=%fs'
-                                %(property_id, value, float(value)/10000000))
-                        # convert FILETIME to Python datetime.datetime
-                        # inspired from https://code.activestate.com/recipes/511425-filetime-to-datetime/
-                        _FILETIME_null_date = datetime.datetime(1601, 1, 1, 0, 0, 0)
-                        log.debug('timedelta days=%d' % (value//(10*1000000*3600*24)))
-                        value = _FILETIME_null_date + datetime.timedelta(microseconds=value//10)
-                    else:
-                        # legacy code kept for backward compatibility: returns a
-                        # number of seconds since Jan 1,1601
-                        value = value // 10000000 # seconds
-                elif property_type == VT_UI1: # 1-byte unsigned integer
-                    value = i8(s[offset+4])
-                elif property_type == VT_CLSID:
-                    value = _clsid(s[offset+4:offset+20])
-                elif property_type == VT_CF:
-                    # PropertyIdentifier or ClipboardData??
-                    # see https://msdn.microsoft.com/en-us/library/dd941945.aspx
-                    count = i32(s, offset+4)
-                    value = s[offset+8:offset+8+count]
-                elif property_type == VT_BOOL:
-                    # VARIANT_BOOL, 16 bits bool, 0x0000=Fals, 0xFFFF=True
-                    # see https://msdn.microsoft.com/en-us/library/cc237864.aspx
-                    value = bool(i16(s, offset+4))
-                else:
-                    value = None # everything else yields "None"
-                    log.debug('property id=%d: type=%d not implemented in parser yet' % (property_id, property_type))
-
-                # missing: VT_EMPTY, VT_NULL, VT_R4, VT_R8, VT_CY, VT_DATE,
-                # VT_DECIMAL, VT_I1, VT_I8, VT_UI8,
-                # see https://msdn.microsoft.com/en-us/library/dd942033.aspx
-
-                # FIXME: add support for VT_VECTOR
-                # VT_VECTOR is a 32 uint giving the number of items, followed by
-                # the items in sequence. The VT_VECTOR value is combined with the
-                # type of items, e.g. VT_VECTOR|VT_BSTR
-                # see https://msdn.microsoft.com/en-us/library/dd942011.aspx
-
-                # print("%08x" % property_id, repr(value), end=" ")
-                # print("(%s)" % VT[i32(s, offset) & 0xFFF])
-
+                value = self._parse_property(s, offset+4, property_id, property_type, convert_time, no_conversion)
                 data[property_id] = value
             except BaseException as exc:
                 # catch exception while parsing each property, and only raise
@@ -2271,6 +2190,131 @@ class OleFileIO:
                 self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
 
         return data
+
+    def _parse_property(self, s, offset, property_id, property_type, convert_time, no_conversion):
+        v = None
+        if property_type <= VT_BLOB or property_type in (VT_CLSID, VT_CF):
+            v, _ = self._parse_property_basic(s, offset, property_id, property_type, convert_time, no_conversion)
+        elif property_type == VT_VECTOR | VT_VARIANT:
+            log.debug('property_type == VT_VECTOR | VT_VARIANT')
+            off = 4
+            count = i32(s, offset)
+            values = []
+            for _ in range(count):
+                property_type = i32(s, offset + off)
+                v, sz  = self._parse_property_basic(s, offset + off + 4, property_id, property_type, convert_time, no_conversion)
+                values.append(v)
+                off += sz + 4
+            v = values
+
+        elif property_type & VT_VECTOR:
+            property_type_base = property_type & ~VT_VECTOR
+            log.debug('property_type == VT_VECTOR | %s' % VT.get(property_type_base, 'UNKNOWN'))
+            off = 4
+            count = i32(s, offset)
+            values = []
+            for _ in range(count):
+                v, sz = self._parse_property_basic(s, offset + off, property_id, property_type & ~VT_VECTOR, convert_time, no_conversion)
+                values.append(v)
+                off += sz
+            v = values
+        else:
+            log.debug('property id=%d: type=%d not implemented in parser yet' % (property_id, property_type))
+        return v
+
+    def _parse_property_basic(self, s, offset, property_id, property_type, convert_time, no_conversion):
+            value = None
+            size = 0
+            # test for common types first (should perhaps use
+            # a dictionary instead?)
+
+            if property_type == VT_I2: # 16-bit signed integer
+                value = i16(s, offset)
+                if value >= 32768:
+                    value = value - 65536
+                size = 2
+            elif property_type == VT_UI2: # 2-byte unsigned integer
+                value = i16(s, offset)
+                size = 2
+            elif property_type in (VT_I4, VT_INT, VT_ERROR):
+                # VT_I4: 32-bit signed integer
+                # VT_ERROR: HRESULT, similar to 32-bit signed integer,
+                # see https://msdn.microsoft.com/en-us/library/cc230330.aspx
+                value = i32(s, offset)
+                size = 4
+            elif property_type in (VT_UI4, VT_UINT): # 4-byte unsigned integer
+                value = i32(s, offset) # FIXME
+                size = 4
+            elif property_type in (VT_BSTR, VT_LPSTR):
+                # CodePageString, see https://msdn.microsoft.com/en-us/library/dd942354.aspx
+                # size is a 32 bits integer, including the null terminator, and
+                # possibly trailing or embedded null chars
+                #TODO: if codepage is unicode, the string should be converted as such
+                count = i32(s, offset)
+                value = s[offset+4:offset+4+count-1]
+                # remove all null chars:
+                value = value.replace(b'\x00', b'')
+                size = 4 + count
+            elif property_type == VT_BLOB:
+                # binary large object (BLOB)
+                # see https://msdn.microsoft.com/en-us/library/dd942282.aspx
+                count = i32(s, offset)
+                value = s[offset+4:offset+4+count]
+                size = 4 + count
+            elif property_type == VT_LPWSTR:
+                # UnicodeString
+                # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
+                # "the string should NOT contain embedded or additional trailing
+                # null characters."
+                count = i32(s, offset+4)
+                value = self._decode_utf16_str(s[offset+4:offset+4+count*2])
+                size = 4 + count * 2
+            elif property_type == VT_FILETIME:
+                value = long(i32(s, offset)) + (long(i32(s, offset+4))<<32)
+                # FILETIME is a 64-bit int: "number of 100ns periods
+                # since Jan 1,1601".
+                if convert_time and property_id not in no_conversion:
+                    log.debug('Converting property #%d to python datetime, value=%d=%fs'
+                            %(property_id, value, float(value)/10000000))
+                    # convert FILETIME to Python datetime.datetime
+                    # inspired from https://code.activestate.com/recipes/511425-filetime-to-datetime/
+                    _FILETIME_null_date = datetime.datetime(1601, 1, 1, 0, 0, 0)
+                    log.debug('timedelta days=%d' % (value//(10*1000000*3600*24)))
+                    value = _FILETIME_null_date + datetime.timedelta(microseconds=value//10)
+                else:
+                    # legacy code kept for backward compatibility: returns a
+                    # number of seconds since Jan 1,1601
+                    value = value // 10000000 # seconds
+                size = 8
+            elif property_type == VT_UI1: # 1-byte unsigned integer
+                value = i8(s[offset])
+                size = 1
+            elif property_type == VT_CLSID:
+                value = _clsid(s[offset:offset+16])
+                size = 16
+            elif property_type == VT_CF:
+                # PropertyIdentifier or ClipboardData??
+                # see https://msdn.microsoft.com/en-us/library/dd941945.aspx
+                count = i32(s, offset)
+                value = s[offset+4:offset+4+count]
+                size = 4 + count
+            elif property_type == VT_BOOL:
+                # VARIANT_BOOL, 16 bits bool, 0x0000=Fals, 0xFFFF=True
+                # see https://msdn.microsoft.com/en-us/library/cc237864.aspx
+                value = bool(i16(s, offset))
+                size = 2
+            else:
+                value = None # everything else yields "None"
+                log.debug('property id=%d: type=%d not implemented in parser yet' % (property_id, property_type))
+
+                # missing: VT_EMPTY, VT_NULL, VT_R4, VT_R8, VT_CY, VT_DATE,
+                # VT_DECIMAL, VT_I1, VT_I8, VT_UI8,
+                # see https://msdn.microsoft.com/en-us/library/dd942033.aspx
+
+                #print("%08x" % property_id, repr(value), end=" ")
+                #print("(%s)" % VT[i32(s, offset) & 0xFFF])
+            return value, size
+
 
     def get_metadata(self):
         """
@@ -2362,7 +2406,8 @@ class OleFileIO:
                             offset = i32(s, 12 + i * 8)
                             property_type = i32(s, offset)
 
-                            log.debug('property id=%d: type=%d offset=%X' % (property_id, property_type, offset))
+                            vt_name = VT.get(property_type, 'UNKNOWN')
+                            log.debug('property id=%d: type=%d/%s offset=%X' % (property_id, property_type, vt_name, offset))
 
                             # test for common types first (should perhaps use
                             # a dictionary instead?)
@@ -2688,6 +2733,7 @@ def main():
                     print('- {}: {}'.format(exctype.__name__, msg))
             else:
                 print('None')
+            ole.close()
         except Exception:
             log.exception('Error while parsing file %r' % filename)
 
