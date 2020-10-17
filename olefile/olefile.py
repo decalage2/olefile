@@ -618,12 +618,16 @@ class OleStream(io.BytesIO):
         log.debug('nb_sectors = %d' % nb_sectors)
         # This number should (at least) be less than the total number of
         # sectors in the given FAT:
+        data = []
         if nb_sectors > len(fat):
             self.ole._raise_defect(DEFECT_INCORRECT, 'malformed OLE document, stream too large')
+            data = b"".join(data)
+            io.BytesIO.__init__(self, data)
+            return
         # optimization(?): data is first a list of strings, and join() is called
         # at the end to concatenate all in one string.
         # (this may not be really useful with recent Python versions)
-        data = []
+
         # if size is zero, then first sector index should be ENDOFCHAIN:
         if size == 0 and sect != ENDOFCHAIN:
             log.debug('size == 0 and sect != ENDOFCHAIN:')
