@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 
-# import setup
-# import sys
+# create a source distribution in zip format, and a universal wheel distribution (python 2+3)
+# pip will install the universal wheel by default
+# upload: twine upload dist/*.whl dist/*.zip
 
-# argv0 = sys.argv[0]
-#
-# # create a source distrib in zip and tar.gz formats
-# sys.argv = [argv0, 'sdist', '--formats=gztar,zip']
-# setup.main()
-#
-# raw_input('Press [Enter]')
+# references:
+# https://stackoverflow.com/questions/30438216/how-do-i-upload-a-universal-python-wheel-for-python-2-and-3
+# https://packaging.python.org/guides/distributing-packages-using-setuptools/#universal-wheels
 
 import subprocess
 
-subprocess.check_call(['python', 'setup.py', 'sdist', '--formats=zip', 'bdist_wheel'])
+subprocess.check_call(['python', 'setup.py', 'sdist', '--formats=zip', 'bdist_wheel', '--universal'])
