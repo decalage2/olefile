@@ -2,7 +2,7 @@
 License for olefile
 ===================
 
-olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2018 Philippe
+olefile (formerly OleFileIO\_PL) is copyright (c) 2005-2020 Philippe
 Lagadec (http://www.decalage.info)
 
 All rights reserved.
