@@ -45,7 +45,7 @@ Main improvements over the original version of OleFileIO in PIL:
 Detailed History
 ----------------
 
-- **2020-10-07 v0.47 (in development)**:
+- **2020-11-03 v0.47 (in development)**:
     - added VT_VECTOR support for properties (PR #135 by @mak)
     - added get_userdefined_properties to parse user-defined properties (PR #114 by @DissectMalware)
     - olefile is now distributed as a universal wheel package in PyPI (PR #130, issue #140)
