@@ -48,6 +48,7 @@ Detailed History
 - **2020-10-07 v0.47 (in development)**:
     - added VT_VECTOR support for properties (PR #135 by @mak)
     - added get_userdefined_properties to parse user-defined properties (PR #114 by @DissectMalware)
+    - olefile is now distributed as a universal wheel package in PyPI (PR #130, issue #140)
 -  **2018-09-09 v0.46**: OleFileIO can now be used as a context manager
    (with...as), to close the file automatically (see
    `doc <https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk>`__).
