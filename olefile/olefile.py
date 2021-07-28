@@ -1541,7 +1541,7 @@ class OleFileIO:
             # parse it as an array of 32 bits integers, and add it to the
             # global FAT array
             nextfat = self.sect2array(s)
-            self.fat = self.fat + nextfat
+            self.fat.extend(nextfat)
         return isect
 
     def loadfat(self, header):
