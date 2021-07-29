@@ -732,10 +732,10 @@ class OleDirectoryEntry:
     #    of stream containing ministreams if root entry, 0 otherwise
     # I: uint32, total stream size in bytes if stream (low 32 bits), 0 otherwise
     # I: uint32, total stream size in bytes if stream (high 32 bits), 0 otherwise
-    STRUCT_DIRENTRY = '<64sHBBIII16sIQQIII'
+    STRUCT_DIRENTRY = struct.Struct('<64sHBBIII16sIQQIII')
     # size of a directory entry: 128 bytes
     DIRENTRY_SIZE = 128
-    assert struct.calcsize(STRUCT_DIRENTRY) == DIRENTRY_SIZE
+    assert STRUCT_DIRENTRY.size == DIRENTRY_SIZE
 
     def __init__(self, entry, sid, ole_file):
         """
@@ -776,7 +776,7 @@ class OleDirectoryEntry:
             self.isectStart,
             self.sizeLow,
             self.sizeHigh
-        ) = struct.unpack(OleDirectoryEntry.STRUCT_DIRENTRY, entry)
+        ) = self.STRUCT_DIRENTRY.unpack(entry)
         if self.entry_type not in [STGTY_ROOT, STGTY_STORAGE, STGTY_STREAM, STGTY_EMPTY]:
             ole_file._raise_defect(DEFECT_INCORRECT, 'unhandled OLE storage type')
         # only first directory entry can (and should) be root:
@@ -1029,6 +1029,8 @@ class OleFileIO:
     TIFF files).
     """
 
+    STRUCT_HEADER = struct.Struct('<8s16sHHHHHHLLLLLLLLLL')
+
     def __init__(self, filename=None, raise_defects=DEFECT_FATAL,
                  write_mode=False, debug=False, path_encoding=DEFAULT_PATH_ENCODING):
         """
@@ -1275,10 +1277,9 @@ class OleFileIO:
 
         # [PL] header decoding:
         # '<' indicates little-endian byte ordering for Intel (cf. struct module help)
-        fmt_header = '<8s16sHHHHHHLLLLLLLLLL'
-        header_size = struct.calcsize(fmt_header)
+        header_size = self.STRUCT_HEADER.size
         log.debug( "fmt_header size = %d, +FAT = %d", header_size, header_size + 109*4)
-        header1 = header[:header_size]
+        _header_tpl = self.STRUCT_HEADER.unpack_from(header)
         (
             self.header_signature,
             self.header_clsid,
@@ -1298,8 +1299,8 @@ class OleFileIO:
             self.num_mini_fat_sectors,
             self.first_difat_sector,
             self.num_difat_sectors
-        ) = struct.unpack(fmt_header, header1)
-        log.debug( struct.unpack(fmt_header,    header1))
+        ) = _header_tpl
+        log.debug(_header_tpl)
 
         if self.header_signature != MAGIC:
             # OLE signature should always be present
