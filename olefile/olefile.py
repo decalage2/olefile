@@ -1069,8 +1069,8 @@ class OleFileIO:
         # initialize all attributes to default values:
         self._filesize = None
         self.ministream = None
-        self._used_streams_fat = []
-        self._used_streams_minifat = []
+        self._used_streams_fat = set()
+        self._used_streams_minifat = set()
         self.byte_order = None
         self.directory_fp = None
         self.direntries = None
@@ -1231,8 +1231,8 @@ class OleFileIO:
 
         # lists of streams in FAT and MiniFAT, to detect duplicate references
         # (list of indexes of first sectors of each stream)
-        self._used_streams_fat = []
-        self._used_streams_minifat = []
+        self._used_streams_fat = set()
+        self._used_streams_minifat = set()
 
         header = self.fp.read(512)
 
@@ -1433,12 +1433,11 @@ class OleFileIO:
             if first_sect in (DIFSECT,FATSECT,ENDOFCHAIN,FREESECT):
                 return
             used_streams = self._used_streams_fat
-        # TODO: would it be more efficient using a dict or hash values, instead
-        #      of a list of long ?
+
         if first_sect in used_streams:
             self._raise_defect(DEFECT_INCORRECT, 'Stream referenced twice')
         else:
-            used_streams.append(first_sect)
+            used_streams.add(first_sect)
 
     def dumpfat(self, fat, firstindex=0):
         """
