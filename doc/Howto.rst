@@ -316,8 +316,9 @@ Overwriting a stream
 --------------------
 
 The :py:meth:`olefile.OleFileIO.write_stream` method can overwrite an existing stream in the file.
-The new stream data must be the exact same size as the existing one. Since v0.45,
-this method can write streams of any size (stored in the main FAT or the MiniFAT).
+Important: The new stream data must be the exact same size as the existing one,
+it is not possible to change the size of a stream.
+Since v0.45, this method works on any stream (stored in the main FAT or the MiniFAT).
 
 For example, you may change text in a MS Word document:
 
