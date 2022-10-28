@@ -1503,6 +1503,10 @@ class OleFileIO:
         swapping bytes on big endian CPUs such as PowerPC (old Macs)
         """
         # TODO: make this a static function
+        if len(sect) % array.array(UINT32).itemsize != 0:
+            # to convert to an array of UINT32s we need to have a bytes string
+            # with a length that is a multiple of the itemsize.
+            self._raise_defect(DEFECT_FATAL, 'incorrect sector size, cannot convert to array of 32bit unsigned integers')
         a = array.array(UINT32, sect)
         # if CPU is big endian, swap bytes:
         if sys.byteorder == 'big':
