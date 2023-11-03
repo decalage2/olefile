@@ -62,7 +62,13 @@ class TestOlefile(unittest.TestCase):
         data = b" " * 100
         # In this case, we expect a FileNotFoundError exception, because isOleFile treats filename as a path
         # due to issue #142
-        with self.assertRaises(FileNotFoundError):
+        if sys.version_info[0] < 3:
+            # On Python 2.x, this case raises an IOError exception:
+            expected_exception = IOError
+        else:
+            # On Python 3.x, this case raises a FileNotFoundError exception:
+            expected_exception = FileNotFoundError
+        with self.assertRaises(expected_exception):
             is_ole = olefile.isOleFile(filename=data)
 
     def test_isOleFile_bytes_string_true(self):
