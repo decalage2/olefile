@@ -8,7 +8,7 @@ This version is compatible with Python 2.7 and 3.5+
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2020 Philippe Lagadec
+olefile is copyright (c) 2005-2023 Philippe Lagadec
 (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.7
@@ -31,7 +31,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2020 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2023 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # All rights reserved.
@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2020-10-07"
-__version__ = '0.47.dev4'
+__date__    = "2023-11-03"
+__version__ = '0.47.dev5'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -269,31 +269,50 @@ MINIMAL_OLEFILE_SIZE = 1536
 
 #=== FUNCTIONS ===============================================================
 
-def isOleFile (filename):
+def isOleFile (filename=None, data=None):
     """
     Test if a file is an OLE container (according to the magic bytes in its header).
 
     .. note::
         This function only checks the first 8 bytes of the file, not the
         rest of the OLE structure.
+        If data is provided, it also checks if the file size is above
+        the minimal size of an OLE file (1536 bytes).
+        If filename is provided with the path of the file on disk, the file is
+        open only to read the first 8 bytes, then closed.
 
     .. versionadded:: 0.16
 
     :param filename: filename, contents or file-like object of the OLE file (string-like or file-like object)
 
-        - if filename is a string smaller than 1536 bytes, it is the path
-          of the file to open. (bytes or unicode string)
-        - if filename is a string longer than 1535 bytes, it is parsed
+        - if data is provided, filename is ignored.
+        - if filename is a unicode string, it is used as path of the file to open on disk.
+        - if filename is a bytes string smaller than 1536 bytes, it is used as path
+          of the file to open on disk.
+        - [deprecated] if filename is a bytes string longer than 1535 bytes, it is parsed
           as the content of an OLE file in memory. (bytes type only)
+          Note that this use case is deprecated and should be replaced by the new data parameter
         - if filename is a file-like object (with read and seek methods),
           it is parsed as-is.
+    :type filename: bytes, str, unicode or file-like object
 
-    :type filename: bytes or str or unicode or file
+    :param data: bytes string with the contents of the file to be checked, when the file is in memory
+                 (added in olefile 0.47)
+    :type data: bytes
+
     :returns: True if OLE, False otherwise.
     :rtype: bool
     """
+    header = None
+    # first check if data is provided and large enough
+    if data is not None:
+        if len(data) >= MINIMAL_OLEFILE_SIZE:
+            header = data[:len(MAGIC)]
+        else:
+            # the file is too small, cannot be OLE
+            return False
     # check if filename is a string-like or file-like object:
-    if hasattr(filename, 'read'):
+    elif hasattr(filename, 'read') and hasattr(filename, 'seek'):
         # file-like object: use it directly
         header = filename.read(len(MAGIC))
         # just in case, seek back to start of file:

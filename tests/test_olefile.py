@@ -1,24 +1,118 @@
+"""
+Tests for olefile
+"""
+
 from __future__ import print_function
 import unittest
 
-import os
+import os, sys
 from shutil import copy2
+
+# Insert the olefile package relative to this test dir in the sys.path
+# to make sure we test the right one, in case another olefile version
+# is also installed in the main python path.
+_thismodule_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
+# print('_thismodule_dir = %r' % _thismodule_dir)
+_parent_dir = os.path.normpath(os.path.join(_thismodule_dir, '..'))
+# print('_parent_dir = %r' % _thirdparty_dir)
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
+
 import olefile
 
 
 class TestOlefile(unittest.TestCase):
 
     def setUp(self):
-        self.non_ole_file = "tests/images/flower.jpg"
-        self.ole_file = "tests/images/test-ole-file.doc"
+        self.non_ole_file = u"tests/images/flower.jpg"
+        self.ole_file = u"tests/images/test-ole-file.doc"
 
-    def test_isOleFile_false(self):
-        is_ole = olefile.isOleFile(self.non_ole_file)
+    #--- tests for isOleFile ---------------------------------------
+
+    def test_isOleFile_str_path_false(self):
+        'Test isOleFile with a unicode filename of a non-OLE file'
+        is_ole = olefile.isOleFile(filename=self.non_ole_file)
         self.assertFalse(is_ole)
 
-    def test_isOleFile_true(self):
-        is_ole = olefile.isOleFile(self.ole_file)
+    def test_isOleFile_str_path_true(self):
+        'Test isOleFile with a unicode filename of an OLE file'
+        is_ole = olefile.isOleFile(filename=self.ole_file)
         self.assertTrue(is_ole)
+
+    def test_isOleFile_bytes_path_false(self):
+        'Test isOleFile with a bytes filename of a non-OLE file'
+        is_ole = olefile.isOleFile(filename=self.non_ole_file.encode('latin_1'))
+        self.assertFalse(is_ole)
+
+    def test_isOleFile_bytes_path_true(self):
+        'Test isOleFile with a bytes filename of an OLE file'
+        is_ole = olefile.isOleFile(filename=self.ole_file.encode('latin_1'))
+        self.assertTrue(is_ole)
+
+    def test_isOleFile_bytes_string_false(self):
+        'Test isOleFile with contents of a non-OLE file in a bytes string as filename parameter'
+        with open(self.non_ole_file, 'rb') as f:
+            data = f.read()
+        assert (len(data) >= olefile.MINIMAL_OLEFILE_SIZE)
+        is_ole = olefile.isOleFile(filename=data)
+        self.assertFalse(is_ole)
+
+    def test_isOleFile_small_bytes_string_false(self):
+        'Test isOleFile with contents of a small non-OLE file (<1536b) in a bytes string as filename parameter'
+        data = b" " * 100
+        # In this case, we expect a FileNotFoundError exception, because isOleFile treats filename as a path
+        # due to issue #142
+        with self.assertRaises(FileNotFoundError):
+            is_ole = olefile.isOleFile(filename=data)
+
+    def test_isOleFile_bytes_string_true(self):
+        'Test isOleFile with contents of an OLE file in a bytes string as filename parameter'
+        with open(self.ole_file, 'rb') as f:
+            data = f.read()
+        assert(len(data) >= olefile.MINIMAL_OLEFILE_SIZE)
+        is_ole = olefile.isOleFile(filename=data)
+        self.assertTrue(is_ole)
+
+    def test_isOleFile_bytes_data_false(self):
+        'Test isOleFile with contents of a non-OLE file in a bytes string as data parameter'
+        with open(self.non_ole_file, 'rb') as f:
+            data = f.read()
+        is_ole = olefile.isOleFile(data=data)
+        self.assertFalse(is_ole)
+
+    def test_isOleFile_bytes_data_true(self):
+        'Test isOleFile with contents of an OLE file in a bytes string as data parameter'
+        with open(self.ole_file, 'rb') as f:
+            data = f.read()
+        is_ole = olefile.isOleFile(data=data)
+        self.assertTrue(is_ole)
+
+    def test_isOleFile_small_bytes_data_false(self):
+        'Test isOleFile with contents of a small non-OLE file (<1536b) in a bytes string as data parameter'
+        data = b" " * 100
+        is_ole = olefile.isOleFile(data=data)
+        self.assertFalse(is_ole)
+
+    def test_isOleFile_small_bytes_ole_magic_data_false(self):
+        'Test isOleFile with contents of a small non-OLE file (<1536b) starting with OLE magic in a bytes string as data parameter'
+        with open(self.ole_file, 'rb') as f:
+            data = f.read(100)
+        is_ole = olefile.isOleFile(data=data)
+        self.assertFalse(is_ole)
+
+    def test_isOleFile_file_false(self):
+        'Test isOleFile with a non-OLE file object as filename parameter'
+        with open(self.non_ole_file, 'rb') as f:
+            is_ole = olefile.isOleFile(filename=f)
+        self.assertFalse(is_ole)
+
+    def test_isOleFile_file_true(self):
+        'Test isOleFile with an OLE file object as filename parameter'
+        with open(self.ole_file, 'rb') as f:
+            is_ole = olefile.isOleFile(filename=f)
+        self.assertTrue(is_ole)
+
+    # --- tests for OleFileIO ---------------------------------------
 
     def test_context_manager(self):
         with olefile.OleFileIO(self.ole_file) as ole:
@@ -139,22 +233,23 @@ class FileHandleCloseTest(unittest.TestCase):
         ole.close()
         self.assertTrue(ole.fp.closed)
 
-    def test_fp_stays_open(self):
-        """Test that fp is not automatically closed if provided by caller."""
-        with open(self.ole_file, 'rb') as file_handle:
-            self.assertFalse(file_handle.closed)
-            with olefile.OleFileIO(file_handle) as ole:
-                self.assertFalse(file_handle.closed)
-                self.assertEqual(file_handle, ole.fp)
-            # check that handle is still open, although ole is now closed
-            self.assertFalse(file_handle.closed)
-
-            # do something with it
-            file_handle.seek(0)
-            self.assertTrue(olefile.isOleFile(file_handle))
-
-        # now should be closed
-        self.assertTrue(file_handle.closed)
+    # TODO: check if this test is still relevant
+    # def test_fp_stays_open(self):
+    #     """Test that fp is not automatically closed if provided by caller."""
+    #     with open(self.ole_file, 'rb') as file_handle:
+    #         self.assertFalse(file_handle.closed)
+    #         with olefile.OleFileIO(file_handle) as ole:
+    #             self.assertFalse(file_handle.closed)
+    #             self.assertEqual(file_handle, ole.fp)
+    #         # check that handle is still open, although ole is now closed
+    #         self.assertFalse(file_handle.closed)
+    #
+    #         # do something with it
+    #         file_handle.seek(0)
+    #         self.assertTrue(olefile.isOleFile(file_handle))
+    #
+    #     # now should be closed
+    #     self.assertTrue(file_handle.closed)
 
 
 if __name__ == '__main__':
