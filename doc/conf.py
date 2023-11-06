@@ -32,7 +32,9 @@ if not _olefile_dir in sys.path:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary']
+# PL 2023-11-06 added default sphinx theme for ReadTheDocs
+# ref: https://stackoverflow.com/questions/77064663/readthedocs-has-started-insisting-on-alabaster-i-want-the-default-theme-back
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.autosummary', "sphinx_rtd_theme"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -48,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'olefile'
-copyright = u'2005-2020, Philippe Lagadec'
+copyright = u'2005-2023, Philippe Lagadec'
 author = u'Philippe Lagadec'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -86,6 +88,10 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 # html_theme = 'classic'
+
+# PL 2023-11-06 added default sphinx theme for ReadTheDocs
+# ref: https://stackoverflow.com/questions/77064663/readthedocs-has-started-insisting-on-alabaster-i-want-the-default-theme-back
+html_theme = "sphinx_rtd_theme"
 
 # From https://github.com/snide/sphinx_rtd_theme#using-this-theme-locally-then-building-on-read-the-docs
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
