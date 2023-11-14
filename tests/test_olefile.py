@@ -21,13 +21,12 @@ if _parent_dir not in sys.path:
 import olefile
 
 
-class TestOlefile(unittest.TestCase):
+class Test_isOleFile(unittest.TestCase):
+    'Tests for the isOleFile function'
 
     def setUp(self):
         self.non_ole_file = u"tests/images/flower.jpg"
         self.ole_file = u"tests/images/test-ole-file.doc"
-
-    #--- tests for isOleFile ---------------------------------------
 
     def test_isOleFile_str_path_false(self):
         'Test isOleFile with a unicode filename of a non-OLE file'
@@ -118,7 +117,13 @@ class TestOlefile(unittest.TestCase):
             is_ole = olefile.isOleFile(filename=f)
         self.assertTrue(is_ole)
 
-    # --- tests for OleFileIO ---------------------------------------
+
+class TestOleFileIO(unittest.TestCase):
+    'Tests for the OleFileIO class'
+
+    def setUp(self):
+        self.non_ole_file = u"tests/images/flower.jpg"
+        self.ole_file = u"tests/images/test-ole-file.doc"
 
     def test_context_manager(self):
         with olefile.OleFileIO(self.ole_file) as ole:
