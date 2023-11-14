@@ -1118,6 +1118,7 @@ class OleFileIO:
         self.sector_shift = None
         self.sector_size = None
         self.transaction_signature_number = None
+        self.warn_if_not_closed = False
         self._we_opened_fp = False
         self._open_stack = None
         if filename:
@@ -1425,7 +1426,9 @@ class OleFileIO:
     def _close(self, warn=False):
         """Implementation of close() with internal arg `warn`."""
         if self._we_opened_fp:
-            if warn:
+            if warn and self.warn_if_not_closed:
+                # we only raise a warning if the file was not explicitly closed,
+                # and if the option warn_if_not_closed is enabled
                 warnings.warn(OleFileIONotClosed(self._open_stack))
             self.fp.close()
             self._we_opened_fp = False
