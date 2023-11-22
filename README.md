@@ -1,12 +1,10 @@
 olefile
 =======
 
-[![Build Status TravisCI](https://travis-ci.org/decalage2/olefile.svg?branch=master)](https://travis-ci.org/decalage2/olefile)
 [![Build Status AppVeyor](https://ci.appveyor.com/api/projects/status/github/decalage2/olefile?svg=true)](https://ci.appveyor.com/project/decalage2/olefile)
 [![Coverage Status](https://coveralls.io/repos/github/decalage2/olefile/badge.svg?branch=master)](https://coveralls.io/github/decalage2/olefile?branch=master)
 [![Documentation Status](http://readthedocs.org/projects/olefile/badge/?version=latest)](http://olefile.readthedocs.io/en/latest/?badge=latest)
 [![PyPI](https://img.shields.io/pypi/v/olefile.svg)](https://pypi.org/project/olefile/)
-[![Can I Use Python 3?](https://caniusepython3.com/project/olefile.svg)](https://caniusepython3.com/project/olefile)
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/decalage2)
 
 [olefile](https://www.decalage.info/olefile) is a Python package to parse, read and write
