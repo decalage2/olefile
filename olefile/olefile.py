@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2023-11-03"
-__version__ = '0.47.dev5'
+__date__    = "2023-11-28"
+__version__ = '0.47.dev6'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -1738,7 +1738,7 @@ class OleFileIO:
         if len(data) < self.sectorsize:
             # add padding
             data += padding * (self.sectorsize - len(data))
-        elif len(data) < self.sectorsize:
+        elif len(data) > self.sectorsize:
             raise ValueError("Data is larger than sector size")
         self.fp.write(data)
 

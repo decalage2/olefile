@@ -6,6 +6,7 @@ from __future__ import print_function
 import unittest
 
 import os, sys
+import io
 from shutil import copy2
 
 # Insert the olefile package relative to this test dir in the sys.path
@@ -194,6 +195,18 @@ class TestOleFileIO(unittest.TestCase):
         stream.close()
         ole.close()
         os.remove(ole_file_copy)
+
+    def test_write_sect_too_large(self):
+        'Test write_sect with data larger than a sector'
+        # read OLE file in memory to avoid writing to disk
+        with open(self.ole_file, 'rb') as f:
+            file_in_memory = io.BytesIO(f.read())
+        with olefile.OleFileIO(file_in_memory, write_mode=True) as ole:
+            size = ole.sector_size + 1
+            # Attempt to overwrite last sector (ole.nb_sect - 1) with data too large
+            # it should raise ValueError:
+            with self.assertRaises(ValueError):
+                ole.write_sect(ole.nb_sect - 1, b"x" * size)
 
 
 class FileHandleCloseTest(unittest.TestCase):
