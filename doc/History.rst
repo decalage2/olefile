@@ -45,10 +45,18 @@ Main improvements over the original version of OleFileIO in PIL:
 Detailed History
 ----------------
 
-- **2020-11-03 v0.47 (in development)**:
-    - added VT_VECTOR support for properties (PR #135 by @mak)
+See the `full changelog <https://github.com/decalage2/olefile/blob/master/CHANGELOG.md>`__ for more details.
+
+- **2023-11-30 v0.47 (in development)**:
+    - fixed issue #142: isOleFile has a new data parameter to handle files in memory properly
+    - fixed issue #156: write_sect now correctly detects when data is larger than the sector size
+    - use GitHub actions for testing and Codecov for coverage, added python 3.8 to 3.12 (PR #157 by @hugovk)
+    - added VT_VECTOR support for properties (PR #135 by Maciej Kotowicz @mak)
+    - olefile is now distributed as a universal wheel package in PyPI (PR #130 by @hugovk)
+    - olefile will not close a file handle if it was provided by the caller
+      (PR #121 by Christian Herdtweck, issue #120)
+    - added exceptions OleFileError and NotOleFileError to replace IOError (PR #110 by Ken Peterson @TheElementalOfCreation)
     - added get_userdefined_properties to parse user-defined properties (PR #114 by @DissectMalware)
-    - olefile is now distributed as a universal wheel package in PyPI (PR #130, issue #140)
 -  **2018-09-09 v0.46**: OleFileIO can now be used as a context manager
    (with...as), to close the file automatically (see
    `doc <https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk>`__).
