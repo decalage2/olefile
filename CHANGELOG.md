@@ -3,14 +3,22 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* 2023-11-30 v0.47.dev6:
+    - fixed issue #142: isOleFile has a new data parameter to handle files in memory properly
+    - fixed issue #156: write_sect now correctly detects when data is larger than the sector size
+    - removed method get_document_variables, to be integrated in oletools (Word specific feature)
+    - use GitHub actions for testing and Codecov for coverage, added python 3.8 to 3.12 (PR #157 by @hugovk)
+* 2020-10-07 v0.47.dev4:
+    - added VT_VECTOR support for properties (PR #135 by Maciej Kotowicz @mak)
+    - olefile is now distributed as a wheel package (PR #130 by @hugovk)
+    - olefile will not close a file handle if it was provided by the caller
+      (PR #121 by Christian Herdtweck, issue #120)
 * 2019-05-08 v0.47.dev3:
-    - merged PR #114 by Malwrologist @DissectMalware: added methods get_userdefined_properties and 
-    get_document_variables
+    - added methods get_userdefined_properties and get_document_variables (PR #114 by Malwrologist @DissectMalware)
 * 2019-04-28 v0.47.dev2:
-    - merged PR #110 by Ken Peterson @TheElementalOfCreation: added exceptions OleFileError and NotOleFileError
-      to replace IOError
+    - added exceptions OleFileError and NotOleFileError to replace IOError (PR #110 by Ken Peterson @TheElementalOfCreation)
 * 2019-04-20 v0.47.dev1:
-    - merged PR #118 by @hugovk: removed support for Python 3.4
+    - removed support for Python 3.4 (PR #118 by @hugovk)
 * **2018-09-09 v0.46 PL**:
     - official v0.46 release
 * 2018-09-05 v0.46dev2 PL:
@@ -22,7 +30,7 @@ olefile.py
     - merged PR #94 by @enkelli, 'float' object cannot be interpreted as an integer
     - merged PR #101 by @OskarPersson, added context manager to OleFileIO
 * 2018-01-15 v0.45dev5 PL:
-    - fixed issue #79, added missing constants to \_\_all__ 
+    - fixed issue #79, added missing constants to \_\_all__
 * 2018-01-07 v0.45dev4 PL:
     - merged PR #59 by @kijeong, olefile can now write mini streams
 * 2017-11-20 v0.45dev3 PL:
