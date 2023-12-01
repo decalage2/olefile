@@ -36,15 +36,24 @@ an OLE file, False otherwise (new in v0.16).
 
 ::
 
-    assert olefile.isOleFile('myfile.doc')
+    if olefile.isOleFile('myfile.doc'):
+        # open the file with OleFileIO
+    else:
+        sys.exit('Not an OLE file')
 
-The argument of isOleFile can be (new in v0.41):
+The first argument of isOleFile can be (new in v0.41):
 
 -  the path of the file to open on disk (bytes or unicode string smaller
    than 1536 bytes),
--  or a bytes string containing the file in memory. (bytes string longer
-   than 1535 bytes),
 -  or a file-like object (with read and seek methods).
+
+If you want to test a file in memory, use the data argument with a string
+in bytes containing the file (new in v0.47):
+
+::
+
+    if olefile.isOleFile(data=file_in_memory):
+        # open the file with OleFileIO
 
 Open an OLE file from disk
 --------------------------
@@ -243,6 +252,9 @@ Read data from a stream
 :py:meth:`olefile.OleFileIO.openstream` opens a stream as a file-like object. The provided path
 is case-insensitive.
 
+The returned object is an instance of :py:class:`olefile.OleStream`, which is based on
+:py:class:`io.BytesIO`. The stream data is stored in memory.
+
 The following example extracts the "Pictures" stream from a PPT file:
 
 ::
@@ -318,7 +330,7 @@ Overwriting a stream
 The :py:meth:`olefile.OleFileIO.write_stream` method can overwrite an existing stream in the file.
 Important: The new stream data must be the exact same size as the existing one,
 it is not possible to change the size of a stream.
-Since v0.45, this method works on any stream (stored in the main FAT or the MiniFAT).
+Since v0.45, this method works on streams of any size (stored in the main FAT or the MiniFAT).
 
 For example, you may change text in a MS Word document:
 
@@ -387,6 +399,18 @@ of indexes can be passed as no\_conversion (new in v0.25):
 ::
 
     p = ole.getproperties('specialprops', convert_time=True, no_conversion=[10])
+
+:py:meth:`olefile.OleFileIO.get_userdefined_properties` can be used to parse streams
+containing user-defined properties.
+(new in v0.47)
+
+::
+
+    variables = ole.get_userdefined_properties(streamname, convert_time=True)
+    if len(variables):
+        for index, variable in enumerate(variables):
+            print('\t{} {}: {}'.format(index, variable['property_name'],variable['value']))
+
 
 Close the OLE file
 ------------------
