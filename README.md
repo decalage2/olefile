@@ -30,7 +30,9 @@ News
 
 Follow all updates and news on Twitter: <https://twitter.com/decalage2>
 
-- **2018-09-09 v0.46**: OleFileIO can now be used as a context manager
+- **2023-12-01 v0.47**: now distributed as wheel package, added VT_VECTOR support for properties,
+  added get_userdefined_properties, fixed bugs in isOleFile and write_sect, improved file closure
+- 2018-09-09 v0.46: OleFileIO can now be used as a context manager
 (with...as), to close the file automatically
 (see [doc](https://olefile.readthedocs.io/en/latest/Howto.html#open-an-ole-file-from-disk)).
 Improved handling of malformed files, fixed several bugs.
@@ -61,7 +63,7 @@ Features
 --------
 
 - Parse, read and write any OLE file such as Microsoft Office 97-2003 legacy document formats (Word .doc, Excel .xls,
-    PowerPoint .ppt, Visio .vsd, Project .mpp), Image Composer and FlashPix files, Outlook messages, StickyNotes,
+    PowerPoint .ppt, Visio .vsd, Project .mpp), MSI files, Image Composer and FlashPix files, Outlook messages, StickyNotes,
     Zeiss AxioVision ZVI files, Olympus FluoView OIB files, etc
 - List all the streams and storages contained in an OLE file
 - Open streams as files
