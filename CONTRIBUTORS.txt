@@ -1,7 +1,7 @@
 CONTRIBUTORS for the olefile project
 ====================================
 
-This is a non-exhaustive list of all the people who helped me improve the 
+This is a non-exhaustive list of all the people who helped me improve the
 olefile project (formerly OleFileIO_PL), in approximative chronological order.
 Please contact me if I forgot to mention your name.
 
@@ -13,7 +13,7 @@ A big thank you to all of them:
 - mete0r_kr (@mete0r): added support for file-like objects
 - chuckleberryfinn: fixed bug in getproperties
 - Martijn, Ben G.: bug report for 64 bits platforms
-- Hugo (@hugovk): added support for Travis CI
+- Hugo (@hugovk): added support for Travis CI, GitHub actions, Codecov, wheel package
 - Jon Dufresne (@jdufresne): improved isOleFile
 - Alex Clark (@aclark4life)
 - Brian Crowell (@fluggo)
@@ -26,6 +26,10 @@ A big thank you to all of them:
 - Pavol Plaskoň (@enkelli)
 - Kijeong Kim (@kijeong)
 - Oskar Persson (@OskarPersson)
+- Ken Peterson (@TheElementalOfCreation): improved exceptions
+- Maciej Kotowicz (@mak): added VT_VECTOR support for properties
+- Chrisian Herdtweck (@christian-intra2net): improved the closure of OLE files
+- Malwrologist (@DissectMalware): added user-defined properties parsing
 - Philippe Lagadec: main author and maintainer since 2005
 - and of course Fredrik Lundh: original author of OleFileIO from 1995 to 2005
 
