@@ -2,8 +2,13 @@
 History
 =======
 
-olefile is based on the `OleFileIO module <http://svn.effbot.org/public/tags/pil-1.1.7/PIL/OleFileIO.py>`__
-from `PIL <http://www.pythonware.com/products/pil/index.htm>`__ v1.1.7, the
+..
+    old URLs that don't work anymore:
+    http://svn.effbot.org/public/tags/pil-1.1.7/PIL/OleFileIO.py
+    http://www.pythonware.com/products/pil/index.htm
+
+olefile is based on the `OleFileIO module <https://github.com/python-pillow/Pillow/blob/f05f8001c556a25d409b03aa50e967c11008dfba/PIL/OleFileIO.py>`__
+from `PIL <https://fr.wikipedia.org/wiki/Python_Imaging_Library>`__ v1.1.7, the
 excellent Python Imaging Library, created and maintained by Fredrik
 Lundh. The olefile API is still compatible with PIL, but since 2005 I
 have improved the internal implementation significantly, with new
@@ -18,7 +23,7 @@ implementation to read MS OLE2 files, portable on several operating
 systems. (please tell me if you know other similar Python modules)
 
 Since 2014 olefile/OleFileIO\_PL has been integrated into
-`Pillow <http://python-imaging.github.io/>`__, the friendly fork of PIL.
+`Pillow <https://python-pillow.org/>`__, the friendly fork of PIL.
 
 In January 2017, it was decided to remove olefile from Pillow 4.0.0 and
 to install it as an external dependency. This will avoid issues
