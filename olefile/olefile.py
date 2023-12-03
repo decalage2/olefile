@@ -2194,6 +2194,9 @@ class OleFileIO:
         num_props = min(num_props, int(len(s) / 8))
         for i in iterrange(num_props):
             property_id = 0 # just in case of an exception
+            if 8+i*8 > len(s):
+                break
+
             try:
                 property_id = i32(s, 8+i*8)
                 offset = i32(s, 12+i*8)
