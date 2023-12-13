@@ -104,6 +104,7 @@ __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
 import io
 import sys
 import struct, array, os.path, datetime, logging, warnings, traceback
+import uuid
 
 #=== COMPATIBILITY WORKAROUNDS ================================================
 
@@ -364,8 +365,9 @@ def _clsid(clsid):
     """
     Converts a CLSID to a human-readable string.
 
-    :param clsid: string of length 16.
+    :param clsid: bytes string of length 16.
     """
+    # TODO: replace by str(uuid.UUID(bytes_le=clsid)).upper()
     assert len(clsid) == 16
     # if clsid is only made of null bytes, return an empty string:
     # (PL: why not simply return the string with zeroes?)
@@ -375,6 +377,15 @@ def _clsid(clsid):
             ((i32(clsid, 0), i16(clsid, 4), i16(clsid, 6)) +
             tuple(map(i8, clsid[8:16]))))
 
+def _clsid_from_str(s):
+    """
+    Converts a CLSID from the human-readable string format to bytes
+
+    :param s: string representing the CLSID, e.g. '00020906-0000-0000-C000-000000000046'.
+    :return: bytes string of length 16
+    """
+    # Here we use bytes_le (little endian) to match Microsoft's format
+    return uuid.UUID(s).bytes_le
 
 
 def filetime2datetime(filetime):
@@ -787,7 +798,7 @@ class OleDirectoryEntry:
             self.sid_left,
             self.sid_right,
             self.sid_child,
-            clsid,
+            self.clsid_raw,
             self.dwUserFlags,
             self.createTime,
             self.modifyTime,
@@ -836,7 +847,7 @@ class OleDirectoryEntry:
             self.size = self.sizeLow + (long(self.sizeHigh)<<32)
         log.debug(' - size: %d (sizeLow=%d, sizeHigh=%d)' % (self.size, self.sizeLow, self.sizeHigh))
 
-        self.clsid = _clsid(clsid)
+        self.clsid = _clsid(self.clsid_raw)
         # a storage should have a null size, BUT some implementations such as
         # Word 8 for Mac seem to allow non-null values => Potential defect:
         if self.entry_type == STGTY_STORAGE and self.size != 0:
@@ -1012,6 +1023,35 @@ class OleDirectoryEntry:
         if self.createTime == 0:
             return None
         return filetime2datetime(self.createTime)
+
+    def _to_bytes(self):
+        """
+        Convert this directory entry to its bytes form, ready to be written to disk
+
+        :returns: bytes string of size 128
+
+        new in version 0.50
+        """
+        # TODO: convert name back to UTF-16, adjust namelength
+        # convert clsid back from text to bytes:
+        self.clsid_raw = _clsid_from_str(self.clsid)
+        return struct.pack(OleDirectoryEntry.STRUCT_DIRENTRY,
+            self.name_raw, # 64s: string containing entry name in unicode UTF-16 (max 31 chars) + null char = 64 bytes
+            self.namelength, # H: uint16, number of bytes used in name buffer, including null = (len+1)*2
+            self.entry_type,
+            self.color,
+            self.sid_left,
+            self.sid_right,
+            self.sid_child,
+            self.clsid_raw,
+            self.dwUserFlags,
+            self.createTime,
+            self.modifyTime,
+            self.isectStart,
+            self.sizeLow,
+            self.sizeHigh
+            )
+
 
 
 #--- OleFileIO ----------------------------------------------------------------

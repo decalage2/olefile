@@ -22,6 +22,30 @@ if _parent_dir not in sys.path:
 import olefile
 
 
+class Test_clsid(unittest.TestCase):
+    'Tests for the CLSID conversion functions'
+
+    def setUp(self):
+        # bytes and text representations of a random CLSID
+        self.clsid_bytes = b'\x0c\xc8\xf9?4\x1d\x9e^\x8b\x1fv\x89\x99\xa6\xf2\xed'
+        self.clsid_text = '3FF9C80C-1D34-5E9E-8B1F-768999A6F2ED'
+
+    def test_clsid_bytes2text(self):
+        'Test CLSID conversion from bytes to text using _clsid()'
+        self.assertEqual(
+            olefile.olefile._clsid(self.clsid_bytes),
+            self.clsid_text
+        )
+
+
+    def test_clsid_text2bytes(self):
+        'Test CLSID conversion from text to bytes using _clsid_tobytes()'
+        self.assertEqual(
+            olefile.olefile._clsid_from_str(self.clsid_text),
+            self.clsid_bytes
+        )
+
+
 class Test_isOleFile(unittest.TestCase):
     'Tests for the isOleFile function'
 
