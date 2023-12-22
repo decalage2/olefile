@@ -1032,7 +1032,16 @@ class OleDirectoryEntry:
 
         new in version 0.50
         """
-        # TODO: convert name back to UTF-16, adjust namelength
+        # convert name back to UTF-16, adjust namelength
+        self.name_utf16 = self.olefile._encode_utf16_str(self.name)
+        len_utf16 = len(self.name_utf16)
+        # The maximum length is 64 bytes in UTF-16, including 2 bytes for null char
+        if len_utf16 > 62:
+            raise ValueError("Name too long for directory entry")
+        # pad name buffer with null bytes
+        self.name_raw = self.name_utf16 + b'\x00' * (64-len_utf16)
+        # Compute length in buffer, including null byte
+        self.namelength = len_utf16 + 2
         # convert clsid back from text to bytes:
         self.clsid_raw = _clsid_from_str(self.clsid)
         return struct.pack(OleDirectoryEntry.STRUCT_DIRENTRY,
@@ -1228,6 +1237,25 @@ class OleFileIO:
         else:
             # path_encoding=None, return the Unicode string as-is:
             return unicode_str
+
+
+    def _encode_utf16_str(self, s, errors='replace'):
+        """
+        Encode a string to UTF-16 LE format, as found in the OLE
+        directory or in property streams.
+        If path_encoding is specified for the OleFileIO object,
+        the string is first decoded from bytes to unicode accordingly.
+
+        :param str s: string (bytes or str) to be encoded
+        :param str errors: str, see python documentation for str.decode()
+        :return: bytes string, encoded to UTF-16 LE
+        :rtype: bytes
+        """
+        if self.path_encoding:
+            # an encoding has been specified for path names:
+            s = s.decode(self.path_encoding, errors)
+        # Else we assume that s is a unicode string
+        return s.encode('UTF-16LE', errors)
 
 
     def open(self, filename, write_mode=False):
