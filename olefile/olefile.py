@@ -2132,10 +2132,12 @@ class OleFileIO:
         if size != len(data):
             raise ValueError("write_stream: data must be the same size as the existing stream")
         if size < self.minisectorcutoff and entry.entry_type != STGTY_ROOT:
+            # stream in miniFAT:
             self._write_mini_stream(entry = entry, data_to_write = data)
-
-        sect = entry.isectStart
-        self._write_stream(sect, data, is_minifat=False)
+        else:
+            # stream in FAT:
+            sect = entry.isectStart
+            self._write_stream(sect, data, is_minifat=False)
         # # number of sectors to write
         # nb_sectors = (size + (self.sectorsize-1)) // self.sectorsize
         # log.debug('nb_sectors = %d' % nb_sectors)
