@@ -791,8 +791,8 @@ class OleDirectoryEntry:
         self.used = False
         # decode DirEntry
         (
-            self.name_raw, # 64s: string containing entry name in unicode UTF-16 (max 31 chars) + null char = 64 bytes
-            self.namelength, # H: uint16, number of bytes used in name buffer, including null = (len+1)*2
+            self.name_raw, # 64s: string containing entry name in unicode UTF-16LE (max 31 chars) + null char = 64 bytes
+            self.namelength, # H: uint16, number of bytes used in name buffer, including null >= (len+1)*2
             self.entry_type,
             self.color,
             self.sid_left,
@@ -2061,6 +2061,52 @@ class OleFileIO:
                 data_per_sector = data_to_write[idx * self.mini_sector_size:]
             self._write_mini_sect(fp_pos, data_per_sector)
 
+    def _write_stream(self, sect, data, is_minifat=None):
+        """
+        Write any stream to disk, even if it is not in the directory (e.g. FAT, directory, etc).
+        For now, it is only possible to replace an existing stream by data of the same size.
+
+        :param sect: index of 1st sector of the stream
+        :param data: bytes, data to be written, must be the same size as the original stream.
+        :param is_minifat: bool, True if the stream is in the miniFAT, False otherwise.
+            if None, it will be determined from the data size.
+
+        :return: nothing
+        """
+        size = len(data)
+        if is_minifat == None:
+            # determine if this stream is in the FAT or miniFAT, based on size:
+            if size < self.minisectorcutoff:
+                is_minifat = True
+        if is_minifat == True:
+            raise NotImplementedError("Writing to ministream not yet implemented")
+        # number of sectors to write
+        nb_sectors = (size + (self.sectorsize-1)) // self.sectorsize
+        log.debug('nb_sectors = %d' % nb_sectors)
+        for i in range(nb_sectors):
+            # extract one sector from data, the last one being smaller:
+            if i < (nb_sectors-1):
+                data_sector = data [i*self.sectorsize : (i+1)*self.sectorsize]
+                # TODO: comment this if it works
+                assert(len(data_sector)==self.sectorsize)
+            else:
+                # Last sector
+                data_sector = data [i*self.sectorsize:]
+                # TODO: comment this if it works
+                log.debug('write_stream: size=%d sectorsize=%d data_sector=%Xh size%%sectorsize=%d'
+                    % (size, self.sectorsize, len(data_sector), size % self.sectorsize))
+                assert(len(data_sector) % self.sectorsize==size % self.sectorsize)
+            self.write_sect(sect, data_sector)
+            # jump to next sector in the FAT:
+            try:
+                sect = self.fat[sect]
+            except IndexError:
+                # if pointer is out of the FAT an exception is raised
+                raise IOError('incorrect OLE FAT, sector index out of range')
+        # Last sector should be an "end of chain" marker:
+        if sect != ENDOFCHAIN:
+            raise IOError('incorrect last sector index in OLE stream')
+
     def write_stream(self, stream_name, data):
         """
         Write a stream to disk. For now, it is only possible to replace an
@@ -2086,41 +2132,42 @@ class OleFileIO:
         if size != len(data):
             raise ValueError("write_stream: data must be the same size as the existing stream")
         if size < self.minisectorcutoff and entry.entry_type != STGTY_ROOT:
-            return self._write_mini_stream(entry = entry, data_to_write = data)
+            self._write_mini_stream(entry = entry, data_to_write = data)
 
         sect = entry.isectStart
-        # number of sectors to write
-        nb_sectors = (size + (self.sectorsize-1)) // self.sectorsize
-        log.debug('nb_sectors = %d' % nb_sectors)
-        for i in range(nb_sectors):
-            # try:
-            #     self.fp.seek(offset + self.sectorsize * sect)
-            # except Exception:
-            #     log.debug('sect=%d, seek=%d' %
-            #         (sect, offset+self.sectorsize*sect))
-            #     raise IOError('OLE sector index out of range')
-            # extract one sector from data, the last one being smaller:
-            if i<(nb_sectors-1):
-                data_sector = data [i*self.sectorsize : (i+1)*self.sectorsize]
-                # TODO: comment this if it works
-                assert(len(data_sector)==self.sectorsize)
-            else:
-                data_sector = data [i*self.sectorsize:]
-                # TODO: comment this if it works
-                log.debug('write_stream: size=%d sectorsize=%d data_sector=%Xh size%%sectorsize=%d'
-                    % (size, self.sectorsize, len(data_sector), size % self.sectorsize))
-                assert(len(data_sector) % self.sectorsize==size % self.sectorsize)
-            self.write_sect(sect, data_sector)
-            # self.fp.write(data_sector)
-            # jump to next sector in the FAT:
-            try:
-                sect = self.fat[sect]
-            except IndexError:
-                # [PL] if pointer is out of the FAT an exception is raised
-                raise IOError('incorrect OLE FAT, sector index out of range')
-        # [PL] Last sector should be a "end of chain" marker:
-        if sect != ENDOFCHAIN:
-            raise IOError('incorrect last sector index in OLE stream')
+        self._write_stream(sect, data, is_minifat=False)
+        # # number of sectors to write
+        # nb_sectors = (size + (self.sectorsize-1)) // self.sectorsize
+        # log.debug('nb_sectors = %d' % nb_sectors)
+        # for i in range(nb_sectors):
+        #     # try:
+        #     #     self.fp.seek(offset + self.sectorsize * sect)
+        #     # except Exception:
+        #     #     log.debug('sect=%d, seek=%d' %
+        #     #         (sect, offset+self.sectorsize*sect))
+        #     #     raise IOError('OLE sector index out of range')
+        #     # extract one sector from data, the last one being smaller:
+        #     if i<(nb_sectors-1):
+        #         data_sector = data [i*self.sectorsize : (i+1)*self.sectorsize]
+        #         # TODO: comment this if it works
+        #         assert(len(data_sector)==self.sectorsize)
+        #     else:
+        #         data_sector = data [i*self.sectorsize:]
+        #         # TODO: comment this if it works
+        #         log.debug('write_stream: size=%d sectorsize=%d data_sector=%Xh size%%sectorsize=%d'
+        #             % (size, self.sectorsize, len(data_sector), size % self.sectorsize))
+        #         assert(len(data_sector) % self.sectorsize==size % self.sectorsize)
+        #     self.write_sect(sect, data_sector)
+        #     # self.fp.write(data_sector)
+        #     # jump to next sector in the FAT:
+        #     try:
+        #         sect = self.fat[sect]
+        #     except IndexError:
+        #         # [PL] if pointer is out of the FAT an exception is raised
+        #         raise IOError('incorrect OLE FAT, sector index out of range')
+        # # [PL] Last sector should be a "end of chain" marker:
+        # if sect != ENDOFCHAIN:
+        #     raise IOError('incorrect last sector index in OLE stream')
 
     def get_type(self, filename):
         """
