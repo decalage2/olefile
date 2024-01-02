@@ -232,6 +232,21 @@ class TestOleFileIO(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ole.write_sect(ole.nb_sect - 1, b"x" * size)
 
+    def test_encode_utf16_str(self):
+        "test _encode_utf16_str"
+        # open OLE file with no path encoding (=Unicode)
+        with olefile.OleFileIO(self.ole_file, path_encoding=None) as ole:
+            # Test encoding various unicode strings
+            # Note: there should be no BOM (FFFE) in the encoded string
+            s = ole._encode_utf16_str(u'a')
+            self.assertEqual(s, b'a\x00')
+            # a Unicode code point that is encoded with 2 bytes in UTF-16:
+            s = ole._encode_utf16_str(u'\u265E') # 265E=BLACK CHESS KNIGHT
+            self.assertEqual(s, b'\x5E\x26')
+            # a Unicode code point that is encoded with 4 bytes in UTF-16:
+            s = ole._encode_utf16_str(u'\U0001F609') # 1F609=WINKING FACE
+            self.assertEqual(s, b'\x3D\xD8\x09\xDE')
+
 
 class FileHandleCloseTest(unittest.TestCase):
     """Test file handles are closed correctly."""

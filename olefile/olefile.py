@@ -833,6 +833,7 @@ class OleDirectoryEntry:
         log.debug(' - sect: %Xh' % self.isectStart)
         log.debug(' - SID left: %d, right: %d, child: %d' % (self.sid_left,
             self.sid_right, self.sid_child))
+        log.debug(' - name_utf16: %r' % self.name_utf16)
 
         # sizeHigh is only used for 4K sectors, it should be zero for 512 bytes
         # sectors, BUT apparently some implementations set it as 0xFFFFFFFF, 1
@@ -1255,7 +1256,12 @@ class OleFileIO:
             # an encoding has been specified for path names:
             s = s.decode(self.path_encoding, errors)
         # Else we assume that s is a unicode string
-        return s.encode('UTF-16LE', errors)
+        s_utf16 = s.encode('UTF-16LE', errors)
+        # remove the BOM if present (2 bytes FFFE in little-endian):
+        # => not needed with UTF-16LE codec, only UTF-16 adds the BOM
+        # if s_utf16.startswith(b'\xff\xfe'):
+        #     s_utf16 = s_utf16[2:]
+        return s_utf16
 
 
     def open(self, filename, write_mode=False):
