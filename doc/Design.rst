@@ -94,3 +94,30 @@ In the current version of olefile, the DIFAT is *NOT* stored in OleFileIO.
 
 Reference: [MS-CFB] section 2.5
 
+
+Directory
+---------
+
+The directory is a stream that contains the list of named streams and storages contained in the
+OLE file. It is composed of directory entries: each directory entry is a data structure containing the stream/storage name, its type, its size, and other attributes.
+
+If the entry is a stream, it provides the index of the first sector of the stream.
+
+If it is a storage, it provides a pointer to its child entries (streams and sub-storages).
+Each storage contains a `red-black tree <https://en.wikipedia.org/wiki/Red%E2%80%93black_tree>`__
+to store its child entries in a sorted structure.
+Note: the current olefile implementation does not use the red_black tree to search
+for streams and storages, it is ignored.
+
+In olefile, each directory entry is stored in an object of the class OleDirectoryEntry.
+The directory is parsed and loaded by **OleFileIO.loaddirectory()**, called at the end of OleFileIO.open().
+It calls OleFileIO._load_direntry() to parse each directory entry.
+All the directory entries are stored in the list **OleFileIO.direntries**.
+In the current version, unused directory entries are not parsed but stored as None in the list.
+The directory entry of the root storage is always the first item in the list, i.e. OleFileIO.direntries[0].
+It is also accessible as **OleFileIO.root**.
+
+The method **OleFileIO._find()** is used to find the directory entry of a stream or storage
+by using its full path.
+
+OleFileIO.first_dir_sector is the index of the first sector of the directory stream.
