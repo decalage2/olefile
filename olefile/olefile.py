@@ -384,8 +384,12 @@ def _clsid_from_str(s):
     :param s: string representing the CLSID, e.g. '00020906-0000-0000-C000-000000000046'.
     :return: bytes string of length 16
     """
-    # Here we use bytes_le (little endian) to match Microsoft's format
-    return uuid.UUID(s).bytes_le
+    # If the string is empty, return a null CLSID (to match _clsid)
+    if s == "":
+        return b'\x00'*16
+    else:
+        # Here we use bytes_le (little endian) to match Microsoft's format
+        return uuid.UUID(s).bytes_le
 
 
 def filetime2datetime(filetime):
@@ -1913,6 +1917,46 @@ class OleFileIO:
         """
         self.root.dump()
 
+    def write_directory(self):
+        """
+        Write the directory to disk in the OLE file
+        """
+        # TODO: handle the case when the directory size has been changed (more or less entries)
+        # we reuse the file object containing the directory stream, which is a BytesIO in memory
+        self.directory_fp.seek(0)
+        # Iterate through all directory entries, convert them back to binary:
+        for direntry in self.direntries:
+            if direntry is None:
+                # unused entry, we skip it (128 bytes) to keep the original data:
+                self.directory_fp.seek(128, io.SEEK_CUR)
+            else:
+                direntry_bin = direntry._to_bytes()
+                self.directory_fp.write(direntry_bin)
+        # Write the directory stream back to the OLE file
+        data = self.directory_fp.getvalue()
+        self._write_stream(self.first_dir_sector, data, is_minifat=False)
+
+    def rename(self, filename, new_name):
+        """
+        Rename a stream or a storage in the OLE container.
+        Filename is the full path of the stream/storage, but new_name must be only
+        the new name without the path.
+        This method cannot be used to move a stream from a storage to another.
+
+        Current limitations: The new name MUST have the same size as the original name,
+        and the first characters MUST be identical to avoid changing the sorting order.
+        Also this method does not check if the name is invalid or too long.
+        Note: filename is case-insensitive.
+
+        :param filename: path of stream/storage in storage tree. (see openstream for syntax)
+        :param new-name: str, new name for the stream/storage
+        :returns: nothing
+        """
+        sid = self._find(filename)
+        entry = self.direntries[sid]
+        entry.name = new_name
+        # TODO: also need to update kids_dict of the parent storage, and possibly other attributes
+
     def _open(self, start, size = UNKNOWN_SIZE, force_FAT=False):
         """
         Open a stream, either in FAT or MiniFAT according to its size.
@@ -2006,7 +2050,7 @@ class OleFileIO:
         :returns: sid of requested filename
         :exception IOError: if file not found
         """
-
+        # TODO: use the red-black tree to make this faster, or use OleDirectoryEntry.kids_dict
         # if filename is a string instead of a list, split it on slashes to
         # convert to a list:
         if isinstance(filename, basestring):
