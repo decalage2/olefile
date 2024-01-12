@@ -2050,17 +2050,34 @@ class OleFileIO:
             else:
                 self._raise_defect(DEFECT_INCORRECT, 'The directory tree contains an entry which is not a stream nor a storage.')
 
-    def listdir(self, streams=True, storages=False):
+    def listdir(self, streams=True, storages=False, from_storage=None):
         """
-        Return a list of streams and/or storages stored in this file
+        Return a list of all streams and/or storages stored in this file.
+        By default, it will only list streams.
+
+        If the from_storage option is used, only the streams contained in that storage
+        will be listed. (new in v0.48)
+        Note: this is experimental and the API is subject to change in future versions
 
         :param streams: bool, include streams if True (True by default) - new in v0.26
         :param storages: bool, include storages if True (False by default) - new in v0.26
             (note: the root storage is never included)
+        :param from_storage: list or str, limit the list to children of that storage - new in v0.48
         :returns: list of stream and/or storage paths
         """
         files = []
-        self._list(files, [], self.root, streams, storages)
+        if from_storage is None:
+            # list all streams/storages from the root:
+            self._list(files, [], self.root, streams, storages)
+        else:
+            # list all streams/storages within from_storage:
+            # make sure from_storage is in list format:
+            if isinstance(from_storage, str):
+                from_storage = from_storage.split('/')
+            # prefix must be the path including root, but excluding the last name of from_storage:
+            prefix = [self.root.name] + from_storage[:-1]
+            node = self.direntries[self._find(from_storage)]
+            self._list(files, prefix=prefix, node=node, streams=streams, storages=storages)
         return files
 
     def _find(self, filename):
