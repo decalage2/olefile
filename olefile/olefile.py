@@ -87,7 +87,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # PERFORMANCE OF THIS SOFTWARE.
 
 __date__    = "2024-01-12"
-__version__ = '0.48dev1'
+__version__ = '0.48dev2'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
