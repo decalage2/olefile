@@ -8,7 +8,7 @@ This version is compatible with Python 2.7 and 3.5+
 
 Project website: https://www.decalage.info/olefile
 
-olefile is copyright (c) 2005-2023 Philippe Lagadec
+olefile is copyright (c) 2005-2024 Philippe Lagadec
 (https://www.decalage.info)
 
 olefile is based on the OleFileIO module from the PIL library v1.1.7
@@ -31,7 +31,7 @@ from __future__ import print_function   # This version of olefile requires Pytho
 
 #--- LICENSE ------------------------------------------------------------------
 
-# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2023 Philippe Lagadec
+# olefile (formerly OleFileIO_PL) is copyright (c) 2005-2024 Philippe Lagadec
 # (https://www.decalage.info)
 #
 # All rights reserved.
@@ -86,8 +86,8 @@ from __future__ import print_function   # This version of olefile requires Pytho
 # OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-__date__    = "2023-12-01"
-__version__ = '0.47'
+__date__    = "2024-01-12"
+__version__ = '0.48dev1'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
@@ -1920,6 +1920,10 @@ class OleFileIO:
     def write_directory(self):
         """
         Write the directory to disk in the OLE file
+
+        Note: this is experimental and the API is subject to change in future versions
+
+        new in v0.48
         """
         # TODO: handle the case when the directory size has been changed (more or less entries)
         # we reuse the file object containing the directory stream, which is a BytesIO in memory
@@ -1945,17 +1949,41 @@ class OleFileIO:
 
         Current limitations: The new name MUST have the same size as the original name,
         and the first characters MUST be identical to avoid changing the sorting order.
-        Also this method does not check if the name is invalid or too long.
+        Also, this method does not check if the name is invalid or too long.
+        The method write_directory() must be called afterwards to save changes in the
+        file.
         Note: filename is case-insensitive.
 
+        Note: this is experimental and the API is subject to change in future versions
+
+        new in v0.48
+
         :param filename: path of stream/storage in storage tree. (see openstream for syntax)
-        :param new-name: str, new name for the stream/storage
+        :param new_name: str, new name for the stream/storage
         :returns: nothing
         """
         sid = self._find(filename)
         entry = self.direntries[sid]
         entry.name = new_name
         # TODO: also need to update kids_dict of the parent storage, and possibly other attributes
+
+    def set_clsid(self, filename, new_clsid):
+        """
+        Set the CLSID of a directory entry (stream or storage) in the OLE container.
+        The method write_directory() must be called afterwards to save changes in the
+        file.
+
+        Note: this is experimental and the API is subject to change in future versions
+
+        new in v0.48
+
+        :param filename: path of stream/storage in storage tree. (see openstream for syntax)
+        :param new_clsid: str, new CLSID for the stream/storage (or "" for a null CLSID)
+        :returns: nothing
+        """
+        sid = self._find(filename)
+        entry = self.direntries[sid]
+        entry.clsid = new_clsid
 
     def _open(self, start, size = UNKNOWN_SIZE, force_FAT=False):
         """
