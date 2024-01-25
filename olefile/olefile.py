@@ -2288,7 +2288,7 @@ class OleFileIO:
                 # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
                 # "the string should NOT contain embedded or additional trailing
                 # null characters."
-                count = i32(s, offset+4)
+                count = i32(s, offset)
                 value = self._decode_utf16_str(s[offset+4:offset+4+count*2])
                 size = 4 + count * 2
             elif property_type == VT_FILETIME:
