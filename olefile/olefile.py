@@ -27,7 +27,7 @@ See source code and LICENSE.txt for information on usage and redistribution.
 # (main requirement to be compatible with Python 3.x)
 # The comment on the line below should be printed on Python 2.5 or older:
 from __future__ import print_function   # This version of olefile requires Python 2.7 or 3.5+.
-
+import sys
 
 #--- LICENSE ------------------------------------------------------------------
 
@@ -112,10 +112,10 @@ if str is not bytes:
     long = int
 
 # Need to make sure we use xrange both on Python 2 and 3.x:
-try:
+if sys.version_info < (3,):
     # on Python 2 we need xrange:
     iterrange = xrange
-except Exception:
+else:
     # no xrange, for Python 3 it was renamed as range:
     iterrange = range
 
@@ -146,9 +146,9 @@ else:
 # [PL] These workarounds were inspired from the Path module
 # (see http://www.jorendorff.com/articles/python/path/)
 # TODO: remove the use of basestring, as it was removed in Python 3
-try:
+if sys.version_info < (3,):
     basestring
-except NameError:
+else:
     basestring = str
 
 if sys.version_info[0] < 3:
@@ -330,7 +330,7 @@ def isOleFile (filename=None, data=None):
         return False
 
 
-if bytes is str:
+if sys.version_info < (3,):
     # version for Python 2.x
     def i8(c):
         return ord(c)
