@@ -579,25 +579,25 @@ class OleFileIONotClosed(RuntimeWarning):
 
 # --- OleStream ---------------------------------------------------------------
 
-class OleStream(io.BytesIO):
+class OleStream(object):
     """
     OLE2 Stream
 
-    Returns a read-only file object which can be used to read
-    the contents of a OLE stream (instance of the BytesIO class).
-    To open a stream, use the openstream method in the OleFileIO class.
+    Returns a read-only file-like object which can be used to read
+    the contents of an OLE stream. To open a stream, use the openstream
+    method in the OleFileIO class.
 
-    This function can be used with either ordinary streams,
-    or ministreams, depending on the offset, sectorsize, and
-    fat table arguments.
+    This class can be used with either ordinary streams, or ministreams,
+    depending on the offset, sectorsize, and fat table arguments.
+
+    The stream is read lazily: sectors are loaded from disk (or from the
+    underlying MiniStream) only as needed, by following the FAT/MiniFAT
+    chain. This avoids loading a whole stream into memory at once.
 
     Attributes:
 
         - size: actual size of data stream, after it was opened.
     """
-    # FIXME: should store the list of sects obtained by following
-    # the fat chain, and load new sectors on demand instead of
-    # loading it all in one go.
 
     def __init__(self, fp, sect, size, offset, sectorsize, fat, filesize, olefileio):
         """
@@ -611,7 +611,7 @@ class OleStream(io.BytesIO):
         :param fat: array/list of sector indexes (FAT or MiniFAT)
         :param filesize: size of OLE file (for debugging)
         :param olefileio: OleFileIO object containing this stream
-        :returns: a BytesIO instance containing the OLE stream
+        :returns: a read-only file-like object containing the OLE stream
         """
         log.debug('OleStream.__init__:')
         log.debug('  sect=%d (%X), size=%d, offset=%d, sectorsize=%d, len(fat)=%d, fp=%s'
@@ -622,6 +622,23 @@ class OleStream(io.BytesIO):
         # raising an exception. (see issue #81)
         if self.ole.fp.closed:
             raise OSError('Attempting to open a stream from a closed OLE File')
+
+        # Internal state used for lazy reading.
+        self._fp = fp
+        self._offset = offset
+        self._sectorsize = sectorsize
+        self._fat = fat
+        self._filesize = filesize
+        self._pos = 0
+        self._closed = False
+        # List of sector indexes forming this stream, following the FAT chain.
+        # The actual sector data is loaded on demand, sector by sector.
+        self._sect_chain = []
+        # One-sector cache, so that consecutive reads within the same sector
+        # do not re-read the same data from the underlying file object.
+        self._current_sector_index = None
+        self._current_sector_data = b''
+
         # [PL] To detect malformed documents with FAT loops, we compute the
         # expected number of sectors in the stream:
         unknown_size = False
@@ -639,16 +656,13 @@ class OleStream(io.BytesIO):
         # sectors in the given FAT:
         if nb_sectors > len(fat):
             self.ole._raise_defect(DEFECT_INCORRECT, 'malformed OLE document, stream too large')
-        # optimization(?): data is first a list of strings, and join() is called
-        # at the end to concatenate all in one string.
-        # (this may not be really useful with recent Python versions)
-        data = []
         # if size is zero, then first sector index should be ENDOFCHAIN:
         if size == 0 and sect != ENDOFCHAIN:
             log.debug('size == 0 and sect != ENDOFCHAIN:')
             self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE sector index for empty stream')
         # [PL] A fixed-length for loop is used instead of an undefined while
-        # loop to avoid DoS attacks:
+        # loop to avoid DoS attacks. We follow the FAT/MiniFAT chain and only
+        # store the sector indexes; the data itself is read on demand.
         for i in range(nb_sectors):
             log.debug('Reading stream sector[%d] = %Xh' % (i, sect))
             # Sector index may be ENDOFCHAIN, but only if size was unknown
@@ -664,35 +678,10 @@ class OleStream(io.BytesIO):
             if sect<0 or sect>=len(fat):
                 log.debug('sect=%d (%X) / len(fat)=%d' % (sect, sect, len(fat)))
                 log.debug('i=%d / nb_sectors=%d' %(i, nb_sectors))
-##                tmp_data = b"".join(data)
-##                f = open('test_debug.bin', 'wb')
-##                f.write(tmp_data)
-##                f.close()
-##                log.debug('data read so far: %d bytes' % len(tmp_data))
                 self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE FAT, sector index out of range')
                 # stop reading here if the exception is ignored:
                 break
-            # TODO: merge this code with OleFileIO.getsect() ?
-            # TODO: check if this works with 4K sectors:
-            try:
-                fp.seek(offset + sectorsize * sect)
-            except Exception:
-                log.debug('sect=%d, seek=%d, filesize=%d' %
-                    (sect, offset+sectorsize*sect, filesize))
-                self.ole._raise_defect(DEFECT_INCORRECT, 'OLE sector index out of range')
-                # stop reading here if the exception is ignored:
-                break
-            sector_data = fp.read(sectorsize)
-            # [PL] check if there was enough data:
-            # Note: if sector is the last of the file, sometimes it is not a
-            # complete sector (of 512 or 4K), so we may read less than
-            # sectorsize.
-            if len(sector_data)!=sectorsize and sect!=(len(fat)-1):
-                log.debug('sect=%d / len(fat)=%d, seek=%d / filesize=%d, len read=%d' %
-                    (sect, len(fat), offset+sectorsize*sect, filesize, len(sector_data)))
-                log.debug('seek+len(read)=%d' % (offset+sectorsize*sect+len(sector_data)))
-                self.ole._raise_defect(DEFECT_INCORRECT, 'incomplete OLE sector')
-            data.append(sector_data)
+            self._sect_chain.append(sect)
             # jump to next sector in the FAT:
             try:
                 sect = fat[sect] & 0xFFFFFFFF  # JYTHON-WORKAROUND
@@ -701,30 +690,188 @@ class OleStream(io.BytesIO):
                 self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE FAT, sector index out of range')
                 # stop reading here if the exception is ignored:
                 break
-        # [PL] Last sector should be a "end of chain" marker:
-        # if sect != ENDOFCHAIN:
-        #     raise IOError('incorrect last sector index in OLE stream')
-        data = b"".join(data)
-        # Data is truncated to the actual stream size:
-        if len(data) >= size:
-            log.debug('Read data of length %d, truncated to stream size %d' % (len(data), size))
-            data = data[:size]
-            # actual stream size is stored for future use:
-            self.size = size
-        elif unknown_size:
-            # actual stream size was not known, now we know the size of read
-            # data:
-            log.debug('Read data of length %d, the stream size was unknown' % len(data))
-            self.size = len(data)
-        else:
-            # read data is less than expected:
-            log.debug('Read data of length %d, less than expected stream size %d' % (len(data), size))
-            # TODO: provide details in exception message
-            self.size = len(data)
+
+        # Determine the actual stream size. For streams whose size is known in
+        # advance, the declared size is authoritative. For streams with an
+        # unknown size (the Directory stream), we derive it from the number of
+        # sectors actually present in the chain.
+        actual_length = len(self._sect_chain) * sectorsize
+        if unknown_size:
+            self.size = actual_length
+            log.debug('Read %d bytes, the stream size was unknown' % self.size)
+        elif actual_length < size:
+            # the chain is shorter than expected:
+            log.debug('Stream chain is %d bytes, less than expected size %d' % (actual_length, size))
+            self.size = actual_length
             self.ole._raise_defect(DEFECT_INCORRECT, 'OLE stream size is less than declared')
-        # when all data is read in memory, BytesIO constructor is called
-        io.BytesIO.__init__(self, data)
-        # Then the OleStream object can be used as a read-only file object.
+        else:
+            self.size = size
+
+    def _read_sector(self, sect):
+        """
+        Read a single sector (or mini-sector) from the underlying file object.
+
+        :param sect: sector index
+        :returns: bytes containing the sector data (may be shorter than
+            ``sectorsize`` for the last sector of the file).
+        """
+        if sect == self._current_sector_index:
+            return self._current_sector_data
+        try:
+            self._fp.seek(self._offset + self._sectorsize * sect)
+        except Exception:
+            log.debug('sect=%d, seek=%d, filesize=%d' %
+                (sect, self._offset+self._sectorsize*sect, self._filesize))
+            self.ole._raise_defect(DEFECT_INCORRECT, 'OLE sector index out of range')
+            return b''
+        sector_data = self._fp.read(self._sectorsize)
+        # [PL] check if there was enough data:
+        # Note: if sector is the last of the file, sometimes it is not a
+        # complete sector (of 512 or 4K), so we may read less than sectorsize.
+        if len(sector_data)!=self._sectorsize and sect!=(len(self._fat)-1):
+            log.debug('sect=%d / len(fat)=%d, seek=%d / filesize=%d, len read=%d' %
+                (sect, len(self._fat), self._offset+self._sectorsize*sect, self._filesize, len(sector_data)))
+            log.debug('seek+len(read)=%d' % (self._offset+self._sectorsize*sect+len(sector_data)))
+            self.ole._raise_defect(DEFECT_INCORRECT, 'incomplete OLE sector')
+        self._current_sector_index = sect
+        self._current_sector_data = sector_data
+        return sector_data
+
+    def read(self, size=-1):
+        """
+        Read up to ``size`` bytes from the stream.
+
+        :param size: maximum number of bytes to read, or -1 (default) to read
+            until the end of the stream.
+        :returns: bytes.
+        """
+        if self._closed:
+            raise ValueError('I/O operation on closed file')
+        if size is None or size < 0:
+            size = self.size - self._pos
+        else:
+            size = min(size, self.size - self._pos)
+        if size <= 0:
+            return b''
+        chunks = []
+        remaining = size
+        while remaining > 0:
+            chain_index = self._pos // self._sectorsize
+            pos_in_sector = self._pos % self._sectorsize
+            if chain_index < 0 or chain_index >= len(self._sect_chain):
+                break
+            sector_data = self._read_sector(self._sect_chain[chain_index])
+            available = len(sector_data) - pos_in_sector
+            if available <= 0:
+                break
+            chunk = sector_data[pos_in_sector:pos_in_sector + remaining]
+            chunks.append(chunk)
+            self._pos += len(chunk)
+            remaining -= len(chunk)
+        return b''.join(chunks)
+
+    def readline(self, size=-1):
+        """
+        Read one line from the stream (up to and including a newline, or until
+        EOF).
+
+        :param size: optional maximum number of bytes to read.
+        :returns: bytes.
+        """
+        if self._closed:
+            raise ValueError('I/O operation on closed file')
+        limit = None
+        if size is not None and size >= 0:
+            limit = size
+        chunks = []
+        total = 0
+        while True:
+            if limit is not None and total >= limit:
+                break
+            chunk_size = self._sectorsize
+            if limit is not None:
+                chunk_size = min(chunk_size, limit - total)
+            chunk = self.read(chunk_size)
+            if not chunk:
+                break
+            newline = chunk.find(b'\n')
+            if newline != -1:
+                chunks.append(chunk[:newline+1])
+                # rewind past the bytes that belong to the next line:
+                extra = len(chunk) - (newline + 1)
+                if extra:
+                    self._pos -= extra
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+        return b''.join(chunks)
+
+    def seek(self, offset, whence=0):
+        """
+        Change the stream position.
+
+        :param offset: byte offset.
+        :param whence: 0 = start (default), 1 = current position, 2 = end.
+        :returns: the new absolute position.
+        """
+        if self._closed:
+            raise ValueError('I/O operation on closed file')
+        if whence == 0:
+            new_pos = offset
+        elif whence == 1:
+            new_pos = self._pos + offset
+        elif whence == 2:
+            new_pos = self.size + offset
+        else:
+            raise ValueError('invalid whence (%r, should be 0, 1 or 2)' % (whence,))
+        if new_pos < 0:
+            if whence == 0:
+                raise ValueError('negative seek value %r' % (offset,))
+            new_pos = 0
+        self._pos = new_pos
+        return self._pos
+
+    def tell(self):
+        """Return the current stream position."""
+        if self._closed:
+            raise ValueError('I/O operation on closed file')
+        return self._pos
+
+    def close(self):
+        """Close the stream. The underlying file object is left open."""
+        self._closed = True
+
+    @property
+    def closed(self):
+        return self._closed
+
+    def readable(self):
+        return True
+
+    def seekable(self):
+        return True
+
+    def writable(self):
+        return False
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        line = self.readline()
+        if not line:
+            raise StopIteration
+        return line
+
+    # Python 2 iterator protocol:
+    def next(self):
+        return self.__next__()
 
 
 # --- OleDirectoryEntry -------------------------------------------------------
@@ -1561,9 +1708,13 @@ class OleFileIO:
             # read the FAT sector
             s = self.getsect(isect)
             # parse it as an array of 32 bits integers, and add it to the
-            # global FAT array
+            # global FAT array.
+            # NOTE: extend() grows the array in-place (amortized O(n)), while
+            # `self.fat = self.fat + nextfat` would allocate and copy a new
+            # array on every iteration, resulting in O(n^2) time and peak
+            # memory usage for large files. (see issue #176)
             nextfat = self.sect2array(s)
-            self.fat = self.fat + nextfat
+            self.fat.extend(nextfat)
         return isect
 
     def loadfat(self, header):
@@ -1950,7 +2101,7 @@ class OleFileIO:
 
     def openstream(self, filename):
         """
-        Open a stream as a read-only file object (BytesIO).
+        Open a stream as a read-only file-like object.
         Note: filename is case-insensitive.
 
         :param filename: path of stream in storage tree (except root entry), either:
