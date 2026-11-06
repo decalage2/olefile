@@ -6,6 +6,7 @@ from __future__ import print_function
 import unittest
 
 import os, sys
+import struct
 import io
 from shutil import copy2
 
@@ -207,6 +208,39 @@ class TestOleFileIO(unittest.TestCase):
             # it should raise ValueError:
             with self.assertRaises(ValueError):
                 ole.write_sect(ole.nb_sect - 1, b"x" * size)
+
+    def test_getproperties_lpwstr(self):
+        'Test VT_LPWSTR properties followed by other properties'
+        def lpwstr(text):
+            data = (text + u'\x00').encode('utf-16-le')
+            data += b'\x00' * (-len(data) % 4)
+            return struct.pack('<I', len(text) + 1) + data
+        values = [
+            struct.pack('<IHH', olefile.olefile.VT_I2, 1200, 0),
+            struct.pack('<I', olefile.olefile.VT_LPWSTR) + lpwstr(u'Text'),
+            struct.pack('<II', olefile.olefile.VT_VECTOR | olefile.olefile.VT_LPWSTR, 2)
+                + lpwstr(u'ab') + lpwstr(u'cde'),
+            struct.pack('<Ii', olefile.olefile.VT_I4, 42),
+        ]
+        offset = 8 + 8 * len(values)
+        section = b''
+        for pid, value in enumerate(values, 1):
+            section += struct.pack('<II', pid, offset)
+            offset += len(value)
+        section = struct.pack('<II', offset, len(values)) + section + b''.join(values)
+        stream = struct.pack('<HHI16sI', 0xFFFE, 0, 0, b'\x00' * 16, 1)
+        stream += b'\x00' * 16 + struct.pack('<I', len(stream) + 20) + section
+        stream_name = '\x05SummaryInformation'
+        with open(self.ole_file, 'rb') as f:
+            file_in_memory = io.BytesIO(f.read())
+        with olefile.OleFileIO(file_in_memory, write_mode=True) as ole:
+            size = ole.get_size(stream_name)
+            ole.write_stream(stream_name, stream + b'\x00' * (size - len(stream)))
+            props = ole.getproperties(stream_name)
+        self.assertEqual(props[1], 1200)
+        self.assertEqual(props[2], u'Text')
+        self.assertEqual(props[3], [u'ab', u'cde'])
+        self.assertEqual(props[4], 42)
 
 
 class FileHandleCloseTest(unittest.TestCase):

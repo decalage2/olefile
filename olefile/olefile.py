@@ -2288,9 +2288,15 @@ class OleFileIO:
                 # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
                 # "the string should NOT contain embedded or additional trailing
                 # null characters."
-                count = i32(s, offset+4)
-                value = self._decode_utf16_str(s[offset+4:offset+4+count*2])
-                size = 4 + count * 2
+                # Length is a 32 bits integer, number of characters including
+                # the null terminator, the string is padded to a multiple of 4 bytes
+                count = i32(s, offset)
+                value = s[offset+4:offset+4+count*2]
+                # remove the trailing null chars:
+                while value[-2:] == b'\x00\x00':
+                    value = value[:-2]
+                value = self._decode_utf16_str(value)
+                size = 4 + (count * 2 + 3) // 4 * 4
             elif property_type == VT_FILETIME:
                 value = long(i32(s, offset)) + (long(i32(s, offset+4))<<32)
                 # FILETIME is a 64-bit int: "number of 100ns periods
