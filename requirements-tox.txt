@@ -1,0 +1,6 @@
+# Resolve the newest tox driver compatible with each controller Python.
+tox
+# Newer virtualenv/filelock releases cannot run on Python 2.7.
+virtualenv<20.9; python_version < '3'
+# Recent virtualenv versions no longer create these legacy interpreters.
+virtualenv<20.22; python_version >= '3' and python_version < '3.8'

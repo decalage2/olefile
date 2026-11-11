@@ -91,6 +91,7 @@ __version__ = '0.47'
 __author__  = "Philippe Lagadec"
 
 __all__ = ['isOleFile', 'OleFileIO', 'OleMetadata', 'enable_logging',
+           'OleFileError', 'NotOleFileError',
            'MAGIC', 'STGTY_EMPTY',
            'STGTY_STREAM', 'STGTY_STORAGE', 'STGTY_ROOT', 'STGTY_PROPERTY',
            'STGTY_LOCKBYTES', 'MINIMAL_OLEFILE_SIZE',
@@ -541,7 +542,11 @@ class OleMetadata:
             # store them into this object's attributes:
             for i in range(len(self.DOCSUM_ATTRIBS)):
                 # ids for standards properties start at 0x01, until 0x13
-                value = props.get(i+1, None)
+                property_id = i + 1
+                # 0x19 is reserved; the content properties start at 0x1A.
+                if property_id >= 0x19:
+                    property_id += 1
+                value = props.get(property_id, None)
                 setattr(self, self.DOCSUM_ATTRIBS[i], value)
 
     def dump(self):
@@ -639,6 +644,8 @@ class OleStream(io.BytesIO):
         # sectors in the given FAT:
         if nb_sectors > len(fat):
             self.ole._raise_defect(DEFECT_INCORRECT, 'malformed OLE document, stream too large')
+            # A chain cannot contain more sectors than its allocation table.
+            nb_sectors = len(fat)
         # optimization(?): data is first a list of strings, and join() is called
         # at the end to concatenate all in one string.
         # (this may not be really useful with recent Python versions)
@@ -649,7 +656,7 @@ class OleStream(io.BytesIO):
             self.ole._raise_defect(DEFECT_INCORRECT, 'incorrect OLE sector index for empty stream')
         # [PL] A fixed-length for loop is used instead of an undefined while
         # loop to avoid DoS attacks:
-        for i in range(nb_sectors):
+        for i in iterrange(nb_sectors):
             log.debug('Reading stream sector[%d] = %Xh' % (i, sect))
             # Sector index may be ENDOFCHAIN, but only if size was unknown
             if sect == ENDOFCHAIN:
@@ -867,18 +874,24 @@ class OleDirectoryEntry:
         if self.entry_type not in (STGTY_ROOT, STGTY_STREAM) or self.size == 0:
             return
 
-        self.sect_chain = list()
+        chain = []
+        seen = set()
 
         if self.is_minifat and not ole_file.minifat:
             ole_file.loadminifat()
 
         next_sect = self.isectStart
+        fat = ole_file.minifat if self.is_minifat else ole_file.fat
         while next_sect != ENDOFCHAIN:
-            self.sect_chain.append(next_sect)
-            if self.is_minifat:
-                next_sect = ole_file.minifat[next_sect]
-            else:
-                next_sect = ole_file.fat[next_sect]
+            if next_sect < 0 or next_sect >= len(fat):
+                ole_file._raise_defect(DEFECT_FATAL, 'sector index out of range')
+            if next_sect in seen:
+                ole_file._raise_defect(DEFECT_FATAL, 'loop in OLE sector chain')
+            seen.add(next_sect)
+            chain.append(next_sect)
+            next_sect = fat[next_sect]
+        # Cache only a complete chain, never a malformed partial traversal.
+        self.sect_chain = chain
 
     def build_storage_tree(self):
         """
@@ -1525,7 +1538,10 @@ class OleFileIO:
         swapping bytes on big endian CPUs such as PowerPC (old Macs)
         """
         # TODO: make this a static function
-        a = array.array(UINT32, sect)
+        try:
+            a = array.array(UINT32, sect)
+        except ValueError:
+            self._raise_defect(DEFECT_FATAL, 'incorrect sector size for 32-bit allocation table')
         # if CPU is big endian, swap bytes:
         if sys.byteorder == 'big':
             a.byteswap()
@@ -1563,7 +1579,7 @@ class OleFileIO:
             # parse it as an array of 32 bits integers, and add it to the
             # global FAT array
             nextfat = self.sect2array(s)
-            self.fat = self.fat + nextfat
+            self.fat.extend(nextfat)
         return isect
 
     def loadfat(self, header):
@@ -1801,6 +1817,8 @@ class OleFileIO:
         root_entry = self._load_direntry(0)
         # Root entry is the first entry:
         self.root = self.direntries[0]
+        # Root bypasses append_kids; reject any later reference as a child.
+        self.root.used = True
         # TODO: read ALL directory entries (ignore bad entries?)
         # TODO: adapt build_storage_tree to avoid duplicate reads
         # for i in range(1, max_entries):
@@ -1887,22 +1905,30 @@ class OleFileIO:
         :param storages: bool, include storages if True (False by default) - new in v0.26
             (note: the root storage is never included)
         """
-        prefix = prefix + [node.name]
-        for entry in node.kids:
-            if entry.entry_type == STGTY_STORAGE:
-                # this is a storage
+        # Explicit traversal preserves order without exhausting Python's stack.
+        stack = [(node, prefix, frozenset())]
+        while stack:
+            entry, parent, ancestors = stack.pop()
+            identity = id(entry)
+            if identity in ancestors:
+                self._raise_defect(DEFECT_INCORRECT, 'Loop in OLE directory tree')
+                continue
+            path = parent + [entry.name]
+            if entry is node:
+                pass  # The starting storage is never listed.
+            elif entry.entry_type == STGTY_STORAGE:
                 if storages:
-                    # add it to the list
-                    files.append(prefix[1:] + [entry.name])
-                # check its kids
-                self._list(files, prefix, entry, streams, storages)
+                    files.append(path[1:])
             elif entry.entry_type == STGTY_STREAM:
-                # this is a stream
                 if streams:
-                    # add it to the list
-                    files.append(prefix[1:] + [entry.name])
+                    files.append(path[1:])
+                continue
             else:
                 self._raise_defect(DEFECT_INCORRECT, 'The directory tree contains an entry which is not a stream nor a storage.')
+                continue
+            ancestors = ancestors | frozenset([identity])
+            for child in reversed(entry.kids):
+                stack.append((child, path, ancestors))
 
     def listdir(self, streams=True, storages=False):
         """
@@ -2011,6 +2037,9 @@ class OleFileIO:
         size = entry.size
         if size != len(data):
             raise ValueError("write_stream: data must be the same size as the existing stream")
+        if size == 0:
+            # An empty stream has no sectors and needs no write-chain traversal.
+            return
         if size < self.minisectorcutoff and entry.entry_type != STGTY_ROOT:
             return self._write_mini_stream(entry = entry, data_to_write = data)
 
@@ -2182,7 +2211,7 @@ class OleFileIO:
             s = b"****" + fp.read(i32(fp.read(4))-4)
             # number of properties:
             num_props = i32(s, 4)
-        except BaseException as exc:
+        except Exception as exc:
             # catch exception while parsing property header, and only raise
             # a DEFECT_INCORRECT then return an empty dict, because this is not
             # a fatal error when parsing the whole file
@@ -2204,7 +2233,7 @@ class OleFileIO:
 
                 value = self._parse_property(s, offset+4, property_id, property_type, convert_time, no_conversion)
                 data[property_id] = value
-            except BaseException as exc:
+            except Exception as exc:
                 # catch exception while parsing each property, and only raise
                 # a DEFECT_INCORRECT, because parsing can go on
                 msg = 'Error while parsing property id %d in stream %s: %s' % (
@@ -2221,8 +2250,10 @@ class OleFileIO:
             log.debug('property_type == VT_VECTOR | VT_VARIANT')
             off = 4
             count = i32(s, offset)
+            if count > max(0, (len(s) - offset - 4) // 4):
+                raise ValueError('variant vector count exceeds property data')
             values = []
-            for _ in range(count):
+            for _ in iterrange(count):
                 property_type = i32(s, offset + off)
                 v, sz  = self._parse_property_basic(s, offset + off + 4, property_id, property_type, convert_time, no_conversion)
                 values.append(v)
@@ -2234,9 +2265,13 @@ class OleFileIO:
             log.debug('property_type == VT_VECTOR | %s' % VT.get(property_type_base, 'UNKNOWN'))
             off = 4
             count = i32(s, offset)
+            if count > max(0, len(s) - offset - 4):
+                raise ValueError('vector count exceeds property data')
             values = []
-            for _ in range(count):
+            for _ in iterrange(count):
                 v, sz = self._parse_property_basic(s, offset + off, property_id, property_type & ~VT_VECTOR, convert_time, no_conversion)
+                if sz <= 0 or offset + off + sz > len(s):
+                    raise ValueError('invalid or unsupported vector element size')
                 values.append(v)
                 off += sz
             v = values
@@ -2252,7 +2287,8 @@ class OleFileIO:
 
             if property_type == VT_I2: # 16-bit signed integer
                 value = i16(s, offset)
-                if value >= 32768:
+                # PID_CODEPAGE (1) stores an unsigned code page in VT_I2.
+                if value >= 32768 and property_id != 1:
                     value = value - 65536
                 size = 2
             elif property_type == VT_UI2: # 2-byte unsigned integer
@@ -2288,7 +2324,7 @@ class OleFileIO:
                 # see https://msdn.microsoft.com/en-us/library/dd942313.aspx
                 # "the string should NOT contain embedded or additional trailing
                 # null characters."
-                count = i32(s, offset+4)
+                count = i32(s, offset)
                 value = self._decode_utf16_str(s[offset+4:offset+4+count*2])
                 size = 4 + count * 2
             elif property_type == VT_FILETIME:
@@ -2521,14 +2557,14 @@ class OleFileIO:
                             # print("(%s)" % VT[i32(s, offset) & 0xFFF])
 
                             data[i-2]['value']=value
-                        except BaseException as exc:
+                        except Exception as exc:
                             # catch exception while parsing each property, and only raise
                             # a DEFECT_INCORRECT, because parsing can go on
                             msg = 'Error while parsing property id %d in stream %s: %s' % (
                                 property_id, repr(streampath), exc)
                             self._raise_defect(DEFECT_INCORRECT, msg, type(exc))
 
-        except BaseException as exc:
+        except Exception as exc:
             # catch exception while parsing property header, and only raise
             # a DEFECT_INCORRECT then return an empty dict, because this is not
             # a fatal error when parsing the whole file

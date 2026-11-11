@@ -8,3 +8,9 @@ graft doc
 prune doc/_build
 
 graft tests
+
+include CHANGELOG.md
+include tox.ini
+global-exclude *.py[cod]
+global-exclude __pycache__
+include requirements-tox.txt

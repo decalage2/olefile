@@ -1,3 +1,16 @@
+## Unreleased
+
+- Test Python 2.7, Python 3.5–3.15 and current PyPy with compatible tooling.
+- Reject unbounded or non-progressing malformed metadata vectors (#162, #170).
+- Export OleFileError and NotOleFileError at package level (#160).
+- Propagate KeyboardInterrupt and SystemExit during property parsing while
+  preserving recoverable parse-error reporting (#153).
+- Bound cyclic/out-of-range FAT and MiniFAT write-chain traversal (#179).
+- Permit no-op writes to empty streams without accessing a missing chain (#175).
+- Build the FAT in place to avoid quadratic array copying (#145, #177).
+- Traverse directory listings iteratively and detect ancestor cycles (#178).
+- Read VT_LPWSTR character counts from the correct offset (#165).
+
 Detailed CHANGELOG
 ==================
 
