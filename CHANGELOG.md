@@ -3,6 +3,12 @@ Detailed CHANGELOG
 
 olefile.py
 ----------
+* unreleased:
+    - loadfat_sect now grows the FAT array in-place with extend() instead of
+      rebuilding it with ``fat = fat + nextfat`` on every iteration, avoiding
+      O(n^2) time and peak memory usage for large files (issue #176)
+    - OleStream now reads stream data lazily, sector by sector, following the
+      FAT/MiniFAT chain, instead of loading the whole stream into memory
 * 2023-11-30 v0.47.dev6:
     - fixed issue #142: isOleFile has a new data parameter to handle files in memory properly
     - fixed issue #156: write_sect now correctly detects when data is larger than the sector size

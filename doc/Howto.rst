@@ -252,8 +252,9 @@ Read data from a stream
 :py:meth:`olefile.OleFileIO.openstream` opens a stream as a file-like object. The provided path
 is case-insensitive.
 
-The returned object is an instance of :py:class:`olefile.OleStream`, which is based on
-:py:class:`io.BytesIO`. The stream data is stored in memory.
+The returned object is an instance of :py:class:`olefile.OleStream`, a read-only
+file-like object. Stream data is read lazily, sector by sector, rather than
+being loaded entirely into memory.
 
 The following example extracts the "Pictures" stream from a PPT file:
 

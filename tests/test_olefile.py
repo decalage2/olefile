@@ -276,5 +276,94 @@ class FileHandleCloseTest(unittest.TestCase):
     #     self.assertTrue(file_handle.closed)
 
 
+class _CountingFile(object):
+    """
+    Wraps a file-like object and counts read() calls and total bytes read.
+    Used to assert that OleStream reads data lazily.
+    """
+
+    def __init__(self, fp):
+        self._fp = fp
+        self.read_calls = 0
+        self.bytes_read = 0
+
+    def read(self, n=-1):
+        self.read_calls += 1
+        data = self._fp.read(n)
+        self.bytes_read += len(data)
+        return data
+
+    def seek(self, offset, whence=0):
+        return self._fp.seek(offset, whence)
+
+    def tell(self):
+        return self._fp.tell()
+
+    def close(self):
+        return self._fp.close()
+
+    @property
+    def closed(self):
+        return self._fp.closed
+
+
+class TestOleStream(unittest.TestCase):
+    """Tests for the lazy OleStream file-like object."""
+
+    def setUp(self):
+        self.ole_file = u"tests/images/test-ole-file.doc"
+
+    def test_read_full(self):
+        'Test that read() returns the whole stream and size is consistent'
+        with olefile.OleFileIO(self.ole_file) as ole:
+            stream = ole.openstream('worddocument')
+            data = stream.read()
+            self.assertEqual(len(data), stream.size)
+            self.assertEqual(len(data), ole.get_size('worddocument'))
+
+    def test_seek_tell(self):
+        'Test seek/tell round-trip with SEEK_SET, SEEK_CUR and SEEK_END'
+        with olefile.OleFileIO(self.ole_file) as ole:
+            stream = ole.openstream('worddocument')
+            full = stream.read()
+            stream.seek(0)
+            self.assertEqual(stream.tell(), 0)
+            head = stream.read(16)
+            self.assertEqual(head, full[:16])
+            self.assertEqual(stream.tell(), 16)
+            stream.seek(0, 2)
+            self.assertEqual(stream.tell(), len(full))
+            self.assertEqual(stream.read(), b'')
+
+    def test_read_respects_size(self):
+        'Test that read(size) returns at most size bytes'
+        with olefile.OleFileIO(self.ole_file) as ole:
+            stream = ole.openstream('worddocument')
+            chunk = stream.read(10)
+            self.assertEqual(len(chunk), 10)
+            self.assertEqual(stream.tell(), 10)
+
+    def test_readline_and_iteration(self):
+        'Test that readline and iteration reconstruct the stream content'
+        with olefile.OleFileIO(self.ole_file) as ole:
+            full = ole.openstream('worddocument').read()
+            stream = ole.openstream('worddocument')
+            lines = list(stream)
+            self.assertEqual(b''.join(lines), full)
+
+    def test_openstream_is_lazy_fat(self):
+        'Test that openstream does not read FAT stream data eagerly'
+        with open(self.ole_file, 'rb') as f:
+            data = f.read()
+        spy = _CountingFile(io.BytesIO(data))
+        ole = olefile.OleFileIO(spy)
+        before = spy.read_calls
+        stream = ole.openstream('worddocument')
+        self.assertEqual(spy.read_calls, before)
+        stream.read()
+        self.assertGreater(spy.read_calls, before)
+        ole.close()
+
+
 if __name__ == '__main__':
     unittest.main()
