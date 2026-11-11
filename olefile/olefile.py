@@ -1801,6 +1801,13 @@ class OleFileIO:
         root_entry = self._load_direntry(0)
         # Root entry is the first entry:
         self.root = self.direntries[0]
+        # The root entry is loaded directly here (not via append_kids), so its
+        # `used` flag stays False. Mark it used now: otherwise a malformed file
+        # whose root sid_child points back to SID 0 slips past the "referenced
+        # more than once" guard in append_kids(), the root is appended to its
+        # own kids list, and listdir() -> _list() recurses without bound
+        # (CWE-674 stack-exhaustion DoS).
+        self.root.used = True
         # TODO: read ALL directory entries (ignore bad entries?)
         # TODO: adapt build_storage_tree to avoid duplicate reads
         # for i in range(1, max_entries):
