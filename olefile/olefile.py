@@ -642,7 +642,7 @@ class OleStream(io.BytesIO):
         # optimization(?): data is first a list of strings, and join() is called
         # at the end to concatenate all in one string.
         # (this may not be really useful with recent Python versions)
-        data = []
+        super(OleStream, self).__init__()
         # if size is zero, then first sector index should be ENDOFCHAIN:
         if size == 0 and sect != ENDOFCHAIN:
             log.debug('size == 0 and sect != ENDOFCHAIN:')
@@ -692,7 +692,7 @@ class OleStream(io.BytesIO):
                     (sect, len(fat), offset+sectorsize*sect, filesize, len(sector_data)))
                 log.debug('seek+len(read)=%d' % (offset+sectorsize*sect+len(sector_data)))
                 self.ole._raise_defect(DEFECT_INCORRECT, 'incomplete OLE sector')
-            data.append(sector_data)
+            super(OleStream, self).write(sector_data)
             # jump to next sector in the FAT:
             try:
                 sect = fat[sect] & 0xFFFFFFFF  # JYTHON-WORKAROUND
@@ -704,27 +704,25 @@ class OleStream(io.BytesIO):
         # [PL] Last sector should be a "end of chain" marker:
         # if sect != ENDOFCHAIN:
         #     raise IOError('incorrect last sector index in OLE stream')
-        data = b"".join(data)
         # Data is truncated to the actual stream size:
-        if len(data) >= size:
-            log.debug('Read data of length %d, truncated to stream size %d' % (len(data), size))
-            data = data[:size]
+        data_len = super(OleStream, self).tell()
+        if data_len >= size:
+            log.debug('Read data of length %d, truncated to stream size %d' % (data_len, size))
+            super(OleStream, self).truncate(size)
             # actual stream size is stored for future use:
             self.size = size
         elif unknown_size:
             # actual stream size was not known, now we know the size of read
             # data:
-            log.debug('Read data of length %d, the stream size was unknown' % len(data))
-            self.size = len(data)
+            log.debug('Read data of length %d, the stream size was unknown' % data_len)
+            self.size = data_len
         else:
             # read data is less than expected:
-            log.debug('Read data of length %d, less than expected stream size %d' % (len(data), size))
+            log.debug('Read data of length %d, less than expected stream size %d' % (data_len, size))
             # TODO: provide details in exception message
-            self.size = len(data)
+            self.size = data_len
             self.ole._raise_defect(DEFECT_INCORRECT, 'OLE stream size is less than declared')
-        # when all data is read in memory, BytesIO constructor is called
-        io.BytesIO.__init__(self, data)
-        # Then the OleStream object can be used as a read-only file object.
+        super(OleStream, self).seek(0)
 
 
 # --- OleDirectoryEntry -------------------------------------------------------
