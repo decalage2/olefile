@@ -1972,6 +1972,9 @@ class OleFileIO:
     def _write_mini_stream(self, entry, data_to_write):
         if not entry.sect_chain:
             entry.build_sect_chain(self)
+        if entry.sect_chain is None:
+            # sect_chain could not be built (e.g., empty stream entry)
+            return
         nb_sectors = len(entry.sect_chain)
 
         if not self.root.sect_chain:
