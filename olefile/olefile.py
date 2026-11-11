@@ -414,7 +414,7 @@ class OleMetadata:
     creating_application, security, codepage_doc, category, presentation_target,
     bytes, lines, paragraphs, slides, notes, hidden_slides, mm_clips,
     scale_crop, heading_pairs, titles_of_parts, manager, company, links_dirty,
-    chars_with_spaces, unused, shared_doc, link_base, hlinks, hlinks_changed,
+    chars_with_spaces, shared_doc, link_base, hlinks, hlinks_changed,
     version, dig_sig, content_type, content_status, language, doc_version
 
     Note: an attribute is set to None when not present in the properties of the
@@ -422,38 +422,40 @@ class OleMetadata:
 
     References for SummaryInformation stream:
 
-    - https://msdn.microsoft.com/en-us/library/dd942545.aspx
-    - https://msdn.microsoft.com/en-us/library/dd925819%28v=office.12%29.aspx
-    - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380376%28v=vs.85%29.aspx
-    - https://msdn.microsoft.com/en-us/library/aa372045.aspx
+    - https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-oleps/f7933d28-2cc4-4b36-bc23-8861cbcd37c4
+    - https://learn.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/87667163-ea1e-4d67-9eec-47cad74e8030
+    - https://learn.microsoft.com/en-us/windows/win32/stg/the-summary-information-property-set
+    - https://learn.microsoft.com/en-us/windows/win32/msi/summary-information-stream-property-set
     - http://sedna-soft.de/articles/summary-information-stream/
     - https://poi.apache.org/apidocs/org/apache/poi/hpsf/SummaryInformation.html
 
     References for DocumentSummaryInformation stream:
 
-    - https://msdn.microsoft.com/en-us/library/dd945671%28v=office.12%29.aspx
-    - https://msdn.microsoft.com/en-us/library/windows/desktop/aa380374%28v=vs.85%29.aspx
+    - https://learn.microsoft.com/en-us/openspecs/office_file_formats/ms-oshared/3ef02e83-afef-4b6c-9585-c109edd24e07
+    - https://learn.microsoft.com/en-us/windows/win32/stg/the-documentsummaryinformation-and-userdefined-property-sets
     - https://poi.apache.org/apidocs/org/apache/poi/hpsf/DocumentSummaryInformation.html
 
     New in version 0.25
     """
 
     # attribute names for SummaryInformation stream properties:
-    # (ordered by property id, starting at 1)
-    SUMMARY_ATTRIBS = ['codepage', 'title', 'subject', 'author', 'keywords', 'comments',
+    # (ordered by property id, starting at 1, None if unused)
+    SUMMARY_ATTRIBS = [
+        'codepage', 'title', 'subject', 'author', 'keywords', 'comments',
         'template', 'last_saved_by', 'revision_number', 'total_edit_time',
         'last_printed', 'create_time', 'last_saved_time', 'num_pages',
         'num_words', 'num_chars', 'thumbnail', 'creating_application',
         'security']
 
     # attribute names for DocumentSummaryInformation stream properties:
-    # (ordered by property id, starting at 1)
-    DOCSUM_ATTRIBS = ['codepage_doc', 'category', 'presentation_target', 'bytes', 'lines', 'paragraphs',
-        'slides', 'notes', 'hidden_slides', 'mm_clips',
-        'scale_crop', 'heading_pairs', 'titles_of_parts', 'manager',
-        'company', 'links_dirty', 'chars_with_spaces', 'unused', 'shared_doc',
-        'link_base', 'hlinks', 'hlinks_changed', 'version', 'dig_sig',
-        'content_type', 'content_status', 'language', 'doc_version']
+    # (ordered by property id, starting at 1, None if unused)
+    DOCSUM_ATTRIBS = [
+        'codepage_doc', 'category', 'presentation_target', 'bytes', 'lines',
+        'paragraphs', 'slides', 'notes', 'hidden_slides', 'mm_clips',
+        'scale_crop', 'heading_pairs', 'titles_of_parts', 'manager', 'company',
+        'links_dirty', 'chars_with_spaces', None, 'shared_doc', 'link_base',
+        'hlinks', 'hlinks_changed', 'version', 'dig_sig', None, 'content_type',
+        'content_status', 'language', 'doc_version']
 
     def __init__(self):
         """
@@ -498,7 +500,6 @@ class OleMetadata:
         self.company = None
         self.links_dirty = None
         self.chars_with_spaces = None
-        self.unused = None
         self.shared_doc = None
         self.link_base = None
         self.hlinks = None
@@ -520,9 +521,10 @@ class OleMetadata:
 
         :param ole_file: OleFileIO object from which to parse properties
         """
-        # first set all attributes to None:
-        for attrib in (self.SUMMARY_ATTRIBS + self.DOCSUM_ATTRIBS):
-            setattr(self, attrib, None)
+        # first initialize all attributes to None:
+        for attr_name in self.SUMMARY_ATTRIBS + self.DOCSUM_ATTRIBS:
+            if attr_name is not None:
+                setattr(self, attr_name, None)
         if ole_file.exists("\x05SummaryInformation"):
             # get properties from the stream:
             # (converting timestamps to python datetime, except total_edit_time,
@@ -530,19 +532,19 @@ class OleMetadata:
             props = ole_file.getproperties("\x05SummaryInformation",
                                            convert_time=True, no_conversion=[10])
             # store them into this object's attributes:
-            for i in range(len(self.SUMMARY_ATTRIBS)):
-                # ids for standards properties start at 0x01, until 0x13
-                value = props.get(i+1, None)
-                setattr(self, self.SUMMARY_ATTRIBS[i], value)
+            for prop_id, attr_name in enumerate(self.SUMMARY_ATTRIBS, start=1):
+                attr_value = props.get(prop_id, None)
+                if attr_name is not None and attr_value is not None:
+                    setattr(self, attr_name, attr_value)
         if ole_file.exists("\x05DocumentSummaryInformation"):
             # get properties from the stream:
             props = ole_file.getproperties("\x05DocumentSummaryInformation",
                                            convert_time=True)
             # store them into this object's attributes:
-            for i in range(len(self.DOCSUM_ATTRIBS)):
-                # ids for standards properties start at 0x01, until 0x13
-                value = props.get(i+1, None)
-                setattr(self, self.DOCSUM_ATTRIBS[i], value)
+            for prop_id, attr_name in enumerate(self.DOCSUM_ATTRIBS, start=1):
+                attr_value = props.get(prop_id, None)
+                if attr_name is not None and attr_value is not None:
+                    setattr(self, attr_name, attr_value)
 
     def dump(self):
         """
@@ -550,12 +552,14 @@ class OleMetadata:
         """
         print('Properties from SummaryInformation stream:')
         for prop in self.SUMMARY_ATTRIBS:
-            value = getattr(self, prop)
-            print('- {}: {}'.format(prop, repr(value)))
+            if prop is not None:
+                value = getattr(self, prop)
+                print('- {}: {}'.format(prop, repr(value)))
         print('Properties from DocumentSummaryInformation stream:')
         for prop in self.DOCSUM_ATTRIBS:
-            value = getattr(self, prop)
-            print('- {}: {}'.format(prop, repr(value)))
+            if prop is not None:
+                value = getattr(self, prop)
+                print('- {}: {}'.format(prop, repr(value)))
 
 class OleFileIONotClosed(RuntimeWarning):
     """

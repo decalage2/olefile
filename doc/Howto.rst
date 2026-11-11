@@ -370,7 +370,7 @@ Available attributes include:
     creating_application, security, codepage_doc, category, presentation_target,
     bytes, lines, paragraphs, slides, notes, hidden_slides, mm_clips,
     scale_crop, heading_pairs, titles_of_parts, manager, company, links_dirty,
-    chars_with_spaces, unused, shared_doc, link_base, hlinks, hlinks_changed,
+    chars_with_spaces, shared_doc, link_base, hlinks, hlinks_changed,
     version, dig_sig, content_type, content_status, language, doc_version
 
 See the source code of the :py:class:`olefile.OleFileIO.OleMetadata` class for more information.
